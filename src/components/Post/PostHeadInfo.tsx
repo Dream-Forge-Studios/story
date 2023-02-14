@@ -12,13 +12,13 @@ export type PostHeadInfoProps = {
 const PostHeadInfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 768px;
+  width: 1020px;;
   height: 100%;
   margin: 0 auto;
   padding: 60px 0;
   color: #ffffff;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1020px) {
     width: 100%;
     padding: 40px 20px;
   }
@@ -36,7 +36,7 @@ const PrevPageIcon = styled.div`
   cursor: pointer;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 
-  @media (max-width: 768px) {
+  @media (max-width: 1020px) {
     width: 30px;
     height: 30px;
     font-size: 18px;
@@ -55,7 +55,7 @@ const Title = styled.div`
   font-size: 45px;
   font-weight: 800;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1020px) {
     font-size: 30px;
   }
 `
@@ -68,7 +68,7 @@ const PostData = styled.div`
   font-size: 18px;
   font-weight: 700;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1020px) {
     flex-direction: column;
     align-items: flex-start;
     font-size: 15px;

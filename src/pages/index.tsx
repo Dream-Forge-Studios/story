@@ -1,16 +1,11 @@
 import React, { FunctionComponent, useMemo  } from 'react'
-import styled from '@emotion/styled'
-import GlobalStyle from 'components/Common/GlobalStyle'
-import Footer from 'components/Common/Footer'
-import CategoryList from 'components/Main/CategoryList'
 import Introduction from 'components/Main/Introduction'
-import PostList from 'components/Main/PostList'
 import { graphql } from 'gatsby'
 import { IGatsbyImageData } from 'gatsby-plugin-image'
 import { PostListItemType } from 'types/PostItem.types'
 import queryString, { ParsedQuery } from 'query-string'
 import Template from 'components/Common/Template'
-
+import RepresentativeProject from "components/Main/RepresentativeProject";
 
 type IndexPageProps = {
     location: {
@@ -51,7 +46,7 @@ const IndexPage: FunctionComponent<IndexPageProps> = function ({
                                                                    },
                                                                }) {
     const parsed: ParsedQuery<string> = queryString.parse(search)
-    debugger
+
     const selectedCategory: string =
         typeof parsed.category !== 'string' || !parsed.category
             ? 'All'
@@ -90,11 +85,7 @@ const IndexPage: FunctionComponent<IndexPageProps> = function ({
             image={publicURL}
         >
             <Introduction profileImage={gatsbyImageData} />
-            <CategoryList
-                selectedCategory={selectedCategory}
-                categoryList={categoryList}
-            />
-            <PostList selectedCategory={selectedCategory} posts={edges} />
+            <RepresentativeProject posts={edges}/>
         </Template>
     )
 }

@@ -1,8 +1,8 @@
 ---
 date: '2020-07-29'
-title: 'Test'
+title: '상품 순위 동영상 자동 제작'
 categories: ['Web', 'SEO', 'Optimization']
-summary: '홈페이지를 운영하는 많은 사람들 또는 기업들이 검색 페이지 최상단에 보여지게 하기 위해 어떤 최적화 작업을 하는지 알아보자.'
+summary: '쿠팡의 상품 카테고리 별 데이터를 분석하여 순위를 매긴 뒤 자동으로 동영상을 만든다.'
 thumbnail: './test.png'
 ---
 

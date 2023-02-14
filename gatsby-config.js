@@ -1,3 +1,12 @@
+const myCustomQueries = {
+  xs: '(max-width: 320px)',
+  sm: '(max-width: 720px)',
+  md: '(max-width: 1024px)',
+  l: '(max-width: 1536px)',
+  represent2: '(max-width: 1030px)',
+  represent1: '(max-width: 660px)',
+};
+
 module.exports = {
   siteMetadata: {
     title: `주니어 개발자의 개발 블로그`,
@@ -6,6 +15,21 @@ module.exports = {
     siteUrl: 'https://my-website-link.com', // 배포 후 변경 예정
   },
   plugins: [
+    {
+      resolve: "gatsby-plugin-breakpoints",
+      options: {
+        queries: myCustomQueries,
+      },
+    },
+    `gatsby-plugin-fontawesome-css`,
+    {
+      resolve: `gatsby-transformer-remark`,
+      options: {
+        plugins: [
+          `gatsby-remark-emoji`,  // <-- this line adds emoji
+        ]
+      }
+    },
     {
       resolve: 'gatsby-plugin-typescript',
       options: {

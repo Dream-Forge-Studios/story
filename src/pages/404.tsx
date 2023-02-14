@@ -15,7 +15,7 @@ const NotFoundText = styled.div`
   font-size: 150px;
   font-weight: 800;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1020px) {
     font-size: 100px;
   }
 `
@@ -25,7 +25,7 @@ const NotFoundDescription = styled.div`
   text-align: center;
   line-height: 1.3;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1020px) {
     font-size: 20px;
   }
 `

@@ -1,6 +1,6 @@
 import { IGatsbyImageData } from 'gatsby-plugin-image'
 
-export type PostFrontmatterType = {
+export type RepresentFrontmatterType = {
     title: string
     date: string
     categories: string[]
@@ -13,16 +13,12 @@ export type PostFrontmatterType = {
     }
 }
 
-export type PostListItemType = {
+export type RepresentItemType = {
     node: {
         id: string
         fields: {
             slug: string
         }
-        frontmatter: PostFrontmatterType
+        frontmatter: RepresentFrontmatterType
     }
-}
-
-export type PostListType = {
-    posts: PostListItemType[],
 }
