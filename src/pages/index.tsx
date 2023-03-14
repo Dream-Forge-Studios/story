@@ -6,6 +6,7 @@ import { PostListItemType } from 'types/PostItem.types'
 import queryString, { ParsedQuery } from 'query-string'
 import Template from 'components/Common/Template'
 import RepresentativeProject from "components/Main/RepresentativeProject";
+import MainPost from "components/Main/MainPost";
 
 type IndexPageProps = {
     location: {
@@ -86,6 +87,7 @@ const IndexPage: FunctionComponent<IndexPageProps> = function ({
         >
             <Introduction profileImage={gatsbyImageData} />
             <RepresentativeProject posts={edges}/>
+            <MainPost/>
         </Template>
     )
 }
