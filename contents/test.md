@@ -76,7 +76,7 @@ thumbnail: './test.png'
 1. <img style="width: 220px" id="output" src="https://latex.codecogs.com/svg.image?log_{a}xy=log_{a}x+log_{a}y">
 <div style="margin-bottom: -20px"></div>
 
-2. <img style="width: 220px" id="output" src="https://latex.codecogs.com/svg.image?log_{a}xy=log_{a}x+log_{a}y">
+2. <img style="width: 170px" id="output" src="https://latex.codecogs.com/svg.image?log_{a}x^n=nlog_{a}x">
 <div style="margin-bottom: -35px"></div>
 
 3. <img style="width: 176px" id="output" src="https://latex.codecogs.com/svg.image?log{_{}a}^{m}x=\frac{1}{m}log^{a}x">
