@@ -62,7 +62,7 @@ function PrevArrow(props: any) {
     }
 }
 
-const represenDatas: Array<string> = ["426df633-3c30-5fa1-b46c-873914beb57b", "b2c31e45-11e0-5a1e-bf0e-3ba5b007ed52", "c996f946-3d0c-5aae-a7db-57b50d900e74", "bcf3467f-3644-5321-be98-6df0eb415193"]
+const represenDatas: Array<string> = ["c9605d44-3f61-537a-af8e-96e88dcb273b", "70f30b5d-c23e-55dd-b971-39ab135e560b", "b0e60ca5-72af-5145-a116-0bf947c3f0ad", "fdb89f93-2f60-5e21-856f-4fd3ae3d44a6"]
 const RepresentItemList: FunctionComponent<PostListType> = function ({
                                                                                posts
                                                                            }) {

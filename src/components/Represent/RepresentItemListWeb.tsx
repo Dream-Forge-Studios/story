@@ -53,7 +53,7 @@ const RepresentItemListWeb: FunctionComponent<PostListType> = function ({
             { number == 1 ?    <RightArrow onClick={onDecrease}><FontAwesomeIcon icon={faChevronLeft} size="2x"/></RightArrow> : <RightArrow></RightArrow>}
 
             <ProjectListWrapper>
-                {newArray.map(
+                {posts.map(
                     ({
                          node: {
                              id,

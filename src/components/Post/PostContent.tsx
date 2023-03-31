@@ -1,6 +1,7 @@
-import React, {FunctionComponent, useState, useEffect, ReactNode} from 'react'
+import React, {FunctionComponent, useState, useEffect} from 'react'
 import styled from '@emotion/styled'
 import {getIntersectionObserver} from '../../lib/observer'
+import {css} from "@emotion/react";
 
 interface PostContentProps {
     html: string
@@ -168,8 +169,8 @@ const ContentWrapper = styled.div`
 const Toc = styled.div`
   display: block;
   position: fixed;
-  width: 300px;
-  margin: 120px auto;
+  width: 320px;
+  margin: 110px auto;
   left: 0;
   right: 0;
 `
@@ -177,6 +178,10 @@ const Toc = styled.div`
 const Toc2 = styled.div`
   margin-left: 700px;
   width: 300px;
+`
+
+const MenuDivStyle = css`
+  width: 150px;
 `
 const PostContent: FunctionComponent<PostContentProps> = function ({ html }) {
 
@@ -203,10 +208,10 @@ const PostContent: FunctionComponent<PostContentProps> = function ({ html }) {
                     HighLight = true;
                 }
                 if (a.tagName == 'H1'){
-                    return <H1 HighLight={HighLight}><a href={"#" + a.innerHTML}>{a.innerHTML}</a></H1>
+                    return <H1 HighLight={HighLight}><a href={"#" + a.innerHTML}><div css={MenuDivStyle}>{a.innerHTML}</div></a></H1>
                 }
                 else if (a.tagName == 'H2') {
-                    return <H2 HighLight={HighLight}><a href={"#" + a.innerHTML}>{a.innerHTML}</a></H2>
+                    return <H2 HighLight={HighLight}><a href={"#" + a.innerHTML}><div css={MenuDivStyle}>{a.innerHTML}</div></a></H2>
                 }
                 }
             )}
