@@ -11,7 +11,7 @@ const MarkdownRenderer = styled.div`
   // Renderer Style
   display: flex;
   flex-direction: column;
-  width: 1020px;
+  width: 800px;
   margin: 0 auto;
   padding: 100px 0;
   word-break: break-all;
@@ -103,7 +103,7 @@ const MarkdownRenderer = styled.div`
   }
 
   // Markdown Responsive Design
-  @media (max-width: 1020px) {
+  @media (max-width: 800px) {
     width: 100%;
     padding: 80px 20px;
     line-height: 1.6;
@@ -169,7 +169,7 @@ const ContentWrapper = styled.div`
 const Toc = styled.div`
   display: block;
   position: fixed;
-  width: 320px;
+  width: 500px;
   margin: 110px auto;
   left: 0;
   right: 0;

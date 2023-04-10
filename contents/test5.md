@@ -143,7 +143,7 @@ thumbnail: './test.png'
 <img style="width: 360px; margin-right: 8px; margin-left: 0px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L(w+1)-L(w_k)\simeq \Delta\left.\begin{matrix}\frac{\partial L}{\partial w^T}\end{matrix}\right|_{w=w^k}">
 <div style="margin-top: 10px">(</div>
 <img style="width: 20px; margin-right: 8px; margin-left: 4px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\Delta">
-<div style="margin-top: 10px">와 그라디언트의 내적)</div>
+<div style="margin-top: 10px">와 그라디언트의 내적 - 행벡터와 열벡터의 곱이므로)</div>
 </div>
 
 <br>
