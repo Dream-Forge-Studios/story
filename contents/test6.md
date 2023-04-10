@@ -320,4 +320,4 @@ thumbnail: './test.png'
 
 ## Mutual information
 
-- x, y가 관련이는 정도(독립이면 0)
+- x, y가 관련있는 정도(독립이면 0)

@@ -20,16 +20,16 @@ thumbnail: './test.png'
 </div>
 
 <br><br>
-<img style="width: 900px;" src="test4Img/scalarByVectorEq.PNG">
+<img style="width: 100%;" src="test4Img/scalarByVectorEq.PNG">
 <br><br>
 
 <div style="display: flex; margin-top: 0px">
-<img style="width: 550px; margin-right: 8px; margin-left: 0px; margin-top: 18px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?df=\frac{\partial f}{\partial x_1}dx_1+\frac{\partial f}{\partial x_2}dx_2=\begin{bmatrix}dx_1&dx_2\\\end{bmatrix}\begin{bmatrix} \frac{\partial f}{\partial x_1}\\ \frac{\partial f}{\partial x_2} \end{bmatrix}=d\underline{x}\frac{\partial f}{\partial x^T}">
+<img style="width: 550px; margin-right: 8px; margin-left: 0px; margin-top: 18px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?df=\frac{\partial f}{\partial x_1}dx_1+\frac{\partial f}{\partial x_2}dx_2=\begin{bmatrix}dx_1&dx_2\\\end{bmatrix}\begin{bmatrix} \frac{\partial f}{\partial x_1}\\ \frac{\partial f}{\partial x_2} \end{bmatrix}=d\underline{x}\frac{\partial f}{\partial \underline x^T}">
 </div>
 
 <div style="display: flex; margin-top: 0px">
 <div style="margin-top: 32px">의 식이 나오는데</div>
-<img style="width: 40px; margin-right: 8px; margin-left: 10px; margin-top: 18px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\frac{\partial f}{\partial x^T}">
+<img style="width: 40px; margin-right: 8px; margin-left: 10px; margin-top: 18px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\frac{\partial f}{\partial \underline x^T}">
 <div style="margin-top: 32px">는 미분할 때의 식이다.</div>
 </div>
 
@@ -43,7 +43,7 @@ thumbnail: './test.png'
 
 ## 벡터를 벡터로 미분하는 법
 
-<img style="width: 560px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?df=\begin{bmatrix} df_1&df_2  \\ \end{bmatrix}=\begin{bmatrix} dx_1&dx_2  \\ \end{bmatrix}\begin{bmatrix} \frac{\partial f_1}{\partial x_1} & \frac{\partial f_2}{\partial x_1} \\ \frac{\partial f_1}{\partial x_2} & \frac{\partial f_2}{\partial x2} \\ \end{bmatrix}=dx\frac{\partial f}{\partial x^T}">
+<img style="width: 560px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?df=\begin{bmatrix} df_1&df_2  \\ \end{bmatrix}=\begin{bmatrix} dx_1&dx_2  \\ \end{bmatrix}\begin{bmatrix} \frac{\partial f_1}{\partial x_1} & \frac{\partial f_2}{\partial x_1} \\ \frac{\partial f_1}{\partial x_2} & \frac{\partial f_2}{\partial x2} \\ \end{bmatrix}=dx\frac{\partial f}{\partial \underline x^T}">
 
 <div id="벡터를 벡터로 미분할 때의 연쇄법칙"></div>
 
@@ -57,7 +57,7 @@ thumbnail: './test.png'
 <div style="display: flex; margin-top: 20px">
 <img style="width: 56px; margin-right: 8px; margin-left: 0px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?x\to y">
 <div style="margin-top: 18px">에서</div>
-<img style="width: 120px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\partial y=\partial x\frac{\partial y}{\partial x^T}">
+<img style="width: 120px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\partial y=\partial x\frac{\partial y}{\partial \underline x^T}">
 </div>
 
 <div style="display: flex; margin-top: 10px">
@@ -70,14 +70,14 @@ thumbnail: './test.png'
 <div style="margin-top: 18px">그러므로</div>
 <img style="width: 100px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?x\to y\to z">
 <div style="margin-top: 18px">는</div>
-<img style="width: 164px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\partial z=\partial x\frac{\partial y}{\partial x^T}\frac{\partial z}{\partial y^T}">
+<img style="width: 164px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\partial z=\partial x\frac{\partial y}{\partial \underline x^T}\frac{\partial z}{\partial y^T}">
 </div>
 
 <div id="스칼라를 행렬로 미분하는 법"></div>
 
 ## 스칼라를 행렬로 미분하는 법
 
-<img style="width: 200px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?df=tr(dX\frac{\partial f}{\partial X^T})">
+<img style="width: 200px; margin-right: 8px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?df=tr(dX\frac{\partial f}{\partial \underline X^T})">
 
 <div id="행렬을 행렬로 미분하는 법"></div>
 
@@ -102,7 +102,7 @@ thumbnail: './test.png'
 
 <img style="width: 680px; margin-right: 8px; margin-left: 10px; margin-top: 30px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\begin{bmatrix} y_1&y_2  \\ \end{bmatrix}=\begin{bmatrix} x_1&x_2  \\ \end{bmatrix} \begin{bmatrix}w_{11}&w_{12}  \\ w_{21}&w_{22}\end{bmatrix}=\begin{bmatrix} x_1w_{11}+x_2w_{21}&x_1w_{12}+x_2w_{22}  \\ \end{bmatrix}">
 
-<img style="width: 560px; margin-right: 8px; margin-left: 10px; margin-top: 30px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\frac{\partial y}{\partial w^T}=\begin{bmatrix} \frac{\partial y_1}{\partial w_{11}}& \frac{\partial y_2}{\partial w_{11}} \\ \frac{\partial y_1}{\partial w_{12}}& \frac{\partial y_2}{\partial w_{12}} \\ \frac{\partial y_1}{\partial w_{21}} & \frac{\partial y_2}{\partial w_{21}} \\ \frac{\partial y_1}{\partial w_{22}}& \frac{\partial y_2}{\partial w_{22}} \\ \end{bmatrix}=\begin{bmatrix} x_1 & 0 \\ 0 & x_1 \\ x_2 & 0 \\ 0 & x_2 \\ \end{bmatrix} = x^T \bigotimes I_2">
+<img style="width: 560px; margin-right: 8px; margin-left: 10px; margin-top: 30px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\frac{\partial y}{\partial w^T}=\begin{bmatrix} \frac{\partial y_1}{\partial w_{11}}& \frac{\partial y_2}{\partial w_{11}} \\ \frac{\partial y_1}{\partial w_{12}}& \frac{\partial y_2}{\partial w_{12}} \\ \frac{\partial y_1}{\partial w_{21}} & \frac{\partial y_2}{\partial w_{21}} \\ \frac{\partial y_1}{\partial w_{22}}& \frac{\partial y_2}{\partial w_{22}} \\ \end{bmatrix}=\begin{bmatrix} x_1 & 0 \\ 0 & x_1 \\ x_2 & 0 \\ 0 & x_2 \\ \end{bmatrix} = \underline x^T \bigotimes I_2">
 
 ---
 

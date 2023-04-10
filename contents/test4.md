@@ -211,7 +211,7 @@ thumbnail: './test.png'
 </div>
 
 <div style="display: flex; margin-top: 0px">
-<img style="width: 720px; margin-right: 8px; margin-left: 10px; margin-top: 10px;" id="output" src="https://latex.codecogs.com/svg.image?f(x)=c_{0}+c_{1}(x^{1}-a)+c_{2}(x^{2}-a)+c_{3}(x^{3}-a)+c_{4}(x^{4}-a)+...">
+<img style="width: 720px; margin-right: 8px; margin-left: 10px; margin-top: 10px;" id="output" src="https://latex.codecogs.com/svg.image?f(x)=c_{0}+c_{1}(x-a)+c_{2}(x-a)^{2}+c_{3}(x-a)^{3}+c_{4}(x-a)^{4}+...">
 <div style="margin-top: 19px">에서</div>
 <img style="width: 24px; margin-right: 4px; margin-left: 10px; margin-top: 10px;" id="output" src="https://latex.codecogs.com/svg.image?c_{n}">
 <div style="margin-top: 19px">을 구하면 된다.</div>
