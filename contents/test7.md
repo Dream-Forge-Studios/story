@@ -180,3 +180,66 @@ a_{k} \\ b_{k}
 <img style="width: 100%; margin-right: 8px; margin-left: 0px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbTWPA7%2Fbtq1Ntn3oSX%2FWj1DImFnZHkLznhTeDPGu0%2Fimg.png">
 </div>
 
+4. Weight initialization
+
+   <br>
+   U() 균일 분포, N() 정규 분포, 
+    
+   N in 이전 레이어의 노드 수, N out 다음 레이어의 노드 수
+   
+- LeCun
+
+<div style="display: flex; margin-top: 6px; margin-left: 30px">
+<img style="width: 200px; margin-right: 20px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?w\sim U(-\sqrt{\frac{3}{N_{in}}}, \sqrt{\frac{3}{N_{in}}})">
+<div style="margin-top: 18px">or</div>
+<img style="width: 140px; margin-right: 8px; margin-left: 18px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?w\sim N(0, \sqrt{\frac{1}{N_{in}}})">
+</div>
+<br>
+
+   - Xavier (sigmoid/tanh 사용하는 신경망)
+   
+   <div style="display: flex; margin-top: 10px; margin-left: 30px">
+   <img style="width: 300px; margin-right: 20px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?w\sim U(-\sqrt{\frac{6}{N_{in}+N_{out}}}, \sqrt{\frac{6}{N_{in}+N_{out}}})">
+   <div style="margin-top: 16px">or</div>
+   <img style="width: 200px; margin-right: 8px; margin-left: 18px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?w\sim N(0, \sqrt{\frac{2}{N_{in}+N_{out}}})">
+   </div>
+   <br>
+
+- He (ReLU 사용하는 신경망)
+
+   <div style="display: flex; margin-top: 30px; margin-left: 18px">
+   <img style="width: 200px; margin-right: 20px; margin-left: 10px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?w\sim U(-\sqrt{\frac{6}{N_{in}}}, \sqrt{\frac{6}{N_{in}}})">
+   <div style="margin-top: 18px">or</div>
+   <img style="width: 140px; margin-right: 8px; margin-left: 18px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?w\sim N(0, \sqrt{\frac{2}{N_{in}}})">
+   </div>
+
+---
+
+<div id="6. Adam"></div>
+
+# 6. Adam
+> momentum과 RMSprop을 합쳐놓은 최적화 알고리즘
+
+<div id="momentum과 RMSprop"></div>
+
+## momentum과 RMSprop
+
+<img style="width: 100%; margin-right: 8px; margin-left: 0px; margin-top: 50px; margin-bottom: 0px;" id="output" src="test7Img/mom.PNG">
+<img style="width: 100%; margin-right: 8px; margin-left: 0px; margin-top: 80px; margin-bottom: 0px;" id="output" src="test7Img/rms.PNG">
+<img style="width: 100%; margin-right: 8px; margin-left: 0px; margin-top: 80px; margin-bottom: 0px;" id="output" src="test7Img/adam.PNG">
+
+---
+
+<div id="7. K-Fold Cross Validation"></div>
+
+# 7. K-Fold Cross Validation
+
+<div id="Validation"></div>
+
+## Validation
+
+1. training 데이터 중 학습 도중 test할 때 쓰는 데이터
+
+2. 하이퍼파라미터 선택을 위한 데이터
+
+<img style="width: 100%; margin-right: 8px; margin-left: 0px; margin-top: 50px; margin-bottom: 0px;" id="output" src="test7Img/kf.PNG">
