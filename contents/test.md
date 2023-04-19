@@ -102,7 +102,7 @@ thumbnail: './test.png'
 
 밑 없이 <img style="width: 26px; margin-right: 4px; margin-left: 4px;" id="output" src="https://latex.codecogs.com/svg.image?log">만 쓰여있으면 밑이 e라고 생각하면 된다.
 
-자연상수 e는 연속 성장을 표현하기 위해 고안된 상수이다. 연속적인 세상을 표현하기 위해 만들어졌다고 이해하면 된다.
+자연상수 e는 연속 성장(어떤 시스템, 물체, 현상 등이 지수적으로 성장하는 것)을 표현하기 위해 고안된 상수이다.
 
 구체적인 의미는 <u>**100%의 성장률**</u>을 가지고 <u>**1회 연속 성장할 때 얻게 되는 성장량**</u>이다.
 
