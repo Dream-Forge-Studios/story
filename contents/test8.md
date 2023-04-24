@@ -65,8 +65,30 @@ thumbnail: './test.png'
    - 데이터를 넣는 것은 독립시행임으로 곱한 확률을 키우면 되는데 0~1사이의 값을 계속 곱하면 작아지게 된다.
     <div style="display: flex;">
     <div style="margin-top: 3px;">그러므로 log를 취해서</div> 
-    <img style="width: 320px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L=-\sum_n log(q_n^{y_n}(1-q_n)1-^{y_n}))">
+    <img style="width: 280px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L=-\sum_n log(q_n^{y_n}(1-q_n)^{y_n}))">
       <div style="margin-top: 3px;">로 나타낸다.</div> 
   </div> 
+
+    *로그를 취해도 상관없는 이유는 단조증가(monotonically increasing)
   
-    - logistic regression
+    - logistic regression이라고 부름
+      <div style="display: flex;">
+      <div style="margin-top: 6px;">logit을 linear regression 한 것 (logit이란 log-odds = </div> <img style="width: 100px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?log( \frac{q}{1-q})"><div style="margin-top: 6px;">)</div>
+          </div>
+  
+  
+<div id="likehood가 MSE 보다 나은 이유"></div>
+
+## likehood가 MSE 보다 나은 이유
+
+1. 그래프를 그려보면 log-likehood 더 민감
+2. mse는 non-convex, log-likehood는 convex
+
+<div id="딥러닝의 뿌리 이론"></div>
+
+## 딥러닝의 뿌리 이론
+> MLE(Maximum Likelihood Estimation)
+
+1. mse : 가우시안 분포로 likelihood를 가정한 다음 NLL(negative log-likelihood) 식 
+2. Cross-Entropy : 베르누이 분포로 로 likelihood를 가정한 다음 NLL식(다중 분류에서는 multinoulli(Categorical) 분포)
+*다중분류(softmax regression)  <img style="width: 120px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q_1^{y_1}q_2^{y_2}q_3^{y_3}\cdot\cdot\cdot">(y는 [1,0,0], [0,1,0], [0,0,1])
