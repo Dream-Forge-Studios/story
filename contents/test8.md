@@ -67,28 +67,47 @@ thumbnail: './test.png'
     <div style="margin-top: 3px;">그러므로 log를 취해서</div> 
     <img style="width: 280px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L=-\sum_n log(q_n^{y_n}(1-q_n)^{y_n}))">
       <div style="margin-top: 3px;">로 나타낸다.</div> 
-  </div> 
+  </div>
+    <br>
+    *마이너스를 붙이는 이유 : 줄여야 하는 것이 Loss 함수 이므로
 
-    *로그를 취해도 상관없는 이유는 단조증가(monotonically increasing)
+    *로그를 취해도 상관없는 이유는 단조증가(monotonically increasing) - 줄이려는 방향이 같다.
   
     - logistic regression이라고 부름
       <div style="display: flex;">
       <div style="margin-top: 6px;">logit을 linear regression 한 것 (logit이란 log-odds = </div> <img style="width: 100px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?log( \frac{q}{1-q})"><div style="margin-top: 6px;">)</div>
           </div>
+      <br>
+      logit에서 q(확률)를 구하기 위해 역함수인 sigmoid를 통과시킨 것
+      
+      (logit에서 q를 구하는 식으로 바꾸면 sigmoid 식과 같음) 
   
   
-<div id="likehood가 MSE 보다 나은 이유"></div>
+<div id="log-likehood가 MSE 보다 나은 이유"></div>
 
-## likehood가 MSE 보다 나은 이유
+## log-likehood가 MSE 보다 나은 이유
+
+MSE : <img style="width: 80px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?(q-1)^2">을 minimize
+
+log-likehood : <img style="width: 66px; margin-right: 6px; margin-left: 8px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?-log q">을 minimize
 
 1. 그래프를 그려보면 log-likehood 더 민감
-2. mse는 non-convex, log-likehood는 convex
+    
+   <img style="width: 50%; margin-right: 6px; margin-left: 8px; margin-top: 20px; margin-bottom: 20px;" id="output" src="test8Img/likehood.PNG">
+   
+2. mse는 non-convex, log-likehood는 convex일 확률이 높다.
 
 <div id="딥러닝의 뿌리 이론"></div>
 
 ## 딥러닝의 뿌리 이론
 > MLE(Maximum Likelihood Estimation)
 
-1. mse : 가우시안 분포로 likelihood를 가정한 다음 NLL(negative log-likelihood) 식 
-2. Cross-Entropy : 베르누이 분포로 로 likelihood를 가정한 다음 NLL식(다중 분류에서는 multinoulli(Categorical) 분포)
+*<img style="width: 140px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(y_i|f_w(x_i))">을 최대로 하는 것
+
+
+1. mse : 가우시안 분포로 likelihood를 가정한 다음, <img style="width: 80px; margin-right: 6px; margin-left: 8px; margin-top: 16px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?f_w(x_i)">를 평균값 <img style="width: 14px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\hat{y}">로 삼고 NLL 식 
+2. Cross-Entropy : 베르누이 분포로 로 likelihood를 가정한 다음, <img style="width: 80px; margin-right: 6px; margin-left: 8px; margin-top: 16px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?f_w(x_i)">를 확률 <img style="width: 14px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q">로 삼고 NLL식 (다중 분류에서는 multinoulli(Categorical) 분포)
+
 *다중분류(softmax regression)  <img style="width: 120px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q_1^{y_1}q_2^{y_2}q_3^{y_3}\cdot\cdot\cdot">(y는 [1,0,0], [0,1,0], [0,0,1])
+
+*NLL : negative log-likelihood

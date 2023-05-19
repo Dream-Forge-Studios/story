@@ -1,27 +1,102 @@
 ---
 date: '2020-07-29'
-title: 'Test'
+title: '깊은 인공신경망의 고질적 문제와 해결방안'
 categories: ['Web', 'SEO', 'Optimization']
-summary: '홈페이지를 운영하는 많은 사람들 또는 기업들이 검색 페이지 최상단에 보여지게 하기 위해 어떤 최적화 작업을 하는지 알아보자.'
+summary: '깊은 인공신경망의 고질적 문제와 해결방안'
 thumbnail: './test.png'
 ---
 
-### 1. Help Google Bot to Find My Contents
+<div id="1. Vanishing gradient 해결방안"></div>
 
-구글에 SiteMap을 제출하여 사이트에 있는 파일로서 새 페이지나 변경된 페이지가 있을 때 이를 검색 엔진에 알려주도록 할 수 있다.
+# 1. Vanishing gradient 해결방안
 
-SiteMap은 사이트에 있는 페이지, 동영상 및 기타 파일과 각 관계에 관한 정보를 제공하는 파일로, 검색 엔진은 이를 읽고 사이트를 더 지능적으로 크롤링 할 수 있게 된다.
+<div id="ReLU"></div>
 
-### 2. Use 'Robots.txt' File
+## ReLU
 
-Robots.txt 파일은 검색 엔진에 어떤 페이지를 크롤링해도 되는지 알리는 파일로, 서버의 루트 디렉토리에 있어야 한다.
+- layer가 많으면 입력 층에 가까울수록 미분이 사라진다.
 
-과도한 Robots.txt 파일은 더 많은 방문자를 유도할 수 있는 정상적인 검색 엔진 크롤러의 접근을 막을 가능성이 있기 때문에 적절하게 설정해야 한다.
+  ex) sigmoid는 최대 기울기가 1/4라서 기울기가 계속 작아진다.
 
----
+<img style="width: 70%; margin-right: 8px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="test9Img/relu.PNG">
 
-## Source
+<div id="Batch Normalization"></div>
 
-- SEO 기본 가이드 
+## Batch Normalization
 
-  [<https://support.google.com/webmasters/answer/7451184?hl=ko&ref_topic=9460495>](<https://support.google.com/webmasters/answer/7451184?hl=ko&ref_topic=9460495>)
+<img style="width: 60%; margin-right: 8px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="test9Img/bn.PNG">
+
+- 위의 그림에서 만약 전부 양수로 들어가거나 전부 음수로 들어간다면 문제가 된다. 
+- 그러면 적절하게 재배치를 하려고 하는데 정확히 어디로 이동시키는 것이 좋은지 알기 어렵다.
+  
+그러므로
+> nonlinearity를 얼마나 살리면서 vanishing gradient를 얼마나 해결할지 AI가 알아내도록 하는 것
+
+1. 우선 평균 0, 분산 1이 되도록 normalization
+
+<img style="width: 10%; margin-right: 8px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image? \frac{x-\bar x}{\sigma_x}">
+
+2. 어디에(평균 - b), 얼만큼 퍼지게 할지(분산 - a^2)을 학습
+
+<img style="width: 24%; margin-right: 8px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image? a(\frac{x-\bar x}{\sigma_x}) + b">
+
+3. BN을 할 Node에 추가 
+
+<div id="Layer Normalization"></div>
+
+## Layer Normalization
+
+> node가 아닌 layer에 BN을 추가하는 것
+
+<div id="2. Loss landsacpe 해결방안"></div>
+
+# 2. Loss landsacpe 해결방안
+
+<img style="width: 100%; margin-right: 8px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="test9Img/land.PNG">
+
+- 신경망이 깊어질수록 error가 더 높았다.
+- skip connection을 사용하니 loss landsacpe가 줄었다.
+
+<div id="3. Over fitting 해결방안"></div>
+
+# 3. Over fitting 해결방안
+
+<div id="over fitting"></div>
+
+## over fitting
+> training 땐 잘하는데 test 때는 못하는 것
+
+<div id="validation data"></div>
+
+## validation data
+<img style="width: 70%; margin-right: 8px; margin-left: 0px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://storage.googleapis.com/kaggle-media/learn/images/eP0gppr.png">
+
+<div id="data augmentation"></div>
+
+## data augmentation
+> data 한개를 여러개로 변형하는 것
+
+<div id="dropout"></div>
+
+## dropout
+> 랜덤하게 노드를 가려보면서 학습
+
+<img style="width: 100%; margin-right: 8px; margin-left: 0px; margin-top: 10px; margin-bottom: 0px;" id="output" src="test9Img/dropout.PNG">
+
+<div id="dropconnection"></div>
+
+## dropconnection
+<img style="width: 100%; margin-right: 8px; margin-left: 0px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://mblogthumb-phinf.pstatic.net/20161004_10/laonple_1475538980740VAzW9_PNG/%C0%CC%B9%CC%C1%F6_27.png?type=w2">
+
+
+<div id="regularization"></div>
+
+## regularization
+> loss에서 weight의 크기를 더해서 같이 고려함
+
+<img style="width: 20%; margin-right: 8px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L+\lambda \left\| w\right\|_{p}^{p}">
+
+- l2-regularization : weight 크기를 비슷하도록 => node들을 편향되지 않게 골고루 사용
+- l1-regularization : 기울기가 일정 => 몇개 connection을 없애는 효과
+
+*map(maximum a posterior - 최대우도 추정)
