@@ -61,7 +61,7 @@ thumbnail: './test.png'
 
 - 고양이 강아지 분류의 예
    - 예측한 강아지 사진은 <img style="width: 50px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q=1">, 예측한 고양이 사진은 <img style="width: 50px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q=0">로 출력값이 나오고 정답은  <img style="width: 12px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?y">로 정의
-    즉, <img style="width: 140px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q^y(1-q)^1-y">를 키우면 된다.
+    즉, <img style="width: 140px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q^y(1-q)^{1-y}">를 키우면 된다.
    - 데이터를 넣는 것은 독립시행임으로 곱한 확률을 키우면 되는데 0~1사이의 값을 계속 곱하면 작아지게 된다.
     <div style="display: flex;">
     <div style="margin-top: 3px;">그러므로 log를 취해서</div> 

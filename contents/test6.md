@@ -193,12 +193,14 @@ thumbnail: './test.png'
 </div>
 
 - likehood
-  - 위의 그림에서는 동시에 A상자에서 어떤 공이 나올지와 B상자에서 어떤 공이 나올지에 대한 확률을 의미
+  - 예를 들어 어떤 상자에서 꺼낸지 모르는 상태에서 색 공을 뽑았을 때 두 상자에서 색공이 나올 확률을 비교하는 것
   - 조건부 확률 값, but 확률 분포는 아니다. (합이 1이 아님)
 
 <div id="MLE란"></div>
 
 ## MLE란
+
+> Maximum Likelihood Estimation
 
 <div style="display: flex; margin-top: 36px">
 <div style="margin-top: 10px">정규 분포를 예시를 들어보면</div>
@@ -235,7 +237,11 @@ thumbnail: './test.png'
 
 <div style="display: flex; margin-top: 26px">
 <div style="margin-top: 24px">미분하면</div>
-<img style="width: 340px; margin-right: 0px; margin-left: 18px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\frac{z_1-\hat x}{\sigma^2}+\frac{z_1-\hat x}{\sigma^2}=\frac{z_1+z_2}{2}=0">
+<img style="width: 200px; margin-right: 0px; margin-left: 18px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\frac{z_1-\hat x}{\sigma^2}+\frac{z_2-\hat x}{\sigma^2}"></div>
+
+<div style="display: flex; margin-top: 26px">
+<div style="margin-top: 24px; margin-left: 0px;">따라서</div>
+<img style="width: 150px; margin-right: 0px; margin-left: 18px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\hat x=\frac{z_1+z_2}{2}">
 </div>
 
 <div style="display: flex; margin-top: 26px">
@@ -298,8 +304,14 @@ thumbnail: './test.png'
 ## Entropy
 
 - 불확실성
+  - 정보 이론에서 많이 나오는 글자는 짧은 비트로 적게 나오는 글자는 긴 비트로 표현하여 가장 효율적으로 표현하는 방법은 평균 코드 길이를 가장 적게 하는 것이다. 그런데 발생 확률이 균등하게 분포되어 있으면 평균 코드 길이는 길어지게 된다.
+  - 즉, 평균 코드 길이가 최소화되기 위해서는 엔트로피(불확실성)을 최소화 해야한다.
 
-- 균등분포일 때 1
+- 식 : 가장 이상적인 함수(그래프를 보면 확인 가능)
+
+<img style="width: 140px; margin-right: 0px; margin-left: 10px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image? \sum_{i}-p_ilogp_i">
+<img style="width: 50%; margin-right: 0px; margin-left: 10px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://melonicedlatte.com/assets/images/201912/BB240ECE-0EEB-4601-B2FD-69D07553BBCB.jpeg">
+
 
 <div id="Cross-entropy"></div>
 
@@ -308,16 +320,20 @@ thumbnail: './test.png'
 - 실제로는 <img style="width: 20px; margin-right: 4px; margin-left: 4px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p_i">를 따르지만 <img style="width: 18px; margin-right: 4px; margin-left: 4px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q_i">로 구하는 경우
 
   (실제 값을 모르는 경우, 결과로 정수값이 필요한데 정수값으로 나오지 않는 경우 등)
-- 딥러닝에서는 <img style="width: 20px; margin-right: 4px; margin-left: 4px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p_i">가 출력, 최대한 <img style="width: 18px; margin-right: 4px; margin-left: 4px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q_i">와 비슷하게 만드려고 노력
+- 딥러닝에서는 <img style="width: 20px; margin-right: 4px; margin-left: 4px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q_i">가 출력, 최대한 <img style="width: 18px; margin-right: 4px; margin-left: 4px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p_i">와 비슷하게 만드려고 노력
 
 <div id="KL-divergence"></div>
 
 ## KL-divergence
 
-- <img style="width: 15px; margin-right: 4px; margin-left: 0px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p">와 <img style="width: 13px; margin-right: 4px; margin-left: 4px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q">의 분포 차이 (<img style="width: 60px; margin-right: 4px; margin-left: 4px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q - p">)
+<img style="width: 90%; margin-right: 0px; margin-left: 10px; margin-top: 10px; margin-bottom: 0px;" id="output" src="./test6Img/kl_div.PNG">
+
+<img style="width: 15px; margin-right: 4px; margin-left: 0px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p">와 <img style="width: 13px; margin-right: 4px; margin-left: 4px; margin-top: 20px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q">의 분포 차이 (<img style="width: 60px; margin-right: 4px; margin-left: 4px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q - p">)
 
 <div id="Mutual information"></div>
 
 ## Mutual information
 
-- x, y가 관련있는 정도(독립이면 0)
+<img style="width: 46%; margin-right: 0px; margin-left: 10px; margin-top: 10px; margin-bottom: 10px;" id="output" src="./test6Img/mutal.PNG">
+
+x, y가 관련있는 정도(독립이면 0)

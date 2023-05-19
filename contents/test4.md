@@ -280,4 +280,3 @@ thumbnail: './test.png'
 하지만 테일러 급수는 **모든 것을 표현할 수 있는 것은 아니다.**
 
 ln(x) 함수는 x > 2인 경우에는 수렴 하지 못한다.
-s://support.google.com/webmasters/answer/7451184?hl=ko&ref_topic=9460495>](<https://support.google.com/webmasters/answer/7451184?hl=ko&ref_topic=9460495>)

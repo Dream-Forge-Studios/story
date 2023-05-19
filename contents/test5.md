@@ -133,14 +133,14 @@ thumbnail: './test.png'
 </div>
 
 <div style="display: flex; margin-top: 10px">
-<img style="width: 360px; margin-right: 8px; margin-left: 0px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L(w+1)\simeq L(w_k)+\Delta\left.\begin{matrix}\frac{\partial L}{\partial w^T}\end{matrix}\right|_{w=w^k}">
+<img style="width: 360px; margin-right: 8px; margin-left: 0px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L(w_{k+1})\simeq L(w_k)+\Delta\left.\begin{matrix}\frac{\partial L}{\partial w^T}\end{matrix}\right|_{w=w^k}">
 </div>
 
 <br>
 따라서
 
 <div style="display: flex; margin-top: 20px">
-<img style="width: 360px; margin-right: 8px; margin-left: 0px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L(w+1)-L(w_k)\simeq \Delta\left.\begin{matrix}\frac{\partial L}{\partial w^T}\end{matrix}\right|_{w=w^k}">
+<img style="width: 360px; margin-right: 8px; margin-left: 0px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?L(w_{k+1})-L(w_k)\simeq \Delta\left.\begin{matrix}\frac{\partial L}{\partial w^T}\end{matrix}\right|_{w=w^k}">
 <div style="margin-top: 10px">(</div>
 <img style="width: 20px; margin-right: 8px; margin-left: 4px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\Delta">
 <div style="margin-top: 10px">와 그라디언트의 내적 - 행벡터와 열벡터의 곱이므로)</div>
@@ -175,11 +175,14 @@ thumbnail: './test.png'
 
 ## 확률 분포
 
-- 확률 질량 함수(PMF)
+<img style="width: 40%;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Fair_dice_probability_distribution.svg/330px-Fair_dice_probability_distribution.svg.png">
 
+- 확률 질량 함수(PMF)
   - 동전, 주사위 등
   - 각각이 양수이면서 0과 1 사이의 값을 가진다.
   - 합이 1 이다.
+
+<img style="width: 60%;" src="https://mblogthumb-phinf.pstatic.net/20161016_273/mykepzzang_1476614747258dUxbj_JPEG/IMG_3055.jpg?type=w2">
 
 - 확률 밀도(연속) 함수(PDF)
   - 키, 나이
