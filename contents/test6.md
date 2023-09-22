@@ -167,9 +167,9 @@ thumbnail: './test.png'
 
 # 15. 최대 우도 추정 (MLE)
 
-<div id="조건부확률과 likehood"></div>
+<div id="조건부확률과 likelihood"></div>
 
-## 조건부확률과 likehood
+## 조건부확률과 likelihood
 
 <div style="margin-top: 10px;">
 <img style="width: 440px;" id="output" src="test4Img/abBox.PNG">
@@ -178,13 +178,13 @@ thumbnail: './test.png'
 <div style="display: flex; margin-top: 0px">
 <img style="width: 140px; margin-right: 8px; margin-left: 26px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(cb|A)=\frac{1}{2}">
 <img style="width: 140px; margin-right: 8px; margin-left: 94px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(cb|B)=\frac{2}{3}">
-<img style="width: 100px; margin-right: 8px; margin-left: 40px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?likehood">
+<img style="width: 100px; margin-right: 8px; margin-left: 40px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?likelihood">
 </div>
 
 <div style="display: flex; margin-top: 10px">
 <img style="width: 140px; margin-right: 8px; margin-left: 26px; margin-top: 8px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(b|A)=\frac{1}{2}">
 <img style="width: 140px; margin-right: 8px; margin-left: 94px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(b|B)=\frac{1}{3}">
-<img style="width: 100px; margin-right: 8px; margin-left: 40px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?likehood">
+<img style="width: 100px; margin-right: 8px; margin-left: 40px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?likelihood">
 </div>
 
 <div style="display: flex; margin-top: 20px">
@@ -192,8 +192,9 @@ thumbnail: './test.png'
 <div style="font-size: 24px; margin-left: 124px;">조건부확률</div>
 </div>
 
-- likehood
-  - 예를 들어 어떤 상자에서 꺼낸지 모르는 상태에서 색 공을 뽑았을 때 두 상자에서 색공이 나올 확률을 비교하는 것
+- likelihood
+  - 예를 들어 어떤 상자에서 꺼낸지 모르는 상태에서 색 공을 뽑았을 때 두 상자에서 색공이 나올 가능도(likelihood)
+  - 어떤 값이 관측되었을 때, 이것이 어떤 확률 분포에서 왔을 지.
   - 조건부 확률 값, but 확률 분포는 아니다. (합이 1이 아님)
 
 <div id="MLE란"></div>
@@ -202,51 +203,8 @@ thumbnail: './test.png'
 
 > Maximum Likelihood Estimation
 
-<div style="display: flex; margin-top: 36px">
-<div style="margin-top: 10px">정규 분포를 예시를 들어보면</div>
-<img style="width: 400px; margin-right: 8px; margin-left: 10px; margin-top: 6px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?z_1=x+n_1, z_2=x+n_2, n \sim N(0,\sigma ^2)">
-<div style="margin-top: 10px">일 때</div>
-</div>
-
-<div style="display: flex; margin-top: 36px">
-<img style="width: 110px; margin-right: 8px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(z_1,z_2|x)">
-<div style="margin-left: 10px"> <u>"x가 뭐였길 때 z가 저렇게 나와을까?"</u>에 대한 답을 찾고자 하는 것</div>
-</div>
-
-<div style="display: flex; margin-top: 36px">
-<div style="margin-top: 10px">그렇다면</div>
-<img style="width: 70px; margin-right: 0px; margin-left: 10px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?z_1, z_2">
-<div style="margin-top: 10px; margin-left: 10px;">이 나올 확률이 높은 경우 즉, <u>likehood가 최대가 되도록 하는 x</u>를 구하면 된다. </div>
-</div>
-
-<div style="display: flex; margin-top: 36px">
-<div style="margin-top: 10px">*예시에서는 정규분포 이므로 순간변화량(기울기)이 0이 되는 값이 최대</div>
-</div>
-
-<div style="display: flex; margin-top: 26px">
-<div style="margin-top: 26px">구해보면</div>
-<img style="width: 280px; margin-right: 0px; margin-left: 10px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(z_1,z_2|x)=p(z_1|x)p(z_2|x)">
-<div style="margin-top: 24px; margin-left: 10px;">(독립시행 가정),</div>
-<img style="width: 280px; margin-right: 0px; margin-left: 10px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(z_1|x)=\frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(z_1-x)^2}{2\sigma^2}}">
-</div>
-
-<div style="display: flex; margin-top: 36px">
-<img style="width: 130px; margin-right: 0px; margin-left: 0px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\hat{x}=arg max_x">
-<img style="width: 600px; margin-right: 0px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(z_1|x)p(z_2|x)=log p(z_1|x)p(z_2|x)=-\frac{(z_1-x)^2}{2\sigma^2}-\frac{(z_2-x)^2}{2\sigma^2}">
-</div>
-
-<div style="display: flex; margin-top: 26px">
-<div style="margin-top: 24px">미분하면</div>
-<img style="width: 200px; margin-right: 0px; margin-left: 18px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\frac{z_1-\hat x}{\sigma^2}+\frac{z_2-\hat x}{\sigma^2}"></div>
-
-<div style="display: flex; margin-top: 26px">
-<div style="margin-top: 24px; margin-left: 0px;">따라서</div>
-<img style="width: 150px; margin-right: 0px; margin-left: 18px; margin-top: 10px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\hat x=\frac{z_1+z_2}{2}">
-</div>
-
-<div style="display: flex; margin-top: 26px">
-<div style="margin-top: 24px">즉 여기서는 들어온 measurement의 평균을 구하는 것이 MLE이다.</div>
-</div>
+<img style="width: 100%;" src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F99CDF1435B20DEC20A">
+* 가우시안 분포로 가정
 
 ---
 

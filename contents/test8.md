@@ -105,8 +105,8 @@ log-likehood : <img style="width: 66px; margin-right: 6px; margin-left: 8px; mar
 *<img style="width: 140px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?p(y_i|f_w(x_i))">을 최대로 하는 것
 
 
-1. mse : 가우시안 분포로 likelihood를 가정한 다음, <img style="width: 80px; margin-right: 6px; margin-left: 8px; margin-top: 16px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?f_w(x_i)">를 평균값 <img style="width: 14px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\hat{y}">로 삼고 NLL 식 
-2. Cross-Entropy : 베르누이 분포로 로 likelihood를 가정한 다음, <img style="width: 80px; margin-right: 6px; margin-left: 8px; margin-top: 16px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?f_w(x_i)">를 확률 <img style="width: 14px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q">로 삼고 NLL식 (다중 분류에서는 multinoulli(Categorical) 분포)
+1. mse : 가우시안 분포로 likelihood를 가정한 다음, <img style="width: 80px; margin-right: 6px; margin-left: 8px; margin-top: 16px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?f_w(x_i)">의 출력을 평균값 <img style="width: 14px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?\hat{y}">로 삼고 NLL 식 
+2. Cross-Entropy : 베르누이 분포로 로 likelihood를 가정한 다음, <img style="width: 80px; margin-right: 6px; margin-left: 8px; margin-top: 16px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?f_w(x_i)">의 출력을 확률 <img style="width: 14px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q">로 삼고 NLL식 (다중 분류에서는 multinoulli(Categorical) 분포)
 
 *다중분류(softmax regression)  <img style="width: 120px; margin-right: 6px; margin-left: 8px; margin-top: 0px; margin-bottom: 0px;" id="output" src="https://latex.codecogs.com/svg.image?q_1^{y_1}q_2^{y_2}q_3^{y_3}\cdot\cdot\cdot">(y는 [1,0,0], [0,1,0], [0,0,1])
 
