@@ -126,3 +126,88 @@ ELAN(Efficient Layer Aggregation Network)을 확장한 것으로, ELAN의 장점
 연결 기반 모델은 위의 그림과 같이 a에서 b로 scaling하면 전환(Transition) 레이어의 in-degree는 감소하거나 증가됩니다.
 
 따라서, 연결 기반 모델을 위한 상응하는 복합 모델 스케일링 방법을 c를 제안하였습니다.
+
+*Depth Scaling: 네트워크의 깊이를 증가시키는 것으로, 레이어를 추가하여 네트워크를 더 깊게 만듭니다. 이를 통해 모델은 더 복잡한 특징을 학습할 수 있게 됩니다.
+
+*Width Scaling: 네트워크의 너비를 증가시키는 것으로, 각 레이어에서의 필터(뉴런)의 개수를 증가시킵니다. 이를 통해 모델은 더 다양한 특징을 동시에 학습할 수 있게 됩니다.
+
+<div id="Planned re-parameterized convolution"></div>
+
+# Planned re-parameterized convolution
+
+<div id="re-parameterized convolution(RepConv)"></div>
+
+## re-parameterized convolution(RepConv)
+
+
+Re-parameterized Convolution(RepConv)은 일반적인 컨볼루션 연산을 개선한 방법으로, 모델의 효율성과 성능을 향상시키기 위해 제안되었습니다.
+이 방법은 기존의 컨볼루션 연산의 파라미터를 재매개변수화(re-parameterize)하여, 연산의 효율성을 높이고, 모델의 표현력을 개선합니다.
+
+> RepConv는 기존의 컨볼루션 연산을 개선하기 위한 방법으로, 3x3 convolution, 1x1 convolution 및 identity connection을 하나의 convolutional layer에 결합합니다.
+
+1. 3x3 Convolution
+   - 목적: 주변 픽셀과의 상호작용을 학습하여 공간적인 특징을 추출합니다.
+   - 작동 방식: 각 입력 픽셀이 3x3 크기의 이웃과 함께 컨볼루션 연산을 수행합니다.
+2. 1x1 Convolution:
+   - 목적: 채널 간의 상호작용을 학습하여 채널의 수를 조정하거나 피쳐 맵의 정보를 집약합니다.
+   - 작동 방식: 각 입력 픽셀이 1x1 크기의 커널과 컨볼루션 연산을 수행합니다.
+3. Identity Connection:
+   - 목적: 입력을 직접 출력에 연결하여 그래디언트의 흐름을 개선하고, 네트워크의 학습을 안정화합니다.
+   - 작동 방식: 입력 피쳐 맵이 변형 없이 출력 피쳐 맵에 더해집니다.
+
+RepConv와 다른 아키텍처의 조합 및 해당 성능을 분석한 후 RepConv의 identity connection이 ResNet의 잔차와 DenseNet의 연결을 대체하여 different feature maps에 대해 더 다양한 gradient를 제공한다는 것을 발견했습니다.
+
+따라서 본 논문에서는  RepConv with-out identity connection (RepConv)을 사용하여 planned reparameterized convolution의 아키텍쳐를 설계합니다.
+
+ <img style="width: 100%; margin-top: 40px;" id="output" src="https://viso.ai/wp-content/uploads/2022/08/yolov7-architecture-planned-re-parameterized-model.png">
+
+<div id="Coarse for Auxiliary and Fine for Lead Loss"></div>
+
+# Coarse for Auxiliary and Fine for Lead Loss
+
+ <img style="width: 100%; margin-top: 40px;" id="output" src="https://viso.ai/wp-content/uploads/2022/08/yolov7-architecture-auxiliary-head-and-label-assigner.png">
+
+YOLO 아키텍처는 객체 탐지를 수행하는 딥러닝 모델로, 백본(Backbone), 넥(Neck), 그리고 헤드(Head)의 세 부분으로 구성되어 있습니다
+
+- 백본: 모델의 기본 구조를 형성하며, 주로 특징 추출을 담당합니다.
+- 넥: 백본에서 추출된 특징 맵(Feature Map)을 처리하고, 이를 헤드로 전달합니다.
+- 헤드: 최종적으로 객체의 위치, 클래스 등을 예측합니다.
+
+YOLOv7은 단일 헤드로 제한되지 않습니다. 그러나 다중 헤드 프레임워크가 도입된 것은 이번이 처음이 아닙니다. 
+
+DL 모델에서 사용되는 기술인 Deep Supervision은 여러 헤드를 사용합니다 . 
+
+YOLOv7에서는 최종 출력을 담당하는 헤드를 리드 헤드(Lead Head)라고 합니다. 그리고 중층 훈련을 보조하는데 사용되는 헤드를 보조 헤드(Auxiliary Head) 라고 합니다 .
+
+- 리드 헤드(Lead Head): 모델의 최종 출력을 담당합니다.
+- 보조 헤드(Auxiliary Head): 중간 계층에서 훈련을 보조합니다. 이는 모델의 학습을 돕기 위해 도입되었습니다.
+
+<div id="Label Assigner"></div>
+
+## Label Assigner
+
+과거의 방식은 모델에게 정확한 라벨(Ground Truth, GT)을 할당하는 것이었습니다. 이를 Hard Label이라고 부릅니다.
+
+> 모델의 예측 결과와 실제 정답(GT)을 함께 고려하여, Soft Label을 할당하는 방식
+
+이 Soft Label Set는 auxiliary head 또는 lead head 모두에 대한 target training mode로 사용됩니다
+
+<div id="필요한 이유"></div>
+
+## 필요한 이유
+
+> generalized residual learning
+
+1. Soft Label은 Lead head가 학습한 정보를 반영합니다.
+2. 이는 lead head가 학습한 정보를 auxiliary head가 추가로 학습함으로써, lead head는 더 고차원의, 또는 더 복잡한 패턴을 학습할 수 있게 된다는 것을 의미합니다.
+3. shallower auxiliary head가 lead head가 학습한 정보를 직접 학습하게 함으로써 lead head는 아직 학습되지 않은 learning residual information에 더 집중할 수 있습니다.
+
+<div id="Experiments"></div>
+
+# Experiments
+
+<img style="width: 100%; margin-top: 40px;" id="output" src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb4cXxY%2FbtrHrMtH3HO%2Fw82K9xD7wSSbfWxutrI2KK%2Fimg.png">
+
+<img style="width: 100%; margin-top: 40px;" id="output" src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcROtEJ%2FbtrHvo6snjM%2FhdX3UIr1ovQ6EzyXK3AuG1%2Fimg.png">
+
+<img style="width: 100%; margin-top: 40px;" id="output" src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FUZ8ie%2FbtrHxNj1Wq8%2FPUnPv60RGscU1pI0Q4Ma9k%2Fimg.png">
