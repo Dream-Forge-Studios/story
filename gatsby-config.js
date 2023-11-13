@@ -23,14 +23,6 @@ module.exports = {
     },
     `gatsby-plugin-fontawesome-css`,
     {
-      resolve: `gatsby-transformer-remark`,
-      options: {
-        plugins: [
-          `gatsby-remark-emoji`,  // <-- this line adds emoji
-        ]
-      }
-    },
-    {
       resolve: 'gatsby-plugin-typescript',
       options: {
         isTSX: true,
@@ -69,6 +61,14 @@ module.exports = {
       resolve: `gatsby-transformer-remark`,
       options: {
         plugins: [
+          {
+            resolve: `gatsby-remark-katex`,
+            options: {
+              // Add any KaTeX options from https://github.com/KaTeX/KaTeX/blob/master/docs/options.md here
+              strict: `ignore`
+            }
+          },
+          `gatsby-remark-emoji`,
           {
             resolve: 'gatsby-remark-smartypants',
             options: {

@@ -5,13 +5,7 @@ import Template from 'components/Common/Template'
 import PostHead from 'components/Post/PostHead'
 import PostContent from 'components/Post/PostContent'
 import CommentWidget from 'components/Post/CommentWidget'
-import styled from '@emotion/styled'
-
-const Container = styled.main`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-`
+import 'katex/dist/katex.min.css'
 
 type PostTemplateProps = {
     data: {
@@ -49,12 +43,12 @@ const PostTemplate: FunctionComponent<PostTemplateProps> = function ({
 
     return (
         <Template title={title} description={summary} url={href} image={publicURL}>
-            {/*<PostHead*/}
-            {/*    title={title}*/}
-            {/*    date={date}*/}
-            {/*    categories={categories}*/}
-            {/*    thumbnail={gatsbyImageData}*/}
-            {/*/>*/}
+            <PostHead
+                title={title}
+                date={date}
+                categories={categories}
+                thumbnail={gatsbyImageData}
+            />
             <PostContent html={html} />
             <CommentWidget />
         </Template>
