@@ -1,7 +1,7 @@
 ---
 date: '2020-07-29'
 title: 'FCOS, Fully Convolutional One-Stage Object Detection 논문 리뷰'
-categories: ['Web', 'SEO', 'Optimization']
+categories: ['Computer Vision']
 summary: 'FCOS, Fully Convolutional One-Stage Object Detection을 이해해보아요'
 thumbnail: './test.png'
 ---

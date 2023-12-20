@@ -1,7 +1,7 @@
 ---
 date: '2020-07-29'
 title: 'Faster R-CNN'
-categories: ['Web', 'SEO', 'Optimization']
+categories: ['Computer Vision']
 summary: 'R-CNN, Fast R-CNN, Faster R-CNN 발전 과정 핵심 요약 (Object Detection)'
 thumbnail: './test.png'
 ---

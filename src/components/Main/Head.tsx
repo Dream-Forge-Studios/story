@@ -14,7 +14,7 @@ const Header = styled.div`
   margin: 0 auto;
   left: 0;
   right: 0;
-  background-color: #21212150;
+  //background-color: #21212150;
   opacity: 0.4;
   @media (max-width: 1024px) {
     width: 100%;
@@ -34,7 +34,7 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   margin: 0 auto;
-  color: #2b76b9;
+  color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(7px);
 `
 
@@ -44,7 +44,7 @@ const MenuWrapper = styled.div`
   font-weight: 600;
   margin-top: 20px;
   margin-bottom: 20px;
-  color: #2cacd1;
+  color: rgba(0, 0, 0, 0.8);
   @media (max-width: 1020px) {
     margin-top: 20px;
     font-size: 14px;
@@ -91,9 +91,9 @@ const Head: FunctionComponent = function ({
                 </Link>
                 </Logo>
                 {       !breakpoints.sm ?         <MenuWrapper>
-                    <MenuTitle1>프로젝트</MenuTitle1>
-                    <MenuTitle2>블로그</MenuTitle2>
-                    <MenuTitle2>소개</MenuTitle2>
+                    <MenuTitle1>Project</MenuTitle1>
+                    <MenuTitle2>Blog</MenuTitle2>
+                    <MenuTitle2>Introduce</MenuTitle2>
                 </MenuWrapper> :
                     <MenuBar>
                     <FontAwesomeIcon icon={faBars} color={'#2b76b9'} size="1x" />

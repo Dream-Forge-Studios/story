@@ -1,3 +1,20 @@
+Basic
+
+Computer Vision
+
+Large Language
+
+Law
+
+RAG
+
+Fronted
+
+Data
+
+Fine-Tuning
+
+Summarisation
 <!-- AUTO-GENERATED-CONTENT:START (STARTER) -->
 <p align="center">
   <a href="https://www.gatsbyjs.com">
