@@ -4,7 +4,7 @@ Computer Vision
 
 Large Language
 
-Law
+Legal
 
 RAG
 

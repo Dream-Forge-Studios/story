@@ -1,169 +1,211 @@
 ---
-date: '2023-12-20'
-title: 'REFORMULATING DOMAIN ADAPTATION OF LARGE LANGUAGE MODELS AS ADAPT-RETRIEVE-REVISE 논문 리뷰'
+date: '2023-12-21'
+title: 'Precedent-Enhanced Legal Judgment Prediction with LLM and Domain-Model Collaboration 논문 리뷰'
 categories: ['Large Language', 'RAG', 'Legal']
-summary: 'REFORMULATING DOMAIN ADAPTATION OF LARGE LANGUAGE MODELS AS ADAPT-RETRIEVE-REVISE 완벽 이해하기.'
+summary: 'Precedent-Enhanced Legal Judgment Prediction with LLM and Domain-Model Collaboration 완벽 이해하기.'
 thumbnail: './test.png'
 ---
 
 <div id="Introduction"></div>
 
-# Introduction
+## Introduction
 
-GPT-4와 같은 모델들이 일반적인 NLP 과제에서는 효과적이지만, 특정 분야인 중국 법률 분야의 질문-답변(QA) 작업에서는 그 성능이 상대적으로 낮은 문제가 있습니다.
-
-<br>
-
-최근 연구에서 질문에 대한 관련 증거를 외부의 domain 특화 지식 베이스나 인터넷에서 검색해내는 검색 기반 방법을 도입했습니다.
+법률 인공지능(Legal AI)은 수십 년 동안 다양한 법률 작업을 지원하기 위해 연구되어 왔습니다. 이러한 작업에는 법률 질의응답(Legal QA), 법정 의견 생성, 법률 실체 인식 등이 포함됩니다. 
 
 <br>
 
-하지만 AI 시스템이 특정 분야의 복잡성이나 특수성을 완전히 이해하고 반영하지 못해  domain issue가 발생합니다.
+이러한 작업 중에서도 가장 중요한 것 중 하나는 법적 판결 예측(Legal Judgment Prediction, LJP)입니다. LJP의 목적은 사건 사실 설명을 기반으로 해당 사건의 법적 판결을 예측하는 것입니다. 법적 판결에는 일반적으로 법률 조항, 혐의, 그리고 징역 기간이 포함됩니다.
 
 <br>
 
-LLaMA (Touvron et al., 2023)와 같은 오픈 소스 LLMs의 발전으로, 특정 분야의 데이터에 맞춰 연속적으로 훈련시킬 수 있는 모델이 저렴하고 접근 가능해졌습니다.
+선례는 유사한 사실을 가진 이전 사건들을 의미하며, 법적 판결 예측에서 중요하게 고려됩니다.
 
 <br>
 
-연구자들은 Baichuan 7B라는 중국어 기반 모델을 50B 이상의 중국 법률 데이터로 지속적으로 훈련시켰습니다. 이 모델은 GPT-4를 능가하는 성능을 보였으며, 특히 중국 법률 질문-답변(QA) 작업에서 뛰어난 결과를 보였습니다.
+LJP 작업에 사용되는 기술은 크게 LLMs와 도메인 특화 모델로 나눌 수 있습니다.
 
 <br>
 
-하지만 델은 대체로 정확한 답변을 생성하지만, 조항 인덱스 오류 등 특정 단어에서 오류를 범할 수 있습니다.
+LLMs는 광범위한 훈련을 통해 복잡한 자연어를 이해하고 생성하는 데 능숙하며, 맥락 내 학습에서도 강점을 가집니다. 반면에, 도메인 특화 모델은 특정 작업에 맞춰 설계되어 비용 효율적인 해결책을 제공합니다.
 
 <br>
 
-연구자들은 GPT-4의 증거 평가 능력과 Baichuan 모델의 고품질 도메인 콘텐츠 생성 능력을 기반으로 새로운 접근 방식 <u>적응-검색-수정(adapt-retrieve-revise)</u>을 제안합니다.
+하지만 LLMs는 프롬프트 길이에 제한되어 있어 다수의 추상적 레이블의 의미를 파악하고 적절한 것을 선택하는 데 어려움을 겪으며, 도메인 모델의 경우 선례와 주어진 사례 사이의 유사성과 차이점을 이해하고 구별하는 능력이 제한적입니다.
 
 <br>
 
-먼저, domain에 적응된 모델이 질문에 대한 초안 답변을 생성합니다. 다음으로, 검색 모듈이 이 초안 답변을 사용하여 외부 증거 후보를 검색합니다. 마지막으로, GPT-4가 검색된 증거를 평가하고 초안 답변을 수정하여 최종 답변을 생성합니다.
+이 연구에서는 LLMs와 도메인 특화 모델을 협력하여 새로운 선례 강화 법적 판결 예측 프레임워크(Precedent-Enhanced Legal Judgment Prediction, PLJP)를 제안합니다.
 
 <br>
 
-논문의 나머지 부분에서는 중국 법률 분야를 중심으로 이 방법의 효과를 광범위하게 검증합니다.
+구체적으로, <u>도메인 모델은 후보 레이블을 제공하고 사례 데이터베이스에서 적절한 선례를 효과적으로 찾는 역할</u>을 하며, <u>LLMs는 맥락 내 선례 이해를 통해 최종 예측을 결정</u>합니다.
 
-<img style="width: 50%; margin-top: 40px;" id="output" src="retriieve/recall.PNG">
+<img style="width: 60%; margin-top: 40px;" id="output" src="precedent/process.PNG">
 
-The recall on the LegalQA dataset.
+### 연구 방법
 
-<div id="METHODOLOGY"></div>
+- 이전의 LJP 연구들(Zhong et al., 2018; Yue et al., 2021; Dong and Niu, 2021)을 따라 공개된 실제 법률 데이터셋에서 실험을 수행
 
-# METHODOLOGY
+    <br>
 
-**1. adapt**
+- 테스트 데이터는  2022년 이후에 발생한 사건들로 구성
 
-- 목적: 중국 법률 분야에 특화된 언어 모델을 개발합니다.
-  
     <br>
   
-- 방법: 중국어로 사전 훈련된 LLM을 중국 법률 도메인의 corpora(문서 집합)에 지속적으로 훈련시킵니다. 이 과정을 통해 법률 분야에 맞춰진 모델이 생성됩니다.
-  
-    <br>
-  
-- 결과: 이 법률 분야에 적응된 모델은 사용자의 질문에 대한 draft answer을 생성합니다.
+- 원래 테스트 세트와 추가 테스트 세트에서 모두 최첨단(SOTA) 성능을 달성
 
-**2. retrieve**
+<div id="Related Work"></div>
 
-- 목적: 관련 evidence retrieval하여 draft answer의 정확성을 향상시킵니다.
+## Related Work
 
-    <br>
+**Legal AI**
 
-- 방법: sentence embedding model을 사용하여 draft answer과 지식 베이스 내 각 단락에 대한 embedding을 생성합니다. 이후, draft answer의 embedding과 각 단락의 embedding 간의 유사도를 계산하여 증거를 검색합니다.
+- 법률 질의응답(Legal Question Answering, QA): 법률 문제에 대한 질문에 답변하는 시스템을 개발하는 것입니다 (Monroy et al., 2009).
 
     <br>
 
-- 결과: 이 과정은 가장 관련성 높은 evidence를 찾아내는 데 도움을 줍니다.
-
-**3. revise**
-
-- 목적: 최종적으로 정확하고 신뢰할 수 있는 답변을 생성합니다.
+- 법률 실체 인식(Legal Entity Recognition): 법률 문서에서 중요한 실체나 용어를 자동으로 식별하는 기술입니다 (Cardellino et al., 2017).
 
     <br>
 
-- 방법: 질문, draft answer, retrieved evidence를 GPT-4에 입력하여 이를 통합하고 수정합니다.
+- 법정 의견 생성(Court View Generation): 법정에서의 의견이나 판결문을 생성하는 기술입니다 (Wu et al., 2020).
 
     <br>
 
-- 결과: GPT-4는 이 정보를 사용하여 최종적인 답변을 생성합니다.
+- 법률 요약(Legal Summarization): 법률 문서의 주요 내용을 간결하게 요약하는 기술입니다 (Hachey and Grover, 2006; Bhattacharya et al., 2019).
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="retriieve/methodology.PNG">
-
-### GENERATE THE DRAFT ANSWER BY THE DOMAIN-ADAPTED LLM
-
-**1. 모델 선택**
-
-- 연구자들은 Baichuan 7B라는 중국어 사전 훈련된 LLM을 기반 모델로 선택했습니다.
-
-**2. 훈련 데이터 출처**
-
-- 중국 법률 조항: 이는 중국의 사법 시스템의 기초를 이루며, 법률 용어, 조항, 사법 관행 등을 포함하고 있습니다. 이러한 데이터는 모델이 관련 내용을 이해하고 생성하는 데 필수적입니다.
-  
     <br>
-  
-- 중국 판결문 온라인: 중국 최대의 법률 문서 공개 플랫폼으로, 모든 수준의 법원에서 나온 사법 문서를 포함하며 민사, 형사, 행정, 집행 등 다양한 법률 분야를 다룹니다. 연구자들은 이 플랫폼에서 1억 개의 문서를 수집하여 훈련 데이터로 사용했습니다.
 
-**3. 훈련 과정**
+- 법률 언어 이해(Legal Language Understanding): 법률적 언어와 문서의 의미를 이해하고 분석하는 기술입니다 (Chalkidis et al., 2022).
 
-- 연구팀은 50B 토큰을 입력 길이 제한 16,384, 배치 사이즈 256으로 32개의 A100 GPU에서 훈련시켰으며, 총 소요 시간은 167시간이었습니다.
+<div id="Problem Formulation"></div>
 
-**4. 세부 튜닝**
+## Problem Formulation
 
-- 연구팀은 지속적인 학습 후에 모델을 70K 지시 예제로 추가로 미세 조정했습니다. 이 예제에는 52K GPT-4 자체 지시 중국어 데이터와 18K 법률 지시가 포함되어 있습니다.
+**1. 사실 설명(Fact Description)**
 
-**5. 초안 답변 생성**
-
-- 입력 질문이 주어지면, 훈련된 7B 법률 LLM에게 초안 답변을 생성하도록 요청합니다. 이를 위해 질문 끝에 "중국 법률에서 증거를 제공해 주세요"라는 지시를 추가하여 모델이 관련 법률 조항을 생성하도록 합니다.
-
-### ANSWER-BASED EVIDENCE RETRIEV
-
-**Knowledge Bank Construction**
-
-<br>
-
-외부 지식 기반($KB$)의 각 단락 $p_i$에 대해 key-value pair $(p_i , p_i)$을 구성합니다.
-key $p_i$는 sentence embedding model로 얻은 embedding 값이고, value $p_i$는 해당 단락의 텍스트를 의미합니다.
-
-<br>
-
-이 실험에서는 다양한 작업에 강력한 성능을 보이는 Roberta 기반의 다국어 문장 임베딩 모델인 **Multilingual-E5-large**를 사용합니다.
-
-<br>
-
-따라서 $memory ( K , V ) = \left\{ ( p_i , p_i ) ∣ p_i ∈ KB\right\}$는 외부 지식 기반의 모든 단락에서 구축된 모든 키-값 쌍의 집합입니다.
-
-<br>
-
-**Retrieval**
-
-<br>
-
-생성된 draft answer $d$에 대해, sentence embedding model E5는 그 대표값 $h_{Answer}$를 출력합니다.
-
-<br>
-
-$h_{Answer}$을 사용하여 구축된 knowledge bank에서 조회하고, $L^2$ distance function을 통해 k개의 가장 가까운 이웃 $E$를 검색합니다.
-
-### GPT-4 REVISION
-
-- GPT-4에게 질문과 증거 후보를 기반으로 초안 답변을 수정하도록 요구합니다.
+- 사건의 간결한 서술로, 일반적으로 사건의 시간 순서, 각 당사자의 행동이나 행위, 그리고 사건과 관련된 기타 필수적인 세부사항을 포함합니다.
 
   <br>
   
-- 질문 $q$: 사용자의 원래 질문입니다.
+- token sequence로 정의되며, $f=\left\{w_{t}^{f}\right\}_{t=1}^{l_f}$
+  - $f$: 이는 토큰 시퀀스 전체를 나타내는 변수입니다. 일반적으로, 이는 문장이나 문서 등의 텍스트 데이터를 나타냅니다.
+  
+    <br>
+    
+  - $w_{t}^{f}$: 이는 시퀀스 $f$내의 개별 토큰을 나타냅니다. 여기서 $t$는 시퀀스 내의 특정 위치를 나타내는 인덱스이며, $w_{t}^{f}$는 그 위치에 있는 토큰입니다.
+
+    <br>
+
+  - $\left\{w_{t}^{f}\right\}_{t=1}^{l_f}$: 이 표현은 토큰 시퀀스의 전체 범위를 나타냅니다. 여기서 $t=1$은 시퀀스의 시작을, $l_f$는 시퀀스의 끝을 나타냅니다. 즉, 이는 첫 번째 토큰부터 $l_f$번째 토큰까지 모든 토큰을 포함합니다.
+
+    <br>
+  
+  - $l_f$: 이는 토큰 시퀀스 $f$의 전체 길이를 나타내는 변수입니다. 즉, 시퀀스에 있는 토큰의 총 개수입니다.
+
+**2. 판결(Judgment)**
+
+- 판사가 법률 사건에 대해 사실과 선례를 바탕으로 내린 최종 결정입니다. 일반적으로 법률 조항, 혐의, 그리고 징역 기간으로 구성됩니다.
+  
+    <br>
+  
+- 사건의 판결은 $j = (a, c, t)$로 표현되며, 여기서 $a, c, t$는 각각 조항, 혐의, 징역 기간의 레이블을 나타냅니다.
+
+<br>
+
+**3. 선례(Precedent)**
+
+- 유사한 사실을 가진 이전 사건입니다. 선례의 판결은 현재 사건에 대한 중요한 참고자료입니다.
+
+    <br>
+
+- 선례는 $p = (f_p, j_p)$로 정의되며, 여기서 $f_p$는 그 사실 설명이고, $j_p$는 그 판결입니다. 주어진 사건에 대해 여러 선례가 있을 수 있으며, 이는 $P = {p_1, p_2, ..., p_n}$으로 표시될 수 있으며, 여기서 $n$은 선례의 수입니다.
+
+<br>
+
+**법적 판결 예측**
+
+<br>
+
+사실 설명 $f$가 주어졌을 때, 우리의 작업은 선례 $P$를 얻고 이해한 다음, 판결 $j = (a, c, t)$를 예측하는 것입니다.
+
+<div id="Precedent-Enhanced LJP (PLJP)"></div>
+
+## Precedent-Enhanced LJP (PLJP)
+
+### Case Database Construction
+
+선례를 활용하기 전에, 다수의 이전 사건들을 수집하여 케이스 데이터베이스를 구축해야 합니다.
+
+<br>
+
+사건의 사실 설명이 일반적으로 길고 상세하기 때문에, 모델이 적절한 선례를 찾는 것은 어려운 작업입니다. 이를 해결하기 위해, 대규모 언어 모델(LLMs)의 도움을 받아 이전 사건들의 사실 설명을 재구성합니다.
+
+<br>
+
+**Fact Reorganization**
+
+<br>
+
+이 부분의 목표는 사건의 사실 설명을 요약하고 재구성하는 것입니다. 이 과정은 세 가지 관점에서 진행됩니다. 사실 재구성 과정은 인간의 주석 없이 LLMs을 사용하여 완료됩니다. 구체적인 prompt는 아래와 같습니다.
+
+<br>
+
+"사실 설명은 주관적 동기, 객관적 행동, 그리고 사후 사정으로 분류될 수 있습니다. 
+
+<br>
+
+주관적 동기는 가해자의 해로운 행동과 그 결과에 대한 심리적 태도를 의미하며, 이에는 범죄의 의도, 부주의, 그리고 목적 등이 포함됩니다. 
+
+<br>
+
+객관적 행동은 관찰 가능한 활동 측면에서 범죄를 구성하는 필수 조건에 해당하며, 여기에는 해로운 행동, 해로운 결과, 그리고 행동과 결과 사이의 인과 관계가 포함됩니다. 사후 사정은 처벌의 중증도를 결정할 때 고려되는 다양한 사실적 상황을 의미합니다. 
+
+<br>
+
+경감 사정으로는 자수와 공로 행위가 있으며, 가중 사정으로는 재범 등이 있습니다. 
+
+<br>
+
+제공된 정보에 기반하여, 다음 사실들을 요약하십시오."
+
+<br>
+
+재구성 후, 사실 설명 $f$는 삼중 항목($sub, obj, ex$)으로 변환됩니다. 여기서 $sub$는 주관적 동기, $obj$는 객관적 행동, $ex$는 사후 사정을 나타냅니다. 
+
+<br>
+
+마지막으로, 케이스 데이터베이스의 이전 사례는 재구성된 사실과 판결의 쌍으로 저장됩니다.
+
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/fact.PNG">
+
+실선은 선행 검색 과정이고, 점선은 예측 과정을 나타냅니다.
+
+### Legal Judgment Prediction
+
+도메인 모델은 특정 데이터셋에 대해 훈련되어 특정 작업을 해결하는 데 목표를 두고 있으며, 여기서는 두 종류의 도메인 모델, 즉 예측 모델과 검색 모델을 사용합니다
+
+<br>
+
+**Predictive model**
+
+- 예측 모델은 사실 설명을 입력으로 받아 세 개의 하위 작업(법률 조항, 혐의, 징역 기간)에 대한 후보 레이블을 출력합니다.
 
   <br>
   
-- 초안 답변 $d$: GPT-4가 수정할 초안 답변입니다.
+- 사실 설명 $\left\{w_{t}^{f}\right\}_{t=1}^{l_f}$은 단어 시퀀스이므로, 먼저 인코더를 사용하여 임베딩 시퀀스 $H^f ∈ \mathbb{R}^{l_f ×d}$로 변환합니다. 여기서 $H^f = h_{1}^{f} , h_{2}^{f}  , ..., h_{l_f}^{f}$이고, $d$는 임베딩의 차원입니다.<br>: $H^f = Encode(f)$
 
   <br>
 
-- 검색된 증거 후보 $E$: 중국 법률 지식과 관련된 증거 후보를 GPT-4에 제공합니다.
+- 임베딩 시퀀스에서 Max Pooling 연산을 수행하여 가장 중요한 특성 벡터 $h^f ∈ \mathbb{R}^d$를 얻습니다.<br>: $h^f = MaxPooling(H^f)$
 
   <br>
 
-- 이러한 구성 요소들은 GPT-4에 입력되며, GPT-4는 이 정보를 사용하여 최종적으로 수정된 답변 $r$을 생성합니다.
+- 이 벡터를 fully-connected network with softmax activation에 입력하여 레이블 확률 분포 $P ∈ R^m$를 얻습니다. 여기서 $W^p ∈ \mathbb{R}^{m×d}$와 $b^p ∈ \mathbb{R}^m$은 학습 가능한 매개변수입니다. 주의할 점은 $m$은 다른 하위 작업에서 달라질 수 있습니다.<br>: $P = Softmax(Wp · h^f + b^p )$
+
+  <br>
+
+- 이제 모델은 확률이 가장 높은 상위 $n$개의 레이블(선례)을 후보 레이블(선례)로 선택합니다.
 
 <div id="EXPERIMENTS"></div>
 
