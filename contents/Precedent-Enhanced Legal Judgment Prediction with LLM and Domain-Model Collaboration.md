@@ -271,6 +271,8 @@ the topological dependencies among the three sub-tasks (Zhong et al., 2018) 연�
 
 ### Datasets
 
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/dataset.PNG">
+
 중국의 'CAIL2018' 데이터셋을 사용하여 수행됩니다. 이 데이터셋은 중화인민공화국의 법률 문맥에서 실제 사건을 포함하며, 각 사건은 사실 설명과 법률 조항, 혐의, 징역 기간을 포함한 완전한 판결로 구성되어 있습니다.
 
 <br>
