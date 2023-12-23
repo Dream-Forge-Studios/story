@@ -1,4 +1,4 @@
----
+`---
 date: '2023-12-21'
 title: 'Precedent-Enhanced Legal Judgment Prediction with LLM and Domain-Model Collaboration 논문 리뷰'
 categories: ['Large Language', 'RAG', 'Legal']
@@ -271,7 +271,7 @@ the topological dependencies among the three sub-tasks (Zhong et al., 2018) 연�
 
 ### Datasets
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/dataset.PNG">
+<img style="width: 60%; margin-top: 40px; margin-bottom: 40px;" id="output" src="precedent/dataset.PNG">
 
 중국의 'CAIL2018' 데이터셋을 사용하여 수행됩니다. 이 데이터셋은 중화인민공화국의 법률 문맥에서 실제 사건을 포함하며, 각 사건은 사실 설명과 법률 조항, 혐의, 징역 기간을 포함한 완전한 판결로 구성되어 있습니다.
 
@@ -289,234 +289,169 @@ CAIL2018 데이터셋은 훈련 세트, 검증 세트, 테스트 세트로 8:1:1
 
 ### Baselines
 
-**JEC-QA 작업의 평가 지표: Accuracy**
+- CNN (LeCun et al., 1989): 텍스트 특징을 추출하기 위해 다양한 커널을 사용하는 컨볼루션 연산을 수행합니다. 이는 텍스트 분류에 유용합니다.
 
-- 자동 평가를 위해 출력 형식을 동일하게 유지하는 것이 어려우므로, 특히 7B LLM이 JEC-QA 작업에 대해 미세 조정되지 않았기 때문에, 평가의 정확성을 보장하기 위해 인간 평가를 선택했습니다.
-
-<br>
-
-**유사 사례 검색 작업의 평가 지표: Precision@k 및 MAP**
-
-- Precision@k: 검색 결과나 추천 목록의 상위 k개 항목 중에서 관련 있는 항목의 비율을 측정합니다.
+  <br>
+  
+- BERT (Devlin et al., 2019): 사전 훈련된 언어 모델로, 하위 작업에 쉽게 미세 조정할 수 있습니다.
 
   <br>
 
-- MAP (Mean Average Precision): 
-  - 평균 정밀도(Average Precision, AP): 각 쿼리에 대해, 관련 있는 항목이 검색 결과에 나타날 때마다 정밀도를 계산하고, 이러한 정밀도의 평균을 취합니다.
-  
-    <br>
-  
-  - 예를 들어, 검색 결과에서 첫 번째 관련 항목이 1위, 두 번째가 3위, 세 번째가 5위에 있다면, 각 위치에서의 정밀도는 각각 1/1, 2/3, 3/5가 됩니다. 이를 평균내면 AP는 (1/1 + 2/3 + 3/5) / 3입니다.
-
-    <br>
-    
-  - MAP는 이러한 AP를 모든 쿼리에 대해 평균낸 값입니다.
-
-###  MAIN RESULTS
-
-제안된 방법은 직접 생성(direct generations)과 질문 기반 검색(retrieval-based generations using the query)과 비교하여 모든 기준에서 큰 차이로 우수한 성능을 보였습니다.
-
-<br>
-
-7B 법률 LLM은 GPT-4를 크게 능가했으며, GPT-4의 검색 기반 생성에 비해서도 세 작업에서 더 우수한 성능을 보였고, JEC-QA 작업에서는 경쟁력 있는 결과를 보였습니다.
-
-<br>
-
-관련 법률 지식의 증거를 제공한 후, GPT-4는 반응을 상당히 개선했습니다(+9.92%).
-
-<br>
-
-이는 검색 기반 방법이 도메인 지식 부족에 의한 hallucinations을 줄이는 적절한 방법이며, 강력한 증거 평가 능력을 갖춘 GPT-4는 설득력 있는 증거가 있을 때 중국 법률 분야에 잘 적응할 수 있음을 나타냅니다.
-
-<br>
-
-7B 법률 모델이 생성한 초안 답변을 검색 및 수정에 사용했을 때, 두 질문 기반 검색 기준을 큰 폭(15.4% 및 23.9%)으로 능가했습니다.
-
-<br>
-
-또한 추가로 흥미로운 관찰에는 GPT-4로 최종 답변을 생성하지 않고, 7B 법률 모델로 domain evidence를 통해 최종 답변을 생성했을 때 7B 법률 모델의 초안 답변과 차이가 없었습니다.
-
-<br>
-
-이는 7B 법률 모델은 **zero evidence-assessing capacity**을 의미합니다.
-
-<div id="제거 연구 및 추가 분석"></div>
-
-# 제거 연구 및 추가 분석
-
-### ANALYSIS OF RETRIEVAL METHODS
-
-<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="retriieve/answer.PNG">
-
-answer-based approach은 query-based retrieval 보다 법률 분야와 같은 전문적인 도메인에서 더 좋은 성능을 발휘합니다.
-
-<br>
-
-query는 매우 간략하여 충분한 정보를 제공하지 못하는 반면, 법률 조항과 근거를 포함하는 answer은 훨씬 더 정보가 풍부합니다. 
-
-<br>
-
-**RETRIEVING A QUERY OR RETRIEVING AN ANSWER?**
-
-<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="retriieve/test.PNG">
-
-<br>
-
-각 검색에서 가장 유사한 상위 법률 조항들을 순서대로 나열하고, 상위 k 검색 결과에 실제 법률 조항이 포함되어 있는지를 확인하여 recall을 평가했습니다.
-
-<br>
-
-answer-based retrieval은 query-based retrieval보다 모든 k에서 큰 폭으로 우수한 성능을 보였습니다.
-
-<br>
-
-예를 들어, 답변을 기반으로 한 상위 1개의 검색 결과는 쿼리를 기반으로 한 상위 5개 결과와 경쟁할 수 있었습니다.
-
-<br>
-
-이는 초안 답변이 검색을 위한 쿼리보다 훨씬 더 많은 정보를 포함하고 있음을 나타냅니다.
-
-<br>
-
-유사 사례 검색에서도 answer-based retrieval이 query-based retrieval보다 좋은 성능을 보였습니다. (다른 설정은  https://github.com/myx666/LeCaRD를 따름)
-
-<br>
-
-**DOES THE QUALITY OF ANSWER MATTER FOR ANSWER-BASED RETRIEVAL?**
-
-<br>
-
-연구팀은 GPT-4와 7B 법률 LLM이 생성한 답변을 사용한 검색 결과를 비교했습니다.
-
-<br>
-
-query-based retrieval과 GPT-4의 답변 기반 검색을 비교했을 때, answer-based retrieval이 LCR, CP, LegalQA의 성능을 저하시켰습니다.
-
-<br>
-
-이는 GPT-4 답변의 도메인 지식 부족이 검색 결과의 질을 저하시켰음을 나타냅니다.
-
-<br>
-
-한편, 도메인 적응을 거친 7B 법률 LLM은 검색에서 강력한 답변을 제공했고, 최고의 성능을 달성했습니다.
-
-### CASE ANALYSIS OF THE IMPROVEMENTS AFTER THE GPT-4 REVISION
-
-<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="retriieve/case.PNG">
-
-1. 법률 조항 참조 추가
-
-   - 때때로 7B 법률 LLM은 입력 지시를 따르지 않고, 참조된 법률 이름과 조항 인덱스의 핵심 정보를 제공하지 않고 유창한 답변만을 제공합니다.
-   
-      <br>
-    
-   - 이 경우 사용자는 답변의 신뢰성을 확인할 수 없습니다.
-    
-      <br>
-    
-   - 그러나 수정 후에는 각 답변이 참조된 법률 조항을 포함하게 되어, 답변의 정확성을 쉽게 확인할 수 있게 됩니다.
-
-2. 증거 내의 hallucinations 수정
-
-  - 도메인 적응된 LLM은 학습된 법률 지식을 바탕으로 증거를 제공할 수 있지만, 여전히 어느 정도 hallucinations(예: 잘못된 조항 인덱스)이 남아있을 수 있습니다.
-
-     <br>
-
-  - 근거 내용이 정확하면, 답변 기반 검색은 올바른 증거를 찾아내고, GPT-4에 의한 수정은 이 hallucinations을 해결하여 더 견고한 반응을 생성합니다.
-
-3. 올바른 증거 선택
-
-- 더 큰 시나리오에서, 7B 법률 모델의 답변이 부분적으로 hallucinations을 포함하더라도, 검색 구성 요소는 근거 생성에서 부분적으로 정확한 설명을 통해 올바른 증거를 식별할 수 있습니다.
-
-   <br>
-
-- 수정 단계에서 GPT-4는 올바른 증거를 평가할 수 있으며, 이는 정확한 답변을 생성하는 데 기여합니다.
-
-### DOES THE ITERATION MAKE THE GENERATION BETTER?
-
-본 논문에서 제안된 방법의 절차를 반복하여 응답을 개선할 수 있는지 여부에 대한 실험도 진행하였습니다.
-
-<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="retriieve/iterations.PNG">
-
-위의 표와 같이 이러한 반복이 일관된 개선을 보이지 않습니다. 따라서, 성능 개선의 효과가 없는 것으로 나타납니다.
-
-<div id="RELATED WORK"></div>
-
-# RELATED WORK
-
-### TASKS IN THE CHINESE LEGAL DOMAIN
-
-- the Challenge of AI in Law (CAIL, http://cail.cipsc.org.cn/index.html)
-- LeCaRD (Ma et al., 2021), JECQA (Zhong et al., 2020)
-- EQUALS (Chen et al., 2023)
-
-### CHINESE LEGAL LLMS
-
-- the series of LaWGPT (Song, 2021)
-  - Chinese-LLaMA-7B (Cui et al., 2023b), ChatGLM (Du et al., 2022), Chinese-alpaca-plus-7B (Cui et al., 2023b) 기반으로 제작
-  
-- Lawyer LLaMa (Huang et al., 2023)
-  - 더욱 발전된 Chinese-LLaMa-13B (Cui et al., 2023b) 기반으로 제작
-
-- LexiLaw (Hai, 2023)
-  - ChatGLM-6B (Du et al., 2022) 기반으로 제작
-  - LoRA (Hu et al., 2022), P-tuning (Liu et al., 2021), and fine-tuning 기술 활용
-
-- Chatlaw (Cui et al., 2023a) 
-  - Ziya-LLaMA-13B-v1 (IDEA-CCNL, 2023), Anima-33B (lyogavin, 2023) 기반으로 제작
-
-- DISC-LawLLM Yue et al. (2023)
-  - supervised fine-tuning datasets과 법적 추론 기능을 갖춘 LLM을 만들기 위해 legal syllogism prompting strategies을 채택하였습니다.
-
-하지만 이러한 기존 모델들은 이미 공개된 법률 작업에 대해 훈련되어, zero-shot 능력(모델이 사전에 특정 작업에 대해 훈련되지 않았음에도 불구하고, 그 작업을 수행할 수 있는 능력)에 어려움을 겪을 수 있습니다.
-
-### RETRIEVAL-AUGMENTED INFERENCE
-
-- RAG(Retrieval-Augmented Generation)(Lewis et al., 2020b)
-  - RAG 시스템은 BERT-based (Devlin et al., 2019) Document Retrieval Process (DRP)을 포함합니다.
-  - 이 후 BART (Lewis et al., 2020a) 를 사용하여 답변을 생성합니다.
-
-- EMDR2 (Yu et al., 2023)
-  - 기대값-최대화(Expectation-Maximization) 알고리즘을 사용하여 여러 검색된 문서를 고려합니다.
-  - 이 방식은 문서 검색과 추론 과정을 결합하여, 더 정확한 답변 생성을 목표로 합니다.
-
-- Atlas (Izacard et al., 2022)
-  - EMDR2 프레임워크를 기반으로 하고, 검색기(retriever)와 독자(reader) 구성 요소를 협력적으로 훈련
-  - 540B PalM (Chowdhery et al., 2022)에 필적하는 few-shot learning 능력을 보여줍니다.
-
-- RETRO (Borgeaud et al., 2022)
-  - 사전 훈련 단계에서 광범위한 corpora에 대한 검색 메커니즘을 활용
-  - 기존의 Transformer 기반 언어 모델과 달리, 검색 기능을 통합하여 모델의 성능을 향상시키는 것이 특징
-  - GPT-3(Brown et al., 2020b)의 성능과 일치하는 성능
-
-<div id="CONCLUSIONS AND FUTURE DISCUSSIONS"></div>
-
-# CONCLUSIONS AND FUTURE DISCUSSIONS
-
-연구에서는 LLM의 zero shot 도메인 콘텐츠 생성을 **Adapt-Retrieve-Revise** 절차로 재구성했습니다.
-
-<br>
-
-이 접근 방식은 smaller 7B LLM for domain adaptation, 외부 지식 기반에서 견고한 증거 검색, GPT-4의 증거 평가 및 수정 능력을 효과적으로 결합합니다.
-
-<br>
-
-이러한 방법은 중국 법률 작업에서 GPT-4의 zero shot 성능을 크게 향상시켰습니다.
-
-<br>
-
-하지만, 실험 비용이 증가하는 것과 평가의 유효성 사이의 균형을 맞추는 것은 향후 GPT-4 연구에서 남아있는 도전 과제입니다.
-
-<div id="Legal Instruction Tuning을 위한 데이터셋 템플릿"></div>
-
-# Legal Instruction Tuning을 위한 데이터셋 템플릿
-
-- 중화인민공화국 도로교통안전법 제91조에 의거: [술을 마시고 자동차를 운전하는 자는 1개월 이상 자동차 운전면허를 일시 압수당할 수 있으며, 3개월을 초과하면 200위안 이상, 500위안 이하의 벌금을 병과한다. 술에 취한 상태에서 자동차를 운전하는 경우, 술에 취하지 않을 때까지 공안기관 교통관리부서의 제한을 받고, 15일 이하의 구류에 처하며, 자동차 운전면허증을 일시 압수당한다. 3개월 이상 6개월 이하, 500위안 이상 2000위안 이하의 벌금을 병과한다. 음주 후 영업용 자동차를 운전한 경우, 3개월간 자동차 운전면허증을 임시 압류하고 500위안의 벌금도 병과한다. 술에 취한 상태에서 영업용 자동차를 운전하는 경우, 술에 취한 상태에서 공안기관 교통관리부서의 제한을 받고, 15일 이하의 구류에 처하며, 자동차를 일시 압수하는 처벌을 받습니다. 6개월간 운전면허를 취득하면 2000위안의 벌금도 부과됩니다. 전 2항의 음주운전으로 1년 이내에 2회 이상 처벌을 받은 경우에는 운전면허를 취소하고, 5년 이내에 영업용 자동차를 운전하지 못한다.]
-
-  <br>
-  
-- 사실 고려: [남자가 술에 취한 상태에서 오토바이를 타고 있었다.]
+- TopJudge (Zhong et al., 2018): 다중 작업 학습을 사용하여 LJP의 세 가지 하위 작업(법률 조항, 혐의, 징역 기간) 간의 의존성을 포착합니다.
 
   <br>
 
-- 판결: [공안기관 교통관리부서가 술에 취하지 않을 때까지 제한하고, 15일 이하의 구류에 처하며, 3개월 이상의 자동차 운전면허증을 일시 압류할 수 있다. 6개월 이상 시 500위안 이상, 2000위안 이하의 벌금을 병과한다.]
+- NeurJudge (Yue et al., 2021): 판단을 내리기 위해 사실 설명을 다른 부분으로 분할합니다.
+
+  <br>
+
+- R-Former (Dong and Niu, 2021): LJP를 전역 일관성 그래프 위의 노드 분류 문제로 정식화하고, 관계 학습을 도입합니다.
+
+  <br>
+
+- LADAN (Xu et al., 2020): 그래프 증류를 사용하여 사실의 차별화된 특징을 추출합니다.
+
+  <br>
+
+- Retri-BERT (Chalkidis and Kementchedjhieva, 2023): 유사한 문서를 검색하여 다중 레이블 텍스트 분류를 위한 입력 문서 표현을 증강합니다.
+
+  <br>
+
+- EPM (Feng et al., 2022): 판결에 필수적인 이벤트 관련 정보를 찾고, 하위 작업 간의 교차 작업 일관성 제약을 활용합니다.
+
+  <br>
+
+- CTM (Liu et al., 2022): 대조적 사례 관계에서 케이스 삼중항 모델링을 통해 LJP 프레임워크를 구축합니다.
+
+  <br>
+
+- Dav003: 'text-davinci-003'을 의미합니다. 이는 OpenAI가 출시한 GPT-3.5 가족의 일부로, 복잡한 자연어를 이해하고 생성할 수 있습니다.
+
+  <br>
+
+- 3.5turbo: 'gpt-3.5-turbo'를 의미합니다. 이 역시 GPT-3.5 가족에 속합니다.
+
+본 논문의 PLJP에서는 CNN과 BERT를 예측 모델로 활용하며 'text-davinci-003'를 LLM 구현으로 사용합니다. 이를 PLJP(CNN)과 PLJP(BERT)로 명명합니다.
+
+<br>
+
+**변형 연구(Ablation Study):**
+
+- PLJP w/o p: 선례 없이 후보 레이블만을 사용하여 LLM을 통한 레이블 예측을 수행합니다.
+- PLJP w/o c: 후보 레이블을 제거하고 사실 설명과 선례만을 사용하여 레이블을 예측합니다.
+- PLJP w/o d: 세 하위 작업 간의 의존성을 고려하지 않고 독립적으로 세 레이블을 예측합니다.
+- PLJP w/o r: 재구성된 사실이 아닌 원본 사실을 바탕으로 선례를 찾습니다.
+- PLJP w/ e: LLM이 예측의 설명도 함께 생성하게 합니다.
+
+프롬프트의 길이 제한을 고려하여 선례의 수는 3개로 설정합니다.
+
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result1.png">
+
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result2.png">
+
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result3.png">
+
+###  Experiment Settings
+
+PLJP 프레임워크 내에서 모든 대규모 언어 모델(LLMs)과 도메인 모델들은 교체 가능합니다.
+
+<br>
+
+실험에서는 OpenAI가 제공하는 API를 직접 사용하여 LLMs를 구현합니다. 이는 GPT-3.5와 같은 모델들을 포함할 수 있습니다.
+
+<br>
+
+선례 검색을 위해, Izacard et al. (2022)에서 제안된 비지도 밀집 검색 모델(Unsupervised Dense Retrieval Model)을 사용합니다. 이 모델은 재구성된 사실에 따라 케이스 데이터베이스에서 선례를 검색합니다.
+
+<br>
+
+TopJudge, NeurJudge와 같은 다른 도메인 모델들은 원래 논문에서 제안된 훈련 설정을 사용합니다.
+
+<br>
+
+**성능 지표**
+
+- 정확도(Accuracy, Acc): 모델이 정확하게 예측한 사례의 비율을 측정합니다.
+- 매크로 정밀도(Macro-Precision, Ma-P): 각 클래스에 대한 정밀도의 평균을 계산합니다.
+- 매크로 재현율(Macro-Recall, Ma-R): 각 클래스에 대한 재현율의 평균을 계산합니다.
+- 매크로 F1 점수(Macro-F1, Ma-F): 정밀도와 재현율의 조화 평균을 각 클래스별로 계산한 후 평균을 냅니다.
+
+###  Experiment Results
+
+**Result of judgment prediction**
+
+- LLMs는 단독으로 예측 작업을 수행할 때 성능이 좋지 않았으며, 특히 법률 조항과 징역 기간과 같이 실제 의미가 없는 레이블에서 더욱 그러했습니다.
+
+<br>
+
+- LLMs와 도메인 모델을 협력하여 사용하는 PLJP 프레임워크를 적용하면, 간단한 모델들(예: CNN, BERT)의 성능이 크게 향상되었습니다. 
+
+<br>
+
+- CJO22 데이터셋에서의 모델 성능은 CAIL2018 데이터셋보다 낮았으며, 이는 새로 구성된 테스트 세트의 도전을 보여줍니다. 
+
+<br>
+
+- PLJP(BERT)는 CAIL2018과 CJO22 테스트 세트의 거의 모든 평가 지표에서 가장 좋은 성능을 달성했으며, 이는 PLJP의 효과를 입증합니다. 
+
+<br>
+
+- 법률 조항과 혐의의 예측에 비해 징역 기간 예측은 여전히 더 도전적인 작업입니다. 
+
+<br>
+
+- LJP 기준 모델의 보고된 결과는 원래 논문만큼 좋지 않았으며, 이는 원래 논문에서 제거된 저빈도(즉, 자주 발생하지 않는) 레이블을 모두 유지했기 때문일 수 있습니다.
+
+<br>
+
+**Results of ablation experiment**
+
+- PLJP w/o p와 PLJP의 성능 차이는 선례의 효과를 입증합니다. 
+
+  <br>
+
+- PLJP w/o c의 결과는 후보 레이블의 중요성을 증명합니다. 
+
+  <br>
+
+- 세 하위 작업 간의 위상적 의존성을 고려하는 것이 모델 성능에 도움이 됩니다(PLJP w/o d 결과 참조). 
+
+  <br>
+
+- 재구성된 사실 대신 원본 사실을 사용할 때 성능이 떨어집니다(예: CJO22의 징역 기간 정확도가 45.32%에서 36.27%로 감소). 
+
+  <br>
+
+- LLMs에 예측의 설명을 생성하도록 강제하면 성능이 약간 떨어집니다. 설명이 있는 사례는 부록에 수록되어 있습니다.
+
+  <br>
+
+- Fig. 3에서 PLJP의 성능은 선례의 수가 증가함에 따라 향상됨을 알 수 있으며, 이는 LJP에 선례를 통합하는 것의 효과를 입증합니다.
+
+###  Case Study
+
+혐의 예측 과정에서 세 가지 방법(도메인 모델, 기존 모델, PLJP)을 비교하는 사례 연구를 하였습니다.
+
+<br>
+
+주어진 사례에서, 피고인은 다른 사람들로부터 빌린 차량을 판매함으로써 사기를 저질렀습니다.
+
+<br>
+
+도메인 모델은 사례의 사실 설명을 바탕으로 후보 혐의들과 해당하는 선례를 제공합니다.
+
+<br>
+
+사실 설명에 "계약"이라는 단어가 포함되어 있기 때문에, 기존 모델들(예: R-Former, BERT)은 "계약 사기(Contract Fraud)"라는 잘못된 혐의를 예측할 수 있습니다.
+
+<br>
+
+PLJP(BERT)는 LLMs를 사용하여 선례와 주어진 사례 간의 차이를 구별합니다. 예를 들어, 범죄가 계약 과정 중에 발생하지 않았으며, 계약이 범죄를 저지르는 수단에 불과했다는 점을 파악합니다.
+
+<br>
+
+이러한 맥락 내 선례 이해를 통해 PLJP(BERT)는 "사기(Fraud)"라는 올바른 혐의를 예측합니다.
+
+<br>
+
+LLMs를 사용한 맥락 내 선례 이해는 복잡한 법적 사례에서 미묘한 차이를 파악하고, 보다 정확한 법적 판단을 내리는 데 중요한 역할을 합니다.
