@@ -141,7 +141,7 @@ LeCaRD는 총 43,000건 이상의 중국 형사 판결로부터 선택된 107개
 
 압축률(compression rate)을 계산하는데, 이는 중요 내용과 원본 질의의 길이 비율입니다.
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="boosting/table1.png">
+<img style="width: 100%; margin-top: 40px;" id="output" src="boosting/table1.PNG">
 Have stop words(불용어 포함/미포함)
 
 평균 압축률이 상대적으로 낮은데, 이는 질의에서 법적 판단에 가장 유익하고 검색 작업에 잠재적으로 가치 있는 내용이 매우 제한적임을 의미합니다.
