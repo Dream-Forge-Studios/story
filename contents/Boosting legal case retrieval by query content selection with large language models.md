@@ -413,11 +413,11 @@ CAIL2018 데이터셋은 훈련 세트, 검증 세트, 테스트 세트로 8:1:1
 
 프롬프트의 길이 제한을 고려하여 선례의 수는 3개로 설정합니다.
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result1.png">
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result1.PNG">
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result2.png">
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result2.PNG">
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result3.png">
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result3.PNG">
 
 ###  Experiment Settings
 
@@ -606,11 +606,11 @@ CAIL2018 데이터셋은 훈련 세트, 검증 세트, 테스트 세트로 8:1:1
 
 프롬프트의 길이 제한을 고려하여 선례의 수는 3개로 설정합니다.
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result1.png">
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result1.PNG">
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result2.png">
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result2.PNG">
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result3.png">
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result3.PNG">
 
 ###  Experiment Settings
 
