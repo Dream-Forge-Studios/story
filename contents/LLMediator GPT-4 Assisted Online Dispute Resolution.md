@@ -1,5 +1,5 @@
 ---
-date: '2023-12-21'
+date: '2023-12-28'
 title: 'LLMediator: GPT-4 Assisted Online Dispute Resolution 논문 리뷰'
 categories: ['Large Language', 'RAG', 'Legal']
 summary: 'LLMediator: GPT-4 Assisted Online Dispute Resolution 완벽 이해하기.'
