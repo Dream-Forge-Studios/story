@@ -32,7 +32,7 @@ Attention mechanisms는 입력 데이터의 모든 부분이 동등한 중요도
 - Key: 입력 데이터의 각 요소를 나타내며, 쿼리와 비교되어 유사도를 계산하는 데 사용됩니다. (Query 부분에서 해당 토큰이 얼마나 중요한지)
 - Value: 입력 데이터의 각 요소에 대응하며, 가중치가 적용된 후 최종 출력에 기여합니다. (토큰의 실제 정보)
 - 입력 시퀀스의 각 토큰(예: 단어, 문자)마다 고유한 Key와 Value가 할당
-- Query는 입력 시퀀스의 각 토큰마다 별도로 생성되지 않고, 대신 현재의 타겟 상태 또는 출력에 대한 Query가 할당 <br> 예) 시퀀스-투-시퀀스 모델(기계번역)에서는 디코더의 각 층마다 하나씩 생성
+- Query는 입력 시퀀스의 각 토큰마다 별도로 생성되지 않고, 대신 현재의 타겟 상태 또는 출력에 대한 Query가 할당 <br> 예) 시퀀스-투-시퀀스 모델(기계번역)에서는 디코더의 각 층마다 하나씩 생성 <br>*Self-Attention에서 Query는 입력 시퀀스의 각 토큰마다 별도로 생성
 
 2. 유사도 계산 및 가중치 할당:
 
@@ -50,76 +50,173 @@ Attention mechanisms는 입력 데이터의 모든 부분이 동등한 중요도
 
 <br>
 
-그런데 Transformer 모델은 순환을 제외하고 전적으로 어텐션 메커니즘에 의존합니다. 이는 입력과 출력 사이의 전역 의존성을 효과적으로 포착할 수 있게 해주며, 병렬 처리를 크게 향상시킵니다.
+그런데 Transformer 모델은 순환을 제외하고 전적으로 attention mechanisms에 의존하는 Self-Attention을 활용합니다. 이는 입력과 출력 사이의 전역 의존성을 효과적으로 포착할 수 있게 해주며, 병렬 처리를 크게 향상시킵니다.
 
 <br>
 
-Transformer 더 많은 병렬 처리를 가능하게 함으로써, 트레이닝 시간을 단축시키고 번역 품질에서 새로운 최고 기록을 달성할 수 있습니다. 예를 들어, P100 GPU 8개에서 단 12시간만에 트레이닝을 완료할 수 있습니다.
+transformer 더 많은 병렬 처리를 가능하게 함으로써, 트레이닝 시간을 단축시키고 번역 품질에서 새로운 최고 기록을 달성할 수 있습니다. 예를 들어, P100 GPU 8개에서 단 12시간만에 트레이닝을 완료할 수 있습니다.
 
-<div id="Related Work"></div>
+<div id="Background"></div>
 
-## Related Work
+## Background
 
-AI를 사용하여 법에 대한 접근성을 높이고 분쟁 해결을 지원하는 방법은 다양하게 연구되고 있습니다.
-
-- "협상된 합의안에 대한 최선의 대안(BATNA)"을 협상 중에 표시하는 것
-- 게임 이론 방법을 사용하여 수용 가능한 합의를 이끌어내는 접근 방법
-- 당사자 간의 대화를 구조화하는 방법 
-- 당사자들이 사용하는 염증성 언어를 감지하고, 분쟁을 원만하게 해결할 수 있는 대안적인 메시지 전달 방법을 제안
-- ChatGPT를 사용하여 중재자가 역할을 수행하는 데 도움이 될 수 있는 관련 질문과 당사자가 가장 중요하게 여기는 사항을 제안하는 가능성을 탐구
-- LLMs이 중재자에게 제안을 생성하거나, 심지어 협상에 자동으로 개입하는 능력을 평가
-- ODR 맥락에서 판사 관점을 생성하는 모델 개발 기술을 제안
-
-<div id="Example use cases"></div>
-
-## Example use cases
-
-LLMediator 플랫폼은 LLMs의 능력을 활용하여 중재 플랫폼에서 여러 과제를 지원하는 몇 가지 독특한 기능을 포함합니다.
-
-###  F1 - 감정적인 메세지 재구성
-
-협상 상황에서 사용자가 감정적인 메시지를 보내려고 할 때, LLMediator 플랫폼은 이러한 언어를 감지합니다.
+transformer 기본 목표 중 하나는 하나는 순차적 계산을 줄이는 것입니다. 이는 Extended Neural GPU, ByteNet, ConvS2S와 같은 모델들에서도 공통적인 목표로, 이들 모델은 모두 CNN을 기본 구성 요소로 사용합니다.
 
 <br>
 
-플랫폼은 GPT-4에 의해 생성된 대체 문장 형식을 사용자에게 제안합니다.
-
-<img style="width: 60%; margin-top: 40px;" id="output" src="LLMediator/message.PNG">
-빌린 카메라가 부셔진 상황
-
-###  F2 - 중재자를 위한 메시지 초안 제안
-
-중재자는 당사자들이 친근한 해결책에 도달할 수 있도록 격려하는 역할을 합니다.
+하지만 ConvS2S, ByteNet 등에서 두 입력 또는 출력 위치 사이의 관계를 파악하는 데 필요한 연산은 위치 간 거리에 따라 증가합니다. ConvS2S는 선형적으로, ByteNet은 로그 함수적으로 증가합니다.
 
 <br>
 
-협상이 교착 상태에 있거나 결론에 이르지 못했을 때, 중재자의 개입이 중요할 수 있습니다.
+이러한 모델들에서 거리가 멀어질수록 서로 관련 있는 신호를 연결하는 것이 더 어려워집니다.
 
 <br>
 
-중재자를 위해 GPT-4를 사용하여 이전에 보낸 메시지를 읽고 당사자들을 친근한 해결책으로 부드럽게 안내하는 제안 메시지를 초안합니다.
+transformer는 RNN이나 CNN 없이 오로지 Self-Attention에만 의존하는 transduction 모델입니다. 이 점에서 기존 모델들과 크게 차별화됩니다.
 
-<img style="width: 60%; margin-top: 40px;" id="output" src="LLMediator/suggestion.PNG">
+<div id="Model Architecture"></div>
 
-###  F3 - 자동적으로 개입
+## Model Architecture
 
-일부 상황에서는 모델이 협상에 자동으로 개입하는 것이 타당할 수 있습니다.
-
-<br>
-
-예를 들어, 분쟁 가치가 인간 중재자를 고용하기에는 너무 낮거나, 특정 지역에서 모든 분쟁을 다룰 중재자가 부족한 경우가 이에 해당될 수 있습니다.
+transformer는 거리에 따라 필요한 연산 수가 증가하는 cnn 기반 모델과 다르게 self-attention을 통해 이 문제를 해결합니다.
 
 <br>
 
-LLMediator는 자동적으로 메시지를 생성하여 당사자들에게 보냈으며, 합의를 장려하기 위해 몇 가지 가능한 옵션을 제안했습니다.
+하지만, 이 방식은 모든 입력 토큰들을 하나의 context vector로 평균화함으로써, 개별 토큰들의 고유한 정보나 미묘한 차이가 손실될 수 있습니다. 
 
-<img style="width: 50%; margin-top: 40px;" id="output" src="LLMediator/automatic.PNG">
+<br>
 
-<div id="Technical considerations"></div>
+이러한 문제는 Multi-Head Attention을 통해 해결합니다.
 
-## Technical considerations
+<img style="width:60%; margin-top: 40px;" id="output" src="transformer/architecture.PNG">
 
-### Large language model used
+###  Encoder and Decoder Stacks
+
+**Encoder**
+
+1. 구조
+
+- encoder는 $N=6$개의 동일한 층으로 구성됩니다. 
+- 각 층에는 두 개의 sub-layer가 있습니다.
+
+2. 서브층
+
+- 첫 번째 sub-layer는 multi-head self-attention mechanism입니다.
+- 두 번째 sub-layer는 positionwise fully connected feed-forward network입니다.
+
+3. residual connection과 layer normalization
+
+- 각 sub-layer 주변에는 Residual Connection이 적용됩니다.
+- 이후 각 sub-layer의 출력에는 Layer Normalization가 수행됩니다.
+- 즉, 각 sub-layer의 출력은 $LayerNorm(x + Sublayer(x))$ 형태를 갖습니다. 여기서 $Sublayer(x)$는 서브층 자체에 의해 구현된 함수입니다.
+
+4. 출력 차원
+
+- 모델 내의 모든 sub-layer과 embedding layer은 $dmodel = 512$의 출력 차원을 가집니다.
+
+<br>
+
+**Decoder**
+
+1. 구조
+
+- decoder 역시 $N=6$개의 동일한 층으로 구성됩니다.
+- 각 층에는 세 개의 sub-layer가 있습니다.
+
+2. 서브층
+
+- encoder와 동일한 두 개의 sub-layer에서 추가로 encoder 출력에 대해 multi-head attention을 수행하는 세 번째 sub-layer 추가
+
+3. residual connection과 layer normalization
+
+- encoder와 동일
+
+4. self-attention sub-layer 수정
+
+- decoder의 self-attention layer는 Masking과 출력 임베딩의 Offset이 추가됩니다.
+- Masking
+  - 디코더는 현재 시점의 출력을 생성할 때, 현재 시점 이후의 정보를 참조하지 못하도록 해야 합니다.
+  - 특정 위치에서는 해당 위치와 그 이후의 위치에 대한 정보를 참조하지 못하도록 마스킹 처리됩니다.
+- 출력 임베딩의 Offset
+  - 출력 임베딩이 offset by one position된다는 것은, 디코더가 출력을 생성할 때 출력하기 이전 까지만 참조한다는 의미입니다.
+
+###  Scaled Dot-Product Attention
+
+**Scaled Dot-Product Attention의 구조**
+
+1. 입력 차원
+
+- Query와 Key는 차원 $d_k$를 가지며, 값(Value)은 차원 $d_v$를 가집니다.
+
+2. 연산 과정
+
+- Query와 모든 Key의 내적(dot product)을 계산합니다.
+- 각 내적 결과를 $\sqrt{d_k}$로 나누어 스케일링합니다.
+- Softmax 함수를 적용하여 값을 가중치로 변환합니다.
+
+$Attention(Q,K,V)=softmax( \frac{QK^T}{\sqrt{dk}} )V$
+
+### Multi-Head Attention
+
+**Multi-Head Attention의 개념**
+
+1. linearly project의 사용
+
+- Multi-Head Attention에서는 single attention function를 사용하는 대신, Query, Key, Value를 ℎ번 서로 다른 linearly project을 통해 $d_k, d_k, d_v$차원으로 변환합니다. 
+
+  <br>
+  
+- 이러한 서로 다른 linearly project를 head라고 부릅니다.
+
+  <br>
+  
+- 각 head 각기 다른 Query, Key, Value 값을 가지며, 이는 입력 데이터를 서로 다른 방식으로 해석하고, 다양한 정보를 추출할 수 있도록 합니다.
+
+2. 병렬 attention 실행
+
+- 이렇게 투영된 각 Query, Key, Value에 대해 attention function를 병렬로 수행합니다. 
+- 이 과정은 $d_v$차원의 출력 값을 생성합니다. 
+
+3. 결합 및 최종 투영
+
+- 어텐션의 결과를 연결(concatenate)한 후, 다시 한 번 project하여 최종 값으로 변환합니다.
+
+$MultiHead(Q, K, V ) = Concat(head_1, ..., head_h)W^O$
+
+$head_i = Attention(QW_i^Q , KW_i^K , W_i^V )$
+
+<br>
+
+$W_i^Q ∈ \mathbb{R}^{d_{model}×dk} , W_i^K ∈ \mathbb{R}^{d_{model}×dk} , W_i^V  ∈ \mathbb{R}^{d_{model}×dv}, W^O ∈ \mathbb{R}^{ hdv×d_{model}} $
+
+<br>
+
+**Multi-Head Attention의 구현**
+
+- 모델은 총 $h=8$개의 $head$를 사용합니다. 
+- 각 $head$의 차원 $d_k, d_v$는 $d_{model}/h=64$로 설정됩니다. 
+- 각 헤드의 차원이 줄어들기 때문에, 전체 계산 비용은 전체 차원을 사용하는 single head attention과 유사합니다.
+
+<img style="width: 80%; margin-top: 40px;" id="output" src="transformer/attention.PNG">
+
+### Applications of Attention in our Model
+
+1. encoder-decoder attention
+
+- decoder의 multi-head attention 부분
+- 이 층에서의 Query는 이전 디코더 층에서 오며, Key와 Value는 인코더의 출력에서 옵니다.
+- 이 구조는 decoder 내의 모든 위치가 입력 시퀀스의 모든 위치에 주목할 수 있도록 합니다.
+- 이는 전형적인 sequence-to-sequence models에서 볼 수 있는 encoder-decoder attention mechanisms을 모방합니다.
+
+2. encoder 내의 self-attention
+
+- 모든 Query, Key, Value가 같은 곳, 즉 인코더의 이전 층의 출력에서 옵니다.
+
+3. decoder 내의 self-attention
+
+- masking 기법이 사용되어, 아직 생성되지 않은 미래의 단어들에 대한 정보를 차단(−∞로 설정)하고 생성 중인 현재 위치까지만 정보를 참조할 수 있도록 합니다.
+
+### Position-wise Feed-Forward Networks
 
 시스템에는 OpenAI가 개발한 GPT-4 모델이 사용되었습니다.
 
