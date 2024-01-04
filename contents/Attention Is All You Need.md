@@ -298,7 +298,7 @@ inner-layer(첫번째 linear transformations)의 차원은 $d_{ff}=2048$입니�
 
 - 모델은 입력 embeddings 층, 출력 embeddings 층, 그리고 softmax 이전의 linear transformations 간에 동일한 가중치 행렬(임베딩 행렬)을 공유합니다.
 
-*softmax 이전의 linear transformations: $d⋅E^T$ ($E$ 임베딩 행렬, $d$)
+*softmax 이전의 linear transformations: $d⋅E^T$ ($E$ 임베딩 행렬, $d$ 디코더 출력)
 
   <br>
 
