@@ -1,7 +1,7 @@
 ---
 date: '2023-02-16'
 title: 'react 기반 기술 블로그에 목차에 하이라이트 추가하기'
-categories: ['Web']
+categories: ['Etc']
 summary: 'Interaction Observer API를 활용하여 다양한 기능을 가지고 있는 동적 목차를 추가해보자.'
 thumbnail: './test.png'
 ---

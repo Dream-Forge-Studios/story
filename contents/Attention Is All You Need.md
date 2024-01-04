@@ -16,8 +16,6 @@ thumbnail: './test.png'
 
 하지만 순차적 특성은 이전 요소의 처리 결과에 의존하여 시퀀스의 각 부분을 독립적으로 동시에 처리하기 때문에 병렬처리가 어렵고, 특히 긴 시퀀스 길이에서는 메모리 제약으로 인해 배치 처리가 제한됩니다.
 
-**Attention mechanisms**
-
 <br>
 
 Attention mechanisms는 입력 데이터의 모든 부분이 동등한 중요도를 갖지 않는다는 아이디어에서 출발합니다. 모델이 특정 부분에 더 많은 'attention'를 기울여 그 부분의 중요도를 높입니다.
@@ -29,17 +27,41 @@ Attention mechanisms는 입력 데이터의 모든 부분이 동등한 중요도
 1. Query, Key, Value:
 
 - Query: 현재 타겟 또는 출력 상태를 나타냅니다.
-- Key: 입력 데이터의 각 요소를 나타내며, 쿼리와 비교되어 유사도를 계산하는 데 사용됩니다. (Query 부분에서 해당 토큰이 얼마나 중요한지)
-- Value: 입력 데이터의 각 요소에 대응하며, 가중치가 적용된 후 최종 출력에 기여합니다. (토큰의 실제 정보)
+
+  <br>
+
+- Key: 입력 데이터의 각 요소를 나타내며, 쿼리와 비교되어 유사도를 계산하는 데 사용됩니다. <br>=> Query 부분에서 해당 토큰이 얼마나 중요한지
+
+  <br>
+
+- Value: 입력 데이터의 각 요소에 대응하며, 가중치가 적용된 후 최종 출력에 기여합니다. <br>=> 토큰의 실제 정보
+
+  <br>
+
 - 입력 시퀀스의 각 토큰(예: 단어, 문자)마다 고유한 Key와 Value가 할당
+
+  <br>
+
 - Query는 입력 시퀀스의 각 토큰마다 별도로 생성되지 않고, 대신 현재의 타겟 상태 또는 출력에 대한 Query가 할당 <br> 예) 시퀀스-투-시퀀스 모델(기계번역)에서는 디코더의 각 층마다 하나씩 생성 <br>*Self-Attention에서 Query는 입력 시퀀스의 각 토큰마다 별도로 생성
 
 2. 유사도 계산 및 가중치 할당:
 
 - Query와 각 Key 사이의 유사도를 계산(내적 dot product)하여 attention weight를 결정합니다.
+
+  <br>
+
 - 이 weight는 입력 데이터의 어느 부분이 현재 출력에 더 중요한지 나타냅니다.
+
+  <br>
+
 - attention weight는 보통 Softmax 함수를 통해 정규화되어, 모든 weight의 합이 1이 되도록 합니다.
+
+  <br>
+
 - 이후 Value와 결합하여 context vector를 생성합니다. <br> (현재 출력에 중요성에 따라 입력 데이터의 정보가 반영되도록 하는 계산의 사용)
+
+  <br>
+
 - 최종적으로 생성된 context vector와 현재의 타겟 상태를 결합하여 최종 출력(예: 번역된 단어, 다음 단어)을 생성하는 데 사용됩니다.
 
 **Transformer의 제안**
@@ -60,7 +82,7 @@ transformer 더 많은 병렬 처리를 가능하게 함으로써, 트레이닝 
 
 ## Background
 
-transformer 기본 목표 중 하나는 하나는 순차적 계산을 줄이는 것입니다. 이는 Extended Neural GPU, ByteNet, ConvS2S와 같은 모델들에서도 공통적인 목표로, 이들 모델은 모두 CNN을 기본 구성 요소로 사용합니다.
+transformer 기본 목표 중 하나는 순차적 계산을 줄이는 것입니다. 이는 Extended Neural GPU, ByteNet, ConvS2S와 같은 모델들에서도 공통적인 목표로, 이들 모델은 모두 CNN을 기본 구성 요소로 사용합니다.
 
 <br>
 
@@ -154,7 +176,7 @@ transformer는 거리에 따라 필요한 연산 수가 증가하는 cnn 기반 
 - 각 내적 결과를 $\sqrt{d_k}$로 나누어 스케일링합니다.
 - Softmax 함수를 적용하여 값을 가중치로 변환합니다.
 
-$Attention(Q,K,V)=softmax( \frac{QK^T}{\sqrt{dk}} )V$
+$Attention(Q,K,V)=softmax( \frac{QK^T}{\sqrt{d_k}} )V$
 
 ### Multi-Head Attention
 
@@ -163,10 +185,6 @@ $Attention(Q,K,V)=softmax( \frac{QK^T}{\sqrt{dk}} )V$
 1. linearly project의 사용
 
 - Multi-Head Attention에서는 single attention function를 사용하는 대신, Query, Key, Value를 ℎ번 서로 다른 linearly project을 통해 $d_k, d_k, d_v$차원으로 변환합니다. 
-
-  <br>
-  
-- 이러한 서로 다른 linearly project를 head라고 부릅니다.
 
   <br>
   
@@ -278,7 +296,9 @@ inner-layer(첫번째 linear transformations)의 차원은 $d_{ff}=2048$입니�
 
 **가중치 공유**
 
-- 모델은 입력 embeddings 층, 출력 embeddings 층, 그리고 softmax 이전의 linear transformations 간에 동일한 가중치 행렬을 공유합니다.
+- 모델은 입력 embeddings 층, 출력 embeddings 층, 그리고 softmax 이전의 linear transformations 간에 동일한 가중치 행렬(임베딩 행렬)을 공유합니다.
+
+*softmax 이전의 linear transformations: $d⋅E^T$ ($E$ 임베딩 행렬, $d$)
 
   <br>
 
@@ -290,7 +310,7 @@ inner-layer(첫번째 linear transformations)의 차원은 $d_{ff}=2048$입니�
 
 <br>
 
-- 임베딩 층에서는 가중치에 $\sqrt{d_{model}}$을 곱하여 스케일링합니다.
+- 임베딩 층에서는 가중치(임베딩 행렬)에 $\sqrt{d_{model}}$을 곱하여 스케일링합니다.
 
   <br>
   
@@ -328,7 +348,7 @@ $pos$는 토큰의 위치(시퀀스 내의 순서), $i$는 임베딩 벡터 내�
 
 <br>
 
-사인과 코사인 함수를 사용한 위치 인코딩은 모델이 상대적 위치 정보를 쉽게 학습할 수 있도록 합니다. 어떤 고정된 오프셋 $k$에 대해서, $PE_{pos+k}$는 $PE_{pos}$의 선형 함수로 표현될 수 있습니다.
+사인과 코사인 함수를 사용한 위치 인코딩은 모델이 상대적 위치 정보를 쉽게 알 수 있도록 합니다. 어떤 고정된 오프셋 $k$에 대해서, $PE_{pos+k}$는 $PE_{pos}$의 선형 함수로 표현될 수 있습니다.
 
 $sin(x+\Delta)=sin(x)cos(\Delta)+cos(x)sin(\Delta)$
 
@@ -537,8 +557,8 @@ WMT 2014 영어-독일어 및 영어-프랑스어 번역 작업에서 트랜스�
 
 <br>
 
-연구팀은 텍스트 외의 다른 입력 및 출력 모달리티(modality)를 가진 문제에 트랜스포머를 확장할 계획입니다.
+연구팀은 텍스트 외의 다른 입력 및 출력 modality를 가진 문제에 트랜스포머를 확장할 계획입니다.
 
 <br>
 
-이미지, 오디오, 비디오와 같이 큰 입력과 출력을 효율적으로 다루기 위한 지역적이고 제한된 어텐션 메커니즘에 대한 연구를 계획하고 있습니다.
+이미지, 오디오, 비디오와 같이 큰 입력과 출력을 효율적으로 다루기 위한 지역적이고 제한된 attention 메커니즘에 대한 연구를 계획하고 있습니다.
