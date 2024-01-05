@@ -377,7 +377,7 @@ IN-Abs 데이터셋에 여러 Extractive Summarization 방법을 적용하여 �
 
 <img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./summary/metrics.PNG">
 
-- LegPegasus-IN과 LegLED-IN이 가장 우수한 성능을 보였습니다. 이는 인도 법률 문서에 대한 추가적인 도메인별 미세 조정의 이점을 보여줍니다. 
+- LegPegasus-IN과 LegLED-IN이 우수한 성능을 보였습니다. 이는 인도 법률 문서에 대한 추가적인 도메인별 미세 조정의 이점을 보여줍니다. 
 
   <br>
   
