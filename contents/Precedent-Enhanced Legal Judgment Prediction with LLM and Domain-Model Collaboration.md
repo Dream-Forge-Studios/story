@@ -201,7 +201,7 @@ LLMs는 광범위한 훈련을 통해 복잡한 자연어를 이해하고 생성
 
   <br>
 
-- 이 벡터를 fully-connected network with softmax activation에 입력하여 레이블 확률 분포 $P ∈ R^m$를 얻습니다. 여기서 $W^p ∈ \mathbb{R}^{m×d}$와 $b^p ∈ \mathbb{R}^m$은 학습 가능한 매개변수입니다. 주의할 점은 $m$은 다른 하위 작업에서 달라질 수 있습니다.<br>: $P = Softmax(Wp · h^f + b^p )$
+- 이 벡터를 fully-connected network with softmax activation에 입력하여 레이블 확률 분포 $P ∈ R^m$를 얻습니다. 여기서 $W^p ∈ \mathbb{R}^{m×d}$와 $b^p ∈ \mathbb{R}^m$은 학습 가능한 매개변수입니다. 주의할 점은 $m$은 다른 하위 작업에서 달라질 수 있습니다.<br>: $P = Softmax(W^p · h^f + b^p )$
 
   <br>
 
