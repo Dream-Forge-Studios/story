@@ -1,8 +1,8 @@
 ---
 date: '2023-02-16'
-title: 'aws Lambda 사용방법'
+title: '일정시간이 되면 서버에서 자동으로 코드가 실행되게 하기'
 categories: ['Etc']
-summary: 'aws Lambda에서 원하는 파이썬 코드를 일정 시간이 되면 자동으로 실행되게 해보자.'
+summary: 'aws Lambda에 s3를 연결하고 원하는 파이썬 코드를 Amazon EventBridge을 활용하여 일정 시간이 되면 자동으로 실행되게 해보자.'
 thumbnail: './test.png'
 ---
 
@@ -14,7 +14,7 @@ thumbnail: './test.png'
 
 <br>
 
-그전에 로컬에서 해당 코드를 매일 실행시키는 것은 번거로운 과정이니, aws Lambda를 통해 매일 일정한 시간에 api를 호출하여 s3에 엑셀로 정리하는 기능을 구현해보려고 합니다.
+그전에 로컬에서 해당 코드를 매일 실행시키는 것은 번거로운 과정이니, aws Lambda와 Amazon EventBridge를 통해 매일 일정한 시간에 api를 호출하여 s3에 엑셀로 정리하는 기능을 구현해보려고 합니다.
 
 <div id="aws Lambda란?"></div>
 
@@ -114,6 +114,34 @@ Amazon S3에 버킷 생성 후 권한 탭의 버킷 정책에
 <br>
 
 `123456789012` 부분은 AWS 계정 ID이며, `lambda-role`은 함수 > 구성탭 > 권한의 역할 이름, `your-bucket-name`은 대상 S3 버킷의 이름입니다.
+
+<div id="Amazon EventBridge"></div>
+
+## Amazon EventBridge
+
+Amazon EventBridge는 AWS에서 제공하는 서버리스 이벤트 버스 서비스로, 다양한 소스에서 발생하는 이벤트를 감지하거나 원하는 실행 일정을 정하면, 그에 따라 AWS 서비스, 사용자가 정의한 로직, 또는 서드파티 애플리케이션에 자동으로 반응할 수 있도록 돕습니다.
+
+<br>
+
+이번 프로젝트에서는 원하는 시간마다 aws Lambda 함수가 실행되게 하기 위해 사용됩니다.
+
+<br>
+
+**사용 방법**
+
+<br>
+
+Amazon EventBridge > 일정 > 일정 생성으로 가서 일정 세부 정보 지정을 입력합니다. 
+
+<br>
+
+본 프로젝트에서는 매일 오전 10시 15분에 실행되게 하므로 Cron 표현식을 "15 10 * * ? *"로 입력합니다.
+
+<br>
+
+다음으로는 대상 선택을 합니다. aws lambda 함수를 실행시킬 것 이므로 모든 api > aws lambda > invoke > 실행할 함수 선택한 뒤 나머지 입력한 후 일정을 생성합니다.
+
+
 
 
 
