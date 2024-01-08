@@ -2,7 +2,7 @@
 date: '2023-02-16'
 title: '일정시간이 되면 서버에서 자동으로 api를 호출하고 db에 저장하는 방법'
 categories: ['Etc']
-summary: 'aws Lambda, s3, EventBridge, RDS, EC2를 사용해보자.'
+summary: 'aws Lambda, s3, EventBridge, RDS, EC2, NAT Instance를 사용해보자.'
 thumbnail: './test.png'
 ---
 
@@ -238,15 +238,46 @@ https://dbeaver.io/download/ 해당 링크를 통해 설치할 수 있습니다.
 1. 우선 RDS 데이터베이스의 퍼블릭 엑세스를 예라고 설정한다. 
    - 실제 서비스를 할 때는 아니오로 설정해야한다.
    - 다만 아니오일 때 해당 데이터베이스의 접근하려면 복잡함으로 우선 개발을 마치기 전까지는 예로 설정한다.
-2. DBeaver를 열고 좌측 상단에 콘센트 모양에 +가 붙어있는 아이콘을 선택한다.
+2. VPC 보안 그룹 클릭 > 인바운드 규칙 편집 > 규칙 추가 > 내 IP
+   - 기본으로 냅두면 연결이 되지 않으니 수정해야한다.
+3. DBeaver를 열고 좌측 상단에 콘센트 모양에 +가 붙어있는 아이콘을 선택한다.
 
 <img style="width: 100%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/ff70b719-786a-4145-b33e-22d5ddad7657/4.png">
+<img style="width: 100%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/b249e387-f40e-4d8c-9493-374788d5e7ad/image.png">
+<img style="width: 100%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/281dca40-f36d-4238-9811-edc2b81244a4/7.png">
+
+- Server Host : 엔드포인트
+- Port : 포트
+- Database : DB 이름 (초기 데이터베이스 이름 설정 하지 않았으면 비워둠)
+- Username : 마스터 사용자 이름
+- Password : 비밀번호
+
+**Lambda에 연결**
+
+<br>
+
+RDS에 연결하기 위해서 lambda가 같은 VPC에 위치하여야 합니다.
+
+1. IAM > 역할 > lambda 함수에 해당하는 역할명
+2. 권한 추가: AWSLambdaVPCAccessExecutionRole (lambda에서 VPC를 사용가능하게 함)
+3. Lambda 함수 > 구성 > VPC 편집
+4. 모든 서브넷 선택
+5. RDS와 동일한 보안 그룹 선택
+
+그런데 문제가 있습니다. lambda 함수 내에서 외부 api를 호출해서 제품 정보를 가져오는데, VPC 내의 위치시키면 외부 api와 연결할 수 없기 때문입니다.
+
+<br>
+
+같은 VPC에 위치시키지 않고 인바이트 규칙에 lambda 함수가 실행되는 ip 주소를 추가할 수 있지만, aws lambda는 서버리스 컴퓨팅 서비스로서 정적 ip가 아닌 동적 ip가 할당되어 있어 불가능합니다.
+
+<br>
+
+그래서 외부 ip에 접속가능하게 하는 NAT Instance가 필요합니다.
 
 
+<div id="NAT Instance"></div>
 
-<div id="Amazon EC2"></div>
-
-## Amazon EC2
+## NAT Instance
 
 이 서비스는 사용자에게 가상 서버 인스턴스를 제공하여, 클라우드에서 애플리케이션을 호스팅하고 실행할 수 있게 해줍니다. EC2는 웹 서버, 데이터베이스, 백엔드 서비스, 큰 규모의 데이터 처리 작업, 개발 및 테스트 환경 등 다양한 용도로 사용됩니다.
 
