@@ -119,34 +119,6 @@ Amazon S3에 버킷 생성 후 권한 탭의 버킷 정책에
 
 `your-bucket-name`은 대상 S3 버킷의 이름입니다.
 
-<div id="Amazon EventBridge"></div>
-
-## Amazon EventBridge
-
-Amazon EventBridge는 AWS에서 제공하는 서버리스 이벤트 버스 서비스로, 다양한 소스에서 발생하는 이벤트를 감지하거나 원하는 실행 일정을 정하면, 그에 따라 AWS 서비스, 사용자가 정의한 로직, 또는 서드파티 애플리케이션에 자동으로 반응할 수 있도록 돕습니다.
-
-<br>
-
-이번 프로젝트에서는 원하는 시간마다 aws Lambda 함수가 실행되게 하기 위해 사용됩니다.
-
-<br>
-
-**사용 방법**
-
-<br>
-
-Amazon EventBridge > 일정 > 일정 생성으로 가서 일정 세부 정보 지정을 입력합니다. 
-
-<br>
-
-본 프로젝트에서는 매일 오전 10시 15분에 실행되게 하므로 Cron 표현식을 "15 10 * * ? *"로 입력합니다.
-
-<br>
-
-다음으로는 대상 선택을 합니다. aws lambda 함수를 실행시킬 것 이므로 모든 api > aws lambda > invoke > 실행할 함수 선택한 뒤 나머지 입력한 후 일정을 생성합니다.
-
-<div id="Amazon RDS"></div>
-
 ## Amazon RDS
 
 Amazon RDS는 다양한 배포 옵션을 제공하여, 다양한 운영 요구 사항과 성능, 가용성, 비용에 따라 최적의 데이터베이스 솔루션을 선택할 수 있는 서비스입니다.
@@ -326,3 +298,31 @@ NAT 인스턴스는 EC2 인스턴스를 NAT용으로 설정해 사용하는, 이
 6. VPC > 라우팅 테이블 > 라우팅 테이블 생성 > 대상: 0.0.0.0/0, 인스턴스 아까 만든 NAT Instance
 7. 서브넷이 총 4개가 있는데 2개는 internet gateway 라우팅 테이블에 연결, 2개는 NAT Instance에 연결된 서브넷에 연결합니다.
 8. 그 후 lambda 함수를 NAT Instance에 연결된 서브넷으로 지정하면 외부 api 호출이 가능합니다.
+
+<div id="Amazon EventBridge"></div>
+
+## Amazon EventBridge
+
+Amazon EventBridge는 AWS에서 제공하는 서버리스 이벤트 버스 서비스로, 다양한 소스에서 발생하는 이벤트를 감지하거나 원하는 실행 일정을 정하면, 그에 따라 AWS 서비스, 사용자가 정의한 로직, 또는 서드파티 애플리케이션에 자동으로 반응할 수 있도록 돕습니다.
+
+<br>
+
+이제 모든 준비를 마쳤으니, Amazon EventBridge를 통해 원하는 시간마다 aws Lambda 함수가 실행되게 설정해봅시다. 
+
+<br>
+
+**사용 방법**
+
+<br>
+
+Amazon EventBridge > 일정 > 일정 생성으로 가서 일정 세부 정보 지정을 입력합니다.
+
+<br>
+
+본 프로젝트에서는 매일 오전 10시 15분에 실행되게 하므로 Cron 표현식을 "15 10 * * ? *"로 입력합니다.
+
+<br>
+
+다음으로는 대상 선택을 합니다. aws lambda 함수를 실행시킬 것 이므로 모든 api > aws lambda > invoke > 실행할 함수 선택한 뒤 나머지 입력한 후 일정을 생성합니다.
+
+<div id="Amazon RDS"></div>
