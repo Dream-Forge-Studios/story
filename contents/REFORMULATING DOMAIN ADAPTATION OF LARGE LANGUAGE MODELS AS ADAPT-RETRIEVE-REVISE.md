@@ -60,9 +60,7 @@ The recall on the LegalQA dataset.
   
 - 방법: 중국어로 사전 훈련된 LLM을 중국 법률 도메인의 corpora(문서 집합)에 지속적으로 훈련시킵니다. 이 과정을 통해 법률 분야에 맞춰진 모델이 생성됩니다.
   
-    <br>
-  
-- 결과: 이 법률 분야에 적응된 모델은 사용자의 질문에 대한 draft answer을 생성합니다.
+- 결과: 이 법률 분야에 적응된 모델은 사용자의 질문("질문에 대한 중국 법률 증거를 제공하십시오”)에 대한 draft answer을 생성합니다.
 
 **2. retrieve**
 
@@ -110,7 +108,9 @@ The recall on the LegalQA dataset.
 
 **4. 세부 튜닝**
 
-- 연구팀은 지속적인 학습 후에 모델을 70K 지시 예제로 추가로 미세 조정했습니다. 이 예제에는 52K GPT-4 자체 지시 중국어 데이터와 18K 법률 지시가 포함되어 있습니다.
+- 연구팀은 지속적인 학습 후에 모델을 70K 지시 예제로 추가로 instruction tuning(지시 조정)했습니다.     
+  - 52K GPT-4 self-instruct Chinese data
+  - 18K legal instructions
 
 **5. 초안 답변 생성**
 

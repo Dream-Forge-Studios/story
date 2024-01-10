@@ -163,11 +163,7 @@ LLMs는 광범위한 훈련을 통해 복잡한 자연어를 이해하고 생성
 
 <br>
 
-**사후 사정**은 처벌의 중증도를 결정할 때 고려되는 다양한 사실적 상황을 의미합니다. 
-
-<br>
-
-**경감 사정**으로는 자수와 공로 행위가 있으며, 가중 사정으로는 재범 등이 있습니다. 
+**사후 사정**은 처벌의 중증도를 결정할 때 고려되는 다양한 사실적 상황을 의미합니다. 경감 사정으로는 자수와 공로 행위가 있으며, 가중 사정으로는 재범 등이 있습니다. 
 
 <br>
 
@@ -337,8 +333,16 @@ CAIL2018 데이터셋은 훈련 세트, 검증 세트, 테스트 세트로 8:1:1
 
 본 논문의 PLJP에서는 CNN과 BERT를 예측 모델로 활용하며 'text-davinci-003'를 LLM 구현으로 사용합니다. 이를 PLJP(CNN)과 PLJP(BERT)로 명명합니다.
 
-<br>
+- Accuracy (Acc): 모델이 올바르게 예측한 데이터의 비율
+- Macro-Precision (Ma-P): 각 클래스에 대한 정밀도의 평균
+- Macro-Recall (Ma-R): 각 클래스에 대한 리콜(재현율)의 평균
+- Macro-F1 (Ma-F): 매크로 정밀도와 매크로 리콜의 조화 평균
 
+<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result1.PNG">
+
+<img style="width: 100%; margin-top: 0px;" id="output" src="precedent/result2.PNG">
+
+<br>
 
 **변형 연구(Ablation Study):**
 
@@ -350,11 +354,10 @@ CAIL2018 데이터셋은 훈련 세트, 검증 세트, 테스트 세트로 8:1:1
 
 프롬프트의 길이 제한을 고려하여 선례의 수는 3개로 설정합니다.
 
-<img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result1.PNG">
-
-<img style="width: 100%; margin-top: 0px;" id="output" src="precedent/result2.PNG">
-
 <img style="width: 100%; margin-top: 40px;" id="output" src="precedent/result3.PNG">
+
+
+
 
 ###  Experiment Settings
 

@@ -14,7 +14,7 @@ thumbnail: './test.png'
 
 <br>
 
-그전에 로컬에서 해당 코드를 매일 실행시키는 것은 번거로운 과정이니, aws Lambda와 Amazon EventBridge를 통해 매일 일정한 시간에 api를 호출하여 s3에 엑셀로 정리 및 RDS를 활용한 db 저장 기능을 구현해보려고 합니다.
+그전에 로컬에서 해당 코드를 매일 실행시키는 것은 번거로운 과정이니, aws Lambda와 Amazon EventBridge를 통해 매일 일정한 시간에 api를 호출하여 s3에 엑셀 저장 및 RDS를 활용한 db 저장 기능을 구현해보려고 합니다.
 
 <div id="aws Lambda란?"></div>
 
@@ -113,7 +113,11 @@ Amazon S3에 버킷 생성 후 권한 탭의 버킷 정책에
 
 <br>
 
-`123456789012` 부분은 AWS 계정 ID이며, `lambda-role`은 함수 > 구성탭 > 권한의 역할 이름, `your-bucket-name`은 대상 S3 버킷의 이름입니다.
+`123456789012` 부분은 AWS 계정 ID이며, 
+
+`lambda-role`은 함수 > 구성탭 > 권한의 역할 이름, 
+
+`your-bucket-name`은 대상 S3 버킷의 이름입니다.
 
 <div id="Amazon EventBridge"></div>
 
@@ -149,7 +153,7 @@ Amazon RDS는 다양한 배포 옵션을 제공하여, 다양한 운영 요구 �
 
 <br>
 
-기본적인 사용 방법과 초기 개발을 위한 무료 사용 방법을 따로 구분하여 설명할 것이다.
+기본적인 사용 방법과 초기 개발을 위한 무료 사용 방법이 있습니다.
 
 <br>
 
@@ -242,9 +246,9 @@ https://dbeaver.io/download/ 해당 링크를 통해 설치할 수 있습니다.
    - 기본으로 냅두면 연결이 되지 않으니 수정해야한다.
 3. DBeaver를 열고 좌측 상단에 콘센트 모양에 +가 붙어있는 아이콘을 선택한다.
 
-<img style="width: 100%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/ff70b719-786a-4145-b33e-22d5ddad7657/4.png">
-<img style="width: 100%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/b249e387-f40e-4d8c-9493-374788d5e7ad/image.png">
-<img style="width: 100%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/281dca40-f36d-4238-9811-edc2b81244a4/7.png">
+<img style="width: 30%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/ff70b719-786a-4145-b33e-22d5ddad7657/4.png">
+<img style="width: 80%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/b249e387-f40e-4d8c-9493-374788d5e7ad/image.png">
+<img style="width: 80%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/281dca40-f36d-4238-9811-edc2b81244a4/7.png">
 
 - Server Host : 엔드포인트
 - Port : 포트
@@ -252,44 +256,56 @@ https://dbeaver.io/download/ 해당 링크를 통해 설치할 수 있습니다.
 - Username : 마스터 사용자 이름
 - Password : 비밀번호
 
+<br>
+
 **Lambda에 연결**
 
-<br>
-
-RDS에 연결하기 위해서 lambda가 같은 VPC에 위치하여야 합니다.
-
-1. IAM > 역할 > lambda 함수에 해당하는 역할명
-2. 권한 추가: AWSLambdaVPCAccessExecutionRole (lambda에서 VPC를 사용가능하게 함)
-3. Lambda 함수 > 구성 > VPC 편집
-4. 모든 서브넷 선택
-5. RDS와 동일한 보안 그룹 선택
-
-그런데 문제가 있습니다. lambda 함수 내에서 외부 api를 호출해서 제품 정보를 가져오는데, VPC 내의 위치시키면 외부 api와 연결할 수 없기 때문입니다.
+<img style="width: 70%; margin-top: 40px; border: 2px solid black;" id="output" src="aws/architecture.PNG">
 
 <br>
 
-같은 VPC에 위치시키지 않고 인바이트 규칙에 lambda 함수가 실행되는 ip 주소를 추가할 수 있지만, aws lambda는 서버리스 컴퓨팅 서비스로서 정적 ip가 아닌 동적 ip가 할당되어 있어 불가능합니다.
+이 부분에서 문제가 많았습니다.
+
+1. lambda가 RDS에 연결하기 위해서는 같은 VPC에 위치하여야 합니다.
+2. 그런데 vpc에 lambda가 위치하면 외부 api를 호출할 수 없습니다.
+3. 그래서 NAT instance를 만들어 이를 통해 외부 api를 호출하여야 합니다.
 
 <br>
 
-그래서 외부 ip에 접속가능하게 하는 NAT Instance가 필요합니다.
+여러 시행착오 끝에 그림과 같은 구조로 해결하였습니다.
 
+<br>
+
+- lambda에서 설정
+  1. IAM > 역할 > lambda 함수에 해당하는 역할명
+  2. 권한 추가: AWSLambdaVPCAccessExecutionRole (lambda에서 VPC를 사용가능하게 함)
+  3. Lambda 함수 > 구성 > VPC 편집
+  4. NAT instance와 연결된 서브넷 선택
+  5. RDS와 동일한 보안 그룹 선택
 
 <div id="NAT Instance"></div>
 
 ## NAT Instance
 
-이 서비스는 사용자에게 가상 서버 인스턴스를 제공하여, 클라우드에서 애플리케이션을 호스팅하고 실행할 수 있게 해줍니다. EC2는 웹 서버, 데이터베이스, 백엔드 서비스, 큰 규모의 데이터 처리 작업, 개발 및 테스트 환경 등 다양한 용도로 사용됩니다.
+AWS에서 네트워크를 설계할때 NAT의 사용은 필수적입니다. VPC 내에서는 외부 인터넷 접속이 불가하기 때문입니다.
 
 <br>
 
+AWS에서 강력하게 밀어주는 최신식 NAT Gateway 서비스를 이용해서 손쉽게 사설망 외부 통신을 할 수 있지만, 비용 문제가 발생하므로 본 프로젝트에서는 NAT Instance를 사용합니다.
+
+<br>
+
+NAT 인스턴스는 EC2 인스턴스를 NAT용으로 설정해 사용하는, 이른바 불안정하고 한물 간 구식 기술이지만 저렴하며 프리티어를 사용하면 무료로 사용할 수 있습니다.
+
 **사용 방법**
+
+- EC2 설정
 
 1. EC2 > 인스턴스 > 인스턴스 시작
 2. 생성 옵션 설정
    - Application and OS Images (Amazon Machine Image) 
      - EC2 인스턴스를 시작하는 데 사용되며, 운영 체제(OS), 애플리케이션 서버 및 애플리케이션과 같은 소프트웨어가 미리 구성되어 있습니다.
-     - 본인은 AWS 서비스와의 높은 통합도가 필요하여 Amazon Linux AMI 선택
+     - NAT Instance로 사용할 것이므로 NAT를 검색하여 프리 티어 사용 가능한 AMI를 선택합니다.
    - 프리티어 사용 가능
      - 일정한 제한된 사용량에 대해서 무료로 제공
    - 키 페어(Key Pair)
@@ -300,4 +316,13 @@ RDS에 연결하기 위해서 lambda가 같은 VPC에 위치하여야 합니다.
    - 고급 세부 정보 
      - 많은 경우, 기본 설정만으로도 EC2 인스턴스를 충분히 구동하고 관리할 수 있습니다. 특별한 설정이나 구성이 필요하지 않다면 고급 세부 정보를 변경하지 않아도 됩니다.
      - 고급 세부 정보는 보다 세부적인 설정이 필요한 숙련된 사용자나 특정 요구 사항이 있는 경우에 유용합니다. 예를 들어, 특정 소프트웨어를 자동으로 설치하려면 사용자 데이터를 설정할 수 있습니다.
-
+3. 인스턴스 생성 후 선택 > 작업 > 네트워킹 > 소스/대상 확인변경 중지
+   - 일반적으로, AWS에서 실행되는 각 EC2 인스턴스는 '소스/대상 검사(Source/Destination Check)' 기능이 활성화되어 있습니다.
+   - 이 기능은 인스턴스가 받거나 보내는 트래픽이 해당 인스턴스를 목적지나 출발지로 하는지를 확인합니다. 즉, 인스턴스는 자신이 최종 목적지나 출발점인 트래픽만 처리합니다.
+   - 하지만, NAT 인스턴스의 경우 이 동작이 적합하지 않습니다. NAT 인스턴스는 다른 인스턴스의 트래픽을 인터넷으로 중계하는 역할을 하기 때문에, 자신이 트래픽의 최종 목적지나 출발점이 아닌 경우에도 트래픽을 수신하고 전송할 수 있어야 합니다.
+4. 탄력적 IP > 탄력적 IP 주소 할당 > 나머지 냅두고 태그: 키 Name, 값 NAT-coopangpl
+5. 탄력적 주소 선택 후 작업 > 탄력적 IP 주소 연결 > NAT Instance 연결
+   - 탄력적 IP는 AWS 클라우드 환경에서 고정된 공용 IP 주소를 제공합니다. 이를 통해 인터넷에서 일관된 주소를 사용하여 인스턴스에 접근할 수 있습니다.
+6. VPC > 라우팅 테이블 > 라우팅 테이블 생성 > 대상: 0.0.0.0/0, 인스턴스 아까 만든 NAT Instance
+7. 서브넷이 총 4개가 있는데 2개는 internet gateway 라우팅 테이블에 연결, 2개는 NAT Instance에 연결된 서브넷에 연결합니다.
+8. 그 후 lambda 함수를 NAT Instance에 연결된 서브넷으로 지정하면 외부 api 호출이 가능합니다.
