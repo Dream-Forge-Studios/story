@@ -369,7 +369,7 @@ IN-Abs 데이터셋에 여러 Extractive Summarization 방법을 적용하여 �
 
    - 기계 번역 출력 평가에 일반적으로 사용되는 지표이지만, 모델 생성 요약이 goldstandard summary과 얼마나 잘 일치하는지 측정하는 데에도 사용될 수 있습니다.
 
-위의 모든 지표에 대해 SummEval 패키지((https://github.com/Yale-LILY/SummEval))의 구현을 사용합니다. 이는 요약 평가에 대한 잘 알려진 패키지입니다.
+위의 모든 지표에 대해 SummEval 패키지 (https://github.com/Yale-LILY/SummEval) 의 구현을 사용합니다. 이는 요약 평가에 대한 잘 알려진 패키지입니다.
 
 <br>
 
