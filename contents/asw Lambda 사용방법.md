@@ -232,7 +232,7 @@ https://dbeaver.io/download/ 해당 링크를 통해 설치할 수 있습니다.
 
 **Lambda에 연결**
 
-<img style="width: 70%; margin-top: 40px; border: 2px solid black;" id="output" src="aws/architecture.PNG">
+<img style="width: 70%; margin-top: 40px;" id="output" src="aws/architecture.PNG">
 
 <br>
 
@@ -268,6 +268,8 @@ AWS에서 강력하게 밀어주는 최신식 NAT Gateway 서비스를 이용해
 <br>
 
 NAT 인스턴스는 EC2 인스턴스를 NAT용으로 설정해 사용하는, 이른바 불안정하고 한물 간 구식 기술이지만 저렴하며 프리티어를 사용하면 무료로 사용할 수 있습니다.
+
+<br>
 
 **사용 방법**
 
