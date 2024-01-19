@@ -105,11 +105,75 @@ FlashAttention을 사용한 트랜스포머는 Path-X 챌린지(시퀀스 길이
 
 그래서 고안된 FlashAttention의 주요 목표는 attention matrix를 HBM에 읽고 쓰는 것을 피하는 것입니다. 
 
+<br>
+
 이를 위한 전략으로는
+
+<div id="전략"></div>
+
+## 전략
 
 1. tiling: 입력을 블록으로 나누어 블록 내에서 여러번 softmax reduction를 수행한 후 결과를 통합합니다.
 *softmax reduction: 모델이 어떤 토큰에 더 많은 '주의'를 기울여야 하는지 계산하는 것
 
 2. forward pass 과정에서 소프트맥스 정규화 인자를 SRAM에 저장하여, backward pass 과정에서 HBM에서 읽지 않고 SRAM에서 attention을 빠르게 재계산합니다.
 
+    <br>
+   
 3. CUDA에서 구현되어 메모리 접근을 세밀하게 제어할 수 있습니다.
+   - 모든 attention 연산을 하나의 GPU 커널로 통합하여, 연산 효율성을 높입니다.
+    *서로 다른 GPU 커널을 사용하면, 각 커널 간의 컨텍스트 전환(context switching)이 필요합니다.
+
+이를 통한 구체적인 성능 개선으로는
+
+<div id="성능 개선"></div>
+
+## 성능 개선
+
+1. 재계산으로 인한 FLOP 증가에도 불구하고, 표준 attention 대비 빠른 실행 속도(예: GPT-2에서 최대 7.6배 빠름)와 더 적은 메모리 사용(시퀀스 길이에 선형적)을 달성합니다.
+
+    <br>
+   
+2. IO complexity
+    - IO complexity는 컴퓨터 알고리즘에서 데이터의 입출력(Input/Output) 작업이 얼마나 복잡한지를 나타내는 지표입니다.
+   
+      <br>
+      
+    - FlashAttention은 표준 attention 대비 훨씬 적은 HBM 접근이 필요하여 IO complexity가 낮습니다.
+   
+      <br>
+      
+    - FlashAttention의 HBM 접근 복잡도: $O(N^2d^2M^{-1})$<br>* $O()$: 알고리즘의 성능 상한선
+    - 표준 attention의 HBM 접근 복잡도: $Ω(Nd+N^2)$<br>* $Ω()$: 알고리즘의 성능 하한선<br>* 시퀀스의 길이: $N$, SRAM 크기: $M$, attention head의 차원: $d$
+
+FlashAttention의 확장 버전인 Block-Sparse FlashAttention이 있습니다.
+
+<div id="다양한 확장 가능성"></div>
+
+## 다양한 확장 가능성
+
+본 논문에서는 다중 GPU에서의 주의력, 커널 회귀, 블록 희소 행렬 곱셈과 같은 다양한 연산에 FlashAttention을 확장할 수 있음을 논의합니다.
+
+<br>
+
+**Block-Sparse FlashAttention**
+
+<br>
+
+FlashAttention의 확장으로, Block-Sparse attention 계산을 수행합니다. 이는 특히 매우 긴 시퀀스 데이터를 처리할 때 유용합니다.
+
+<br>
+
+Block-Sparse attention는 모든 토큰 간이 아닌 특정 블록 내의 토큰들 끼리만 attention 계산을 하는 것을 의미합니다.
+
+<div id="성능 평가 및 벤치마킹"></div>
+
+## 성능 평가 및 벤치마킹
+
+1. 모델 훈련 속도 향상: FlashAttention을 사용하면 트랜스포머 모델의 훈련이 기존 방법보다 더 빠르게 진행됩니다. 예를 들어, BERT-large, GPT-2, Long-range arena 모델들이 기존 대비 각각 15%, 3배, 2.4배 빠른 속도로 훈련됩니다.
+
+2. 모델 품질 향상: FlashAttention은 더 긴 시퀀스를 처리할 수 있게 함으로써 모델의 품질을 향상시킵니다. GPT-2에서는 복잡도(perplexity)가 0.7 개선되었고, 긴 문서 분류 작업에서는 성능이 6.4 포인트 향상되었습니다.
+
+3. Path-X 및 Path-256 도전과제 수행: FlashAttention을 사용한 트랜스포머 모델은 Path-X 도전과제에서 처음으로 기회 수준 이상의 성능을 보였으며, Block-sparse FlashAttention을 사용한 모델은 더 긴 64K 시퀀스에서 Path-256 도전과제를 수행할 수 있었습니다.
+
+4. attention 벤치마킹: FlashAttention은 표준 attention 구현보다 최대 3배 빠르며, 128부터 2K까지의 일반적인 시퀀스 길이에서 더 나은 성능을 보입니다. 시퀀스 길이가 1K 이상인 경우, 일부 approximate attention methods (e.g., Linformer)가 더 빠르기 시작하지만, Block-sparse FlashAttention은 현재 알려진 모든 approximate attention methods보다 빠릅니다.
