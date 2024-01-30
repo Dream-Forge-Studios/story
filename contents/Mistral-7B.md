@@ -84,47 +84,6 @@ SWA는 트랜스포머의 각 층에서 일정한 크기의 '윈도우'(W)를 �
 
 *xFormers: 일반적인 attention 메커니즘 외에도 다양한 종류의 attention 메커니즘을 제공하는 프레임워크 
 
-```
-    def forward(
-        self,
-        x: torch.Tensor,
-        freqs_cis: torch.Tensor,
-        cache: Optional[CacheView],
-    ) -> torch.Tensor:
-        seqlen_sum, _ = x.shape
-
-        xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)
-        xq = xq.view(seqlen_sum, self.n_heads, self.head_dim)
-        xk = xk.view(seqlen_sum, self.n_kv_heads, self.head_dim)
-        xv = xv.view(seqlen_sum, self.n_kv_heads, self.head_dim)
-        xq, xk = apply_rotary_emb(xq, xk, freqs_cis=freqs_cis)
-
-        if cache is None:
-            key, val = xk, xv
-        elif cache.prefill:
-            key, val = cache.interleave_kv(xk, xv)
-            cache.update(xk, xv)
-        else:
-            cache.update(xk, xv)
-            key, val = cache.key, cache.value
-            key = key.view(
-                seqlen_sum * cache.sliding_window, self.n_kv_heads, self.head_dim
-            )
-            val = val.view(
-                seqlen_sum * cache.sliding_window, self.n_kv_heads, self.head_dim
-            )
-
-        # Repeat keys and values to match number of query heads
-        key, val = repeat_kv(key, val, self.repeats, dim=1)
-
-        # xformers requires (B=1, S, H, D)
-        xq, key, val = xq[None, ...], key[None, ...], val[None, ...]
-        output = memory_efficient_attention(
-            xq, key, val, None if cache is None else cache.mask
-        ) 
-
-        return self.wo(output.view(seqlen_sum, self.n_heads * self.head_dim))
-```
 <img style="width: 40%; margin-top: 40px;" id="output" src="./mistralImg/parameter.PNG">
 
 <div id="Rolling Buffer Cache"></div>
@@ -133,18 +92,17 @@ SWA는 트랜스포머의 각 층에서 일정한 크기의 '윈도우'(W)를 �
 
 <img style="width: 100%; margin-bottom: 40px;" id="output" src="./mistralImg/rolling.PNG">
 
-트랜스포머 모델에서 특정 시점의 키(key)와 값(value)을 계산할 때, 모든 이전 시점의 정보를 고려하는 대신 고정된 범위 내의 정보만을 사용합니다.
+sliding window 트랜스포머 모델에서 특정 시점의 키(key)와 값(value)을 계산할 때, 모든 이전 시점의 정보를 고려하는 대신 고정된 범위 내의 정보만을 사용합니다.
 
 <br>
 
-이러한 고정된 주의 범위는 캐시의 크기를 미리 정할 수 있게 해줍니다.
+이러한 고정된 attention 범위는 캐시의 크기를 미리 정할 수 있게 해줍니다.
 
 ```
 cache_window = max(seqlens) + max_tokens
 if model.args.sliding_window is not None and cache_window > model.args.sliding_window:
     cache_window = model.args.sliding_window
 ```
-<br>
 
 Rolling Buffer Cache는 고정된 크기(W)를 가지며, 각 시점(i)에서의 키와 값은 캐시의 i mod W 위치에 저장됩니다.
 
@@ -159,12 +117,17 @@ Rolling Buffer Cache는 고정된 크기(W)를 가지며, 각 시점(i)에서의
 ```
 def unrotate(cache: torch.Tensor, seqlen: int) -> torch.Tensor:
     assert cache.ndim == 3  # (W, H, D)
+    """
+    cache.shape[0] sliding_window 크기
+    seqlen 이전 시퀀스의 크기
+    """
     position = seqlen % cache.shape[0]
     if seqlen < cache.shape[0]:
         return cache[:seqlen]
     elif position == 0:
         return cache
     else:
+        #캐시에 저장된 이전 시퀀스의 원래 순서로 맞춰줌
         return torch.cat([cache[position:], cache[:position]], dim=0)
 ```
 <div id="Pre-fill and Chunking"></div>
@@ -173,7 +136,7 @@ def unrotate(cache: torch.Tensor, seqlen: int) -> torch.Tensor:
 
 <img style="width: 100%; margin-bottom: 40px;" id="output" src="./mistralImg/pre-fill.PNG">
 
-트랜스포머 모델을 사용하여 시퀀스를 생성할 때, 각 토큰은 이전 토큰들에 조건부로 생성됩니다. 즉, 현재 토큰을 예측하기 위해서는 이전에 생성된 토큰들의 정보가 필요합니다.
+시퀀스를 생성할 때, 각 토큰은 이전 토큰들에 조건부로 생성됩니다. 즉, 현재 토큰을 예측하기 위해서는 이전에 생성된 토큰들의 정보가 필요합니다.
 
 <br>
 
@@ -215,6 +178,10 @@ for s in range(0, max_prompt_len, chunk_size):
 
 그림에서 보여주듯이,  attention mask는 캐시와 현재 청크에 대한 주의 계산을 적절히 조절합니다.
 이 mask는 모델이 어떤 토큰에 주의를 기울여야 하는지를 결정하는 데 사용됩니다.
+
+### 아래 링크로 들어가시면 자세한 코드 리뷰를 볼 수 있습니다.
+
+[Mistral Transformer 코드에 대한 한국어 분석 및 주석 작성](https://github.com/thankyouflow/MistralKoreanAnalysis/tree/main)
 
 <div id="Results"></div>
 

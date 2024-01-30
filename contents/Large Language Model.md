@@ -1,8 +1,8 @@
 ---
-date: '2023-02-16'
-title: '업스테이지는 어떻게 글로벌 OpenLLM 리더보드 1등을 하였는가?'
+date: '2024-01-30'
+title: 'Large Language Model에 관하여'
 categories: ['Large Language']
-summary: 'aws Lambda, s3, EventBridge, RDS, EC2, NAT Instance를 사용해보자.'
+summary: 'LLM을 이해하면서 어떻게 하면 내가 원하는 LLM으로 fine-tuning할 때의 인사이트를 얻어보자'
 thumbnail: './test.png'
 ---
 
@@ -10,11 +10,7 @@ thumbnail: './test.png'
 
 <br>
 
-저는 쿠팡 api로 가격데이터를 매일 가져와서 가격의 흐름을 확인할 수 있는 웹 서비스를 기획하고 있습니다.
-
-<br>
-
-그전에 로컬에서 해당 코드를 매일 실행시키는 것은 번거로운 과정이니, aws Lambda와 Amazon EventBridge를 통해 매일 일정한 시간에 api를 호출하여 s3에 엑셀 저장 및 RDS를 활용한 db 저장 기능을 구현해보려고 합니다.
+나의 목표를 법률 특화 LLM을 만드는 것이다. 이를 위해 LLM을 제대로 이해하면서 fine-tuning할 때의 인사이트를 얻어보려고 합니다.
 
 <div id="Transformer 기반 언어 모델"></div>
 
@@ -22,8 +18,8 @@ thumbnail: './test.png'
 
 ### Encoder-only LLM
 
-1. 구조: Encoder 부분만을 포함합니다.
-2. 작동 방식: 입력 텍스트를 받아 문맥을 이해하고, 이를 바탕으로 텍스트의 의미적 특징을 추출합니다.
+1. 구조: Encoder 부분만을 포함
+2. 작동 방식: 입력 텍스트를 받아 문맥을 이해하고, 이를 바탕으로 텍스트의 의미적 특징을 추출
 3. 장점: 빠른 처리 속도, 효율적인 계산, 강력한 문맥 이해 능력.
 4. 주요 사용 사례: 텍스트 분류, 개체명 인식, 감정 분석 등 문맥 이해가 중요한 작업.
 5. 대표 예시: BERT (Bidirectional Encoder Representations from Transformers).
@@ -32,7 +28,7 @@ thumbnail: './test.png'
    
 ### Decoder-only LLM
 
-1. 구조: Decoder 부분만을 포함합니다.
+1. 구조: Decoder 부분만을 포함
 2. 작동 방식: 주어진 입력(시작 토큰 등)으로부터 텍스트를 순차적으로 생성합니다.
 3. 장점: 강력한 텍스트 생성 능력, 순차적인 데이터 생성에 적합.
 4. 주요 사용 사례: 텍스트 생성, 기계 번역, 챗봇과 같은 대화형 시스템.
@@ -51,23 +47,153 @@ thumbnail: './test.png'
    - 원본 텍스트에서 임의의 연속된 토큰(span)을 선택하여 마스킹하고, 모델이 이 마스킹된 span을 예측하도록 하는 과정
 
 ### 비교 분석
-- Encoder-Only LLM: 문맥 이해와 분석에 강점을 가지며, 정보 추출 및 분류 작업에 적합합니다.
-- Decoder-Only LLM: 순차적 텍스트 생성에 강점을 가지며, 창의적인 텍스트 작성이 필요한 작업에 유용합니다.
-- Encoder-Decoder LLM: 입력과 출력 간의 복잡한 관계를 이해하고 변환하는데 강점을 가지며, 번역이나 요약과 같이 복잡한 변환 작업에 적합합니다.
+- Encoder-Only LLM: 문맥 이해와 분석에 강점을 가지며, 정보 추출 및 분류 작업에 적합
+- Decoder-Only LLM: 순차적 텍스트 생성에 강점을 가지며, 창의적인 텍스트 작성이 필요한 작업에 유용
+- Encoder-Decoder LLM: 입력과 출력 간의 복잡한 관계를 이해하고 변환하는데 강점을 가지며, 번역이나 요약과 같이 복잡한 변환 작업에 적합
 
-### 
+<div id="raw corpora 활용"></div>
 
-<div id="Causal language modeling"></div>
+## raw corpora 활용
 
-## Causal language modeling
+언어 모델을 학습하기 위해서 라벨링된 데이터를 준비하는 과정은 시간이 많이 소요되고 비용이 많이 들 수 있으며, 데이터의 범위나 다양성이 제한될 수 있습니다.
 
-새로운 것을 만들어 내는 현상이 있어, 최근의 연구되는 LLM 모델은 대부분 CLM 활용(GPT-3, LLaMA, PaLM, BLOOM 등)
+<br>
 
-### 특징
+이러한 문제를 해결하기 위해, 원시 말뭉치(raw corpora)를 활용한 비지도 학습 방식이 제안되었습니다.
 
-1. 구조: Transformer Decoder-only
-2. 복잡한 데이터셋 구축에 소모되는 비용 절감
-3. 지식을 습득하는데 유용
+<br>
+
+이 방식에서는 데이터 내의 일부 단어를 '마스킹'하고 모델에 이를 예측하도록 합니다. 특히, 언어 생성을 주 목적으로 하는 경우 'Causal Language Modeling'이라는 접근 방식이 사용됩니다.
+
+<img style="width: 80%; margin-top: 40px;" id="output" src="./llm/casual.PNG">
+
+### Emergent Ability
+
+그런데 단순히 뒷말을 예측하도록 학습시켰는데, 의도하지 않은 능력들이 생기는 것을 발견하였습니다. 
+
+<br>
+
+OpenAI의 Alec Radfold가 단순히 뒤에 나올 단어를 예측하는 언어 모델을 RNN으로 만들고 있었는데, 긍정적인 말에 반응하는 뉴런과 부정적인 말에 반응하는 뉴런이 있다는 것을 발견하였으며,
+
+<br>
+
+트렌스포머 기반 언어 모델에서는 문장을 이해하고, 요약하고, 대답하는 등의 능력이 생기는 것을 확인하면서, LLM의 주목하기 시작하였습니다.
+
+<div id="LLM의 발전 과정"></div>
+
+## LLM의 발전 과정
+
+### GPT-1
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./llm/gpt-1.PNG">
+
+GPT-1은 트렌스포머의 디코더를 이용하여 사전 학습된 모델을 가지고, 다양한 Downstream Task에 사전학습된 모델을 Fine-tuning하여 활용하였습니다.
+
+<br>
+
+Extract 토큰을 통해 특정 Downstream Task을 식별하는데 사용되며, 사전 학습 모델 뒤에 추가되는 Linear 레이어는 출력을 태스크에 적합한 형태로 매핑합니다.
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./llm/pretrained.PNG">
+
+GPT-1에서 주목할 연구 결과는 명시적인 인간 라벨링이 필요 없으며, 대규모 원시 데이터를 활용하는 비지도학습 활용을 통한 사전 학습이 특정 NLP 태스크에서 효과적이라는 것을 깨달았습니다.
+
+### GPT-2
+
+GPT-2는 사전학습만으로 다양한 Task 처리가 가능함을 주장합니다.
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./llm/gpt-2.PNG">
+
+데이터 필터링을 통해 고품질 데이터로 모델 크기를 충분히 키워서 학습하니 추가학습 없이 Downstream Task을 Zero-shot으로 해결할 수 있는 가능성을 보입니다.
+
+### GPT-3
+
+#### scaling law
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./llm/ScalingLaw.PNG">
+
+위의 그래프는 모델의 크기에 따라 데이터의 양과 컴퓨팅 자원 대비 loss 값을 정리한 것입니다.
+
+1. 데이터가 증가함에 따라 모델 크기도 증가해야한다.
+2. 모델 크기가 클 경우 적은 데이터로도 loss가 잘 줄어든다.
+3. 계산 자원이 제한되어 있을 때, 최적의 loss에 도달하지 못한다.
+
+이러한 연구를 통해 open ai는 가지고 있는 데이터셋의 수에 맞는 적절한 크기에 모델을 출시하게 됩니다. 
+
+<img style="width: 70%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./llm/gpt-3.PNG">
+
+OpenAI는 학습 데이터의 양과 계산 시간을 고려하여, 최적의 loss에 도달하기 위한 적절한 파라미터 크기를 갖춘 GPT-3 175B 모델을 개발했습니다.
+
+<br>
+
+그런데 이렇게 큰 모델을 downstream task를 위해 fine-tuning을 하기에는 적절하지 않습니다.
+
+<br>
+
+GPT-3 175B 모델의 실행에는 175GB의 GPU 메모리가 필요합니다. 16비트 정밀도를 사용할 경우, 메모리 요구량이 약 300GB까지 증가합니다. 
+
+<br>
+
+이 모델을 전체적으로 재학습하기 위해서는 기존 요구량의 5배를 초과하는 GPU 메모리가 필요하므로, 재학습이 어려워 Few-shot Leaning을 통해 downstream task에 적용하는 연구가 이루어졌습니다.
+
+#### Few-shot
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./llm/shot.PNG">
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./llm/few-shot.PNG">
+
+Few-shot Leaning을 통해 downstream task 능력이 향상 되는 것을 볼 수 있습니다.
+
+<br>
+
+그런데 여기서 또한 주목해야할 점은 모델 크기가 커지면서(6.7B ~) Emergent Ability가 급격하게 생기는 것을 볼 수 있습니다.
+
+<div id="Model Alignment"></div>
+
+## Model Alignment
+
+GPT 시리즈는 Causal Language Modeling을 기반으로 하여 주로 문장의 뒷부분을 예측하는 데 초점을 맞추고 있으며, 구체적인 문제 해결 방법을 직접적으로 학습하는 것은 아닙니다.
+
+<br>
+
+따라서, 프롬프트 이해 능력을 향상시키고, zero-shot 성능을 개선하는 방향으로 추가 연구가 진행되었습니다.
+
+### Instruction tuning (FLAN)
+
+FLAN은 LLM을 인간의 선호도(feedback)를 바탕으로 미세 조정(fine-tuning)하는 방법을 탐구합니다.
+
+<br>
+
+이는 모델이 다른 태스크들에 대한 Instruction tuning을 통해 학습함으로써, 처음 접하는 태스크에서도 성능이 향상됬다는 점을 주목할만 합니다.
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="llm/dataset.PNG">
+
+위와 같은 다양한 태스크의 데이터셋을 기반으로, 각 데이터셋마다 인간이 직접 10개의 템플릿을 수작업으로 작성합니다. 이 템플릿들은 해당 태스크를 다양한 방식으로 설명합니다.
+
+<br>
+
+더불어, 다양성을 증가시키기 위해 각 데이터셋에 최대 3개의 추가적인 템플릿을 포함시키는데, 이들은 기존 태스크를 '반대로 뒤집는' 형태로 구성됩니다.
+
+<br>
+
+예를 들어, 감정 분석 태스크의 경우, 원래의 태스크는 텍스트(예: 영화 리뷰)의 감정을 분류하는 것이지만, 추가된 템플릿에서는 사용자에게 특정한 감정을 가진 영화 리뷰를 생성하도록 요구할 수 있습니다.
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="llm/template.PNG">
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="llm/zero-perform.PNG">
+
+FLAN을 활용한 모델은 live LLM에 비해 zero-shot(한번도 보지 못한 태스크) 성능에 있어서 큰 향상을 보았으며, 해당 태스크에 특화한 Supervised model에 비교해서도 나은 성능을 보이는 경우도 있었습니다.
+
+<img style="width: 80%; margin-top: 40px; margin-bottom: 40px;" id="output" src="llm/modelsize.PNG">
+
+그런데 주의해야할 점은 모델 크기가 작으면 Instruction tuning이 오히려 해가 된다는 연구가 있습니다.
+
+<br>
+
+위의 도표에서는 8B 이후 부터 도움이 된다고 나와있지만, 이것은 2020년 당시의 연구 결과이며 현재는 6B 이후 부터 도움이 된다고 언급됩니다.
+
+### Instruction tuning의 문제점
+
+
 
 <div id="데이터 품질 향상"></div>
 
