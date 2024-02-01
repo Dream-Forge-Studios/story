@@ -2,7 +2,7 @@
 date: '2024-01-30'
 title: 'Large Language Model에 관하여'
 categories: ['Large Language']
-summary: 'LLM을 이해하면서 어떻게 하면 내가 원하는 LLM으로 fine-tuning할 때의 인사이트를 얻어보자'
+summary: 'LLM을 이해하면서 어떻게 하면 내가 원하는 Task에 특화된 모델로 fine-tuning을 하기 위한 인사이트를 얻어보자'
 thumbnail: './test.png'
 ---
 
@@ -63,7 +63,7 @@ thumbnail: './test.png'
 
 <br>
 
-이 방식에서는 데이터 내의 일부 단어를 '마스킹'하고 모델에 이를 예측하도록 합니다. 특히, 언어 생성을 주 목적으로 하는 경우 'Causal Language Modeling'이라는 접근 방식이 사용됩니다.
+이 방식에서는 데이터 내의 일부 단어를 '마스킹'하고 모델에 이를 예측하도록 합니다. 특히, 언어 생성을 주목적으로 하는 경우 'Causal Language Modeling'이라는 접근 방식이 사용됩니다.
 
 <img style="width: 80%; margin-top: 40px;" id="output" src="./llm/casual.PNG">
 
@@ -117,15 +117,7 @@ GPT-2는 사전학습만으로 다양한 Task 처리가 가능함을 주장합�
 2. 모델 크기가 클 경우 적은 데이터로도 loss가 잘 줄어든다.
 3. 계산 자원이 제한되어 있을 때, 최적의 loss에 도달하지 못한다.
 
-이러한 연구를 통해 open ai는 가지고 있는 데이터셋의 수에 맞는 적절한 크기에 모델을 출시하게 됩니다. 
-
-<img style="width: 70%; margin-top: 40px; margin-bottom: 40px;" id="output" src="./llm/gpt-3.PNG">
-
-OpenAI는 학습 데이터의 양과 계산 시간을 고려하여, 최적의 loss에 도달하기 위한 적절한 파라미터 크기를 갖춘 GPT-3 175B 모델을 개발했습니다.
-
-<br>
-
-그런데 이렇게 큰 모델을 downstream task를 위해 fine-tuning을 하기에는 적절하지 않습니다.
+이러한 연구를 통해 open ai는 가지고 있는 다양한 모델 크기에 모델을 출시하게 됩니다. 그런데 이렇게 큰 모델을 downstream task를 위해 fine-tuning을 하기에는 적절하지 않습니다.
 
 <br>
 
@@ -134,6 +126,8 @@ GPT-3 175B 모델의 실행에는 175GB의 GPU 메모리가 필요합니다. 16�
 <br>
 
 이 모델을 전체적으로 재학습하기 위해서는 기존 요구량의 5배를 초과하는 GPU 메모리가 필요하므로, 재학습이 어려워 Few-shot Leaning을 통해 downstream task에 적용하는 연구가 이루어졌습니다.
+
+<br>
 
 #### Few-shot
 
@@ -159,7 +153,7 @@ GPT 시리즈는 Causal Language Modeling을 기반으로 하여 주로 문장�
 
 ### Instruction tuning (FLAN)
 
-FLAN은 LLM을 인간의 선호도(feedback)를 바탕으로 미세 조정(fine-tuning)하는 방법을 탐구합니다.
+FLAN은 2020년 공개된 논문으로 LLM을 인간의 선호도(feedback)를 바탕으로 미세 조정(fine-tuning)하는 방법을 탐구합니다.
 
 <br>
 
@@ -191,9 +185,93 @@ FLAN을 활용한 모델은 live LLM에 비해 zero-shot(한번도 보지 못한
 
 위의 도표에서는 8B 이후 부터 도움이 된다고 나와있지만, 이것은 2020년 당시의 연구 결과이며 현재는 6B 이후 부터 도움이 된다고 언급됩니다.
 
-### Instruction tuning의 문제점
+### RLFH
+
+#### Instruction tuning의 문제점
+
+1. Instruction Tuning은 데이터가 편향되거나 한정적일 경우, 모델의 성능과 일반화 능력이 제한될 수 있습니다.
+2. Instruction tuning의 학습 데이터가 모호하거나 다의적인 경우 정확한 학습 결과를 보장하기 어렵습니다.
+   - Q: 오늘 기분이 어때? <br> A1: 기분이 좋아 너는 어떤 것 같아? <br> A2: 최고의 기분이야 너는? <br> =>두가지 예시 모두 사람이 보기에 틀린 답변이 아님
+
+위와 같은 문제점에 기반하여 "사람의 선호도를 직접 모델에게 가르칠 수 없을까?"라는 아이디어에서 Reinforcement Learning from Human Feedback(RLFH)이 제안되었습니다.
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="llm/rlfh.PNG">
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="llm/rl.PNG">
+
+*$r_{\theta}(x,y)$: reward model의 점수 
+
+*$\pi^{RL}_\phi$: 현재 학습시키고 있는 모델
+
+*$\pi^{SFT}_\phi$: SFT한 모델
+
+*$D_pretrain$: 사전 학습한 모델
+
+*$-\beta log(\pi^{RL}_\phi/\pi^{SFT}_\phi)$를 하는 이유: 현재 학습시키고 있는 모델과 SFT한 모델의 로그확률을 구하면 차이가 클수록 작은 값, 차이가 작을수록 큰 값이 나와 모델이 너무 빠르게 변화하지 않도록 하여 안정된 강화 학습을 할 수 있습니다.
+
+*$E_x ∼ D_{pretrain}[log(\pi^{RL}(x))]$: 사전 학습한 모델 너무 크게 벗어나지 않게 하므로써 뒷말 생성 능력을 유지합니다.
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="llm/ppoResult.PNG">
+
+<img style="width: 100%; margin-top: 40px; margin-bottom: 40px;" id="output" src="llm/gpt-series.PNG">
+
+#### Llama 2
+
+<img style="width: 100%; margin-bottom: 40px; margin-top: 40px;" id="output" src="https://miro.medium.com/v2/resize:fit:1400/0*QYDbFGdK6vtQ7fE3.png">
+
+meta에서 공개한 Llama2 모델에서는 reward model을 두가지를 사용하여 유용성 뿐만 아니라 안정성 또한 향상하였습니다.
+
+### Open-Source Instruction Data
+
+#### Alpaca
+
+<br>
+
+Stanford 연구실에서 공개한 Instruction Data(Single-turn 형태의 QA 데이터)로 LLaMA 7B 모델에서 Fine-tuning된 모델을 지칭합니다.
+
+<br>
+
+이미 RLHF을 적용한 GPT-3를 활용하여 스스로 Instruction을 생성하는 Self-instruct 방법론을 통해 Instruction 생성하였습니다.
+
+<br>
+
+#### Vicuna
+
+<br>
+
+SharGPT에서 사람들이 공유한 ChatGPT 답변(Multi-turn 형태의 채팅 데이터)을 활용하여 LLaMA 13B 모델에 Fine-tuning된 모델을 지칭합니다.
+
+<div id="Prompt Engineering"></div>
+
+## Prompt Engineering
+
+Prompt Engineering을 통해 파악한 LLM이 잘 답변하는 프롬프트 유형을 이해하고, 이러한 인사이트를 바탕으로 학습 데이터를 생성하면, 모델이 더 효과적으로 작동하게 할 수 있습니다.
+
+<br>
+
+특정 프롬프트 유형에 대한 모델의 반응을 이해함으로써, 학습 데이터를 그에 맞게 최적화할 수 있습니다. 이는 모델이 학습 데이터에서 중요한 패턴을 더 쉽게 인식하고 학습할 수 있게 만듭니다.
+
+<br>
 
 
+### Chain-of-Thought
+
+<img style="width: 100%; margin-bottom: 40px; margin-top: 40px;" id="output" src="llm/cof.PNG">
+
+Chain-of-Thought 접근법에서는 모델에게 추론 과정의 중간 단계를 명시적으로 보여주는 예시를 제공함으로써, 복잡한 수학 문제 해결, 다단계 논리적 추론, 어려운 이해 문제 등의 해결 능력을 향상시킬 수 있습니다.
+
+### Least-to-Most
+
+<img style="width: 100%; margin-bottom: 40px; margin-top: 40px;" id="output" src="llm/ltm.PNG">
+
+Least-to-Most 접근법은 복잡한 문제를 해결하기 위해 점진적이고 단계적인 프롬프트를 사용하는 방법입니다
+
+<br>
+
+이 방법은 모델이 하나의 큰 문제를 여러 개의 작은 문제로 나누어 해결하도록 유도합니다.
+
+<br>
+
+이러한 방식을 통해 복잡한 문제를 해결하기 위한 모델의 능력을 체계적으로 향상시킬 수 있습니다.
 
 <div id="데이터 품질 향상"></div>
 
@@ -226,169 +304,3 @@ FLAN을 활용한 모델은 live LLM에 비해 zero-shot(한번도 보지 못한
   - 해시 기반: 텍스트 블록의 해시 값을 생성하고, 이를 비교하여 중복을 식별합니다. 이 방법은 대규모 데이터셋에서 효율적으로 중복을 검출할 수 있습니다.
   - N-gram 분석: 텍스트의 N-gram(연속된 N개의 항목)을 분석하여 중복성을 평가합니다. 이는 부분적 중복을 식별하는 데 유용할 수 있습니다.
 
-<div id="Emergence"></div>
-
-## Emergence
-
-OpenAI의 Alec Radfold가 단순히 뒤에 나올 단어를 예측하는 언어 모델을 RNN으로 만들고 있었는데, 긍정적인 말에 반응하는 뉴런과 부정적인 말에 반응하는 뉴런이 있다는 것을 발견
-
-<br>
-
-언어 모델링을 하다 보면 의도하지 않은 능력이 얻게 된다는 것을 발견
-
-<br>
-
-1. DB 인스턴스 클래스: dn.t2.micro
-2. 스토리지 자동 조정 활성화 off
-3. 백업 보존 기간: 0days
-4. 스토리지 사용량 20GiB 넘기지 않기
-
-이렇게 데이터베이스 생성을 마쳤으면, 한국에 맞추어 파라미터 그룹 생성 및 설정을 해주어야한다.
-
-<br>
-
-**파라미터 그룹**
-
-1. RDS > 파라미터 그룹 > 파라미터 그룹 생성
-2. 작업 > 편집
-3. 값 변경 
-   - timezone: Asia/Seoul 
-   - character set: utf4mb4
-   - collation: utf8mb4_general_ci
-4. RDS > 데이터베이스 > 수정
-5. DB 파라미터 그룹을 생성한 파리미터 그룹으로 설정
-6. 즉시 적용 선택 후 수정 완료되면 재부팅
-
-이제 모든 설정을 맞췄으니 AWS RDS를 DBeaver에 연결해보자
-
-<br>
-
-**DBeaver에 연결**
-
-- DBeaver란?
-
-다양한 데이터베이스 관리 시스템(DBMS)에 대해 통합 데이터베이스 관리 및 개발 도구를 제공하는 오픈 소스 소프트웨어입니다.
-
-<br>
-
-https://dbeaver.io/download/ 해당 링크를 통해 설치할 수 있습니다.
-
-- DBeaver에 연결하기
-
-1. 우선 RDS 데이터베이스의 퍼블릭 엑세스를 예라고 설정한다. 
-   - 실제 서비스를 할 때는 아니오로 설정해야한다.
-   - 다만 아니오일 때 해당 데이터베이스의 접근하려면 복잡함으로 우선 개발을 마치기 전까지는 예로 설정한다.
-2. VPC 보안 그룹 클릭 > 인바운드 규칙 편집 > 규칙 추가 > 내 IP
-   - 기본으로 냅두면 연결이 되지 않으니 수정해야한다.
-3. DBeaver를 열고 좌측 상단에 콘센트 모양에 +가 붙어있는 아이콘을 선택한다.
-
-<img style="width: 30%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/ff70b719-786a-4145-b33e-22d5ddad7657/4.png">
-<img style="width: 80%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/b249e387-f40e-4d8c-9493-374788d5e7ad/image.png">
-<img style="width: 80%; margin-bottom: 40px;" id="output" src="https://velog.velcdn.com/cloudflare/shawnhansh/281dca40-f36d-4238-9811-edc2b81244a4/7.png">
-
-- Server Host : 엔드포인트
-- Port : 포트
-- Database : DB 이름 (초기 데이터베이스 이름 설정 하지 않았으면 비워둠)
-- Username : 마스터 사용자 이름
-- Password : 비밀번호
-
-<br>
-
-**Lambda에 연결**
-
-<img style="width: 70%; margin-top: 40px;" id="output" src="aws/architecture.PNG">
-
-<br>
-
-이 부분에서 문제가 많았습니다.
-
-1. lambda가 RDS에 연결하기 위해서는 같은 VPC에 위치하여야 합니다.
-2. 그런데 vpc에 lambda가 위치하면 외부 api를 호출할 수 없습니다.
-3. 그래서 NAT instance를 만들어 이를 통해 외부 api를 호출하여야 합니다.
-
-<br>
-
-여러 시행착오 끝에 그림과 같은 구조로 해결하였습니다.
-
-<br>
-
-- lambda에서 설정
-  1. IAM > 역할 > lambda 함수에 해당하는 역할명
-  2. 권한 추가: AWSLambdaVPCAccessExecutionRole (lambda에서 VPC를 사용가능하게 함)
-  3. Lambda 함수 > 구성 > VPC 편집
-  4. NAT instance와 연결된 서브넷 선택
-  5. RDS와 동일한 보안 그룹 선택
-
-<div id="NAT Instance"></div>
-
-## NAT Instance
-
-AWS에서 네트워크를 설계할때 NAT의 사용은 필수적입니다. VPC 내에서는 외부 인터넷 접속이 불가하기 때문입니다.
-
-<br>
-
-AWS에서 강력하게 밀어주는 최신식 NAT Gateway 서비스를 이용해서 손쉽게 사설망 외부 통신을 할 수 있지만, 비용 문제가 발생하므로 본 프로젝트에서는 NAT Instance를 사용합니다.
-
-<br>
-
-NAT 인스턴스는 EC2 인스턴스를 NAT용으로 설정해 사용하는, 이른바 불안정하고 한물 간 구식 기술이지만 저렴하며 프리티어를 사용하면 무료로 사용할 수 있습니다.
-
-<br>
-
-**사용 방법**
-
-- EC2 설정
-
-1. EC2 > 인스턴스 > 인스턴스 시작
-2. 생성 옵션 설정
-   - Application and OS Images (Amazon Machine Image) 
-     - EC2 인스턴스를 시작하는 데 사용되며, 운영 체제(OS), 애플리케이션 서버 및 애플리케이션과 같은 소프트웨어가 미리 구성되어 있습니다.
-     - NAT Instance로 사용할 것이므로 NAT를 검색하여 프리 티어 사용 가능한 AMI를 선택합니다.
-   - 프리티어 사용 가능
-     - 일정한 제한된 사용량에 대해서 무료로 제공
-   - 키 페어(Key Pair)
-     - 보안상의 목적으로 사용되는 한 쌍의 암호화 키
-   - 스토리지 구성 
-     - SSD 기반은 빠르지만 고비용이고 HDD는 저렴하지만 SSD에 비해 읽기/쓰기 속도가 느림
-     - 본인은 저렴한 HDD 기반의 standard(Magnetic) 선택
-   - 고급 세부 정보 
-     - 많은 경우, 기본 설정만으로도 EC2 인스턴스를 충분히 구동하고 관리할 수 있습니다. 특별한 설정이나 구성이 필요하지 않다면 고급 세부 정보를 변경하지 않아도 됩니다.
-     - 고급 세부 정보는 보다 세부적인 설정이 필요한 숙련된 사용자나 특정 요구 사항이 있는 경우에 유용합니다. 예를 들어, 특정 소프트웨어를 자동으로 설치하려면 사용자 데이터를 설정할 수 있습니다.
-3. 인스턴스 생성 후 선택 > 작업 > 네트워킹 > 소스/대상 확인변경 중지
-   - 일반적으로, AWS에서 실행되는 각 EC2 인스턴스는 '소스/대상 검사(Source/Destination Check)' 기능이 활성화되어 있습니다.
-   - 이 기능은 인스턴스가 받거나 보내는 트래픽이 해당 인스턴스를 목적지나 출발지로 하는지를 확인합니다. 즉, 인스턴스는 자신이 최종 목적지나 출발점인 트래픽만 처리합니다.
-   - 하지만, NAT 인스턴스의 경우 이 동작이 적합하지 않습니다. NAT 인스턴스는 다른 인스턴스의 트래픽을 인터넷으로 중계하는 역할을 하기 때문에, 자신이 트래픽의 최종 목적지나 출발점이 아닌 경우에도 트래픽을 수신하고 전송할 수 있어야 합니다.
-4. 탄력적 IP > 탄력적 IP 주소 할당 > 나머지 냅두고 태그: 키 Name, 값 NAT-coopangpl
-5. 탄력적 주소 선택 후 작업 > 탄력적 IP 주소 연결 > NAT Instance 연결
-   - 탄력적 IP는 AWS 클라우드 환경에서 고정된 공용 IP 주소를 제공합니다. 이를 통해 인터넷에서 일관된 주소를 사용하여 인스턴스에 접근할 수 있습니다.
-6. VPC > 라우팅 테이블 > 라우팅 테이블 생성 > 대상: 0.0.0.0/0, 인스턴스 아까 만든 NAT Instance
-7. 서브넷이 총 4개가 있는데 2개는 internet gateway 라우팅 테이블에 연결, 2개는 NAT Instance에 연결된 서브넷에 연결합니다.
-8. 그 후 lambda 함수를 NAT Instance에 연결된 서브넷으로 지정하면 외부 api 호출이 가능합니다.
-
-<div id="Amazon EventBridge"></div>
-
-## Amazon EventBridge
-
-Amazon EventBridge는 AWS에서 제공하는 서버리스 이벤트 버스 서비스로, 다양한 소스에서 발생하는 이벤트를 감지하거나 원하는 실행 일정을 정하면, 그에 따라 AWS 서비스, 사용자가 정의한 로직, 또는 서드파티 애플리케이션에 자동으로 반응할 수 있도록 돕습니다.
-
-<br>
-
-이제 모든 준비를 마쳤으니, Amazon EventBridge를 통해 원하는 시간마다 aws Lambda 함수가 실행되게 설정해봅시다. 
-
-<br>
-
-**사용 방법**
-
-<br>
-
-Amazon EventBridge > 일정 > 일정 생성으로 가서 일정 세부 정보 지정을 입력합니다.
-
-<br>
-
-본 프로젝트에서는 매일 오전 10시 15분에 실행되게 하므로 Cron 표현식을 "15 10 * * ? *"로 입력합니다.
-
-<br>
-
-다음으로는 대상 선택을 합니다. aws lambda 함수를 실행시킬 것 이므로 모든 api > aws lambda > invoke > 실행할 함수 선택한 뒤 나머지 입력한 후 일정을 생성합니다.
-
-<div id="Amazon RDS"></div>
