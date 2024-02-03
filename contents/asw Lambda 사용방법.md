@@ -327,4 +327,188 @@ Amazon EventBridge > 일정 > 일정 생성으로 가서 일정 세부 정보 �
 
 다음으로는 대상 선택을 합니다. aws lambda 함수를 실행시킬 것 이므로 모든 api > aws lambda > invoke > 실행할 함수 선택한 뒤 나머지 입력한 후 일정을 생성합니다.
 
-<div id="Amazon RDS"></div>
+<div id="과금 피하기"></div>
+
+## 과금 피하기
+
+<img style="width: 100%; margin-bottom: 40px;" id="output" src="aws/money.PNG">
+
+한달을 이용해본 결과 과금이 되었습니다!!ㅠㅠ
+
+<br>
+
+과금이 된 이유는 RDS 프리티어로 사용해도 실행 가능한 시간을 넘으면 과금된 것이었습니다.
+
+<br>
+
+제가 RDS를 이용하는 것은 단순히 하루에 한번 DB에 저장하기 위해서인데 쓸데없이 하루 종일 실행시켜둔 것이었습니다. 아까운 내 3만원ㅠㅠ
+
+<br>
+
+그래서 이를 해결하기 위해 AWS Lambda를 통해 사용하지 않을 때는 Instance 및 RDS 자동 중지 및 시작하려고 합니다.
+
+<br>
+
+실행 코드
+
+```
+import boto3
+
+region = 'ap-northeast-2'
+instances = []
+ec2_r = boto3.resource('ec2')
+ec2 = boto3.client('ec2', region_name=region)
+rds = boto3.client('rds')
+
+for instance in ec2_r.instances.all():
+    if instance.state['Name'] == 'stopped':
+        for tag in instance.tags:
+            if tag['Key'] == 'auto-start':
+                if tag['Value'] == 'true':
+                    instances.append(instance.id)
+
+def lambda_handler(event, context):
+    if len(instances) == 0:
+        print('instance not found')
+    else:
+        ec2.start_instances(InstanceIds=instances)
+        print('start your instances: ' + str(instances))
+        
+    dbs = rds.describe_db_instances()
+    for db in dbs['DBInstances']:
+        if (db['DBInstanceStatus'] == 'stopped'):
+            doNotStart=1
+            try:
+                GetTags=rds.list_tags_for_resource(ResourceName=db['DBInstanceArn'])['TagList']
+                for tags in GetTags:
+                    if(tags['Key'] == 'auto-start' and tags['Value'] == 'true'):
+                        result = rds.start_db_instance(DBInstanceIdentifier=db['DBInstanceIdentifier'])
+                        print ("Starting instance: {0}.".format(db['DBInstanceIdentifier']))
+                if(doNotStart == 1):
+                    doNotStart=1
+            except Exception as e:
+                print ("Cannot start instance {0}.".format(db['DBInstanceIdentifier']))
+                print(e)
+```
+
+중지 코드
+
+```
+import boto3
+
+region = 'ap-northeast-2'
+instances = []
+ec2_r = boto3.resource('ec2')
+ec2 = boto3.client('ec2', region_name=region)
+rds = boto3.client('rds')
+
+for instance in ec2_r.instances.all():
+    if instance.state['Name'] == 'running':
+        for tag in instance.tags:
+            if tag['Key'] == 'auto-stop':
+                if tag['Value'] == 'true':
+                    instances.append(instance.id)
+
+def lambda_handler(event, context):
+    if len(instances) == 0:
+        print('instance not found')
+    else:
+        ec2.stop_instances(InstanceIds=instances)
+        print('stopped your instances: ' + str(instances))
+        
+    dbs = rds.describe_db_instances()
+    for db in dbs['DBInstances']:
+        if (db['DBInstanceStatus'] == 'available'):
+            DoNotStop=1
+            try:
+                GetTags=rds.list_tags_for_resource(ResourceName=db['DBInstanceArn'])['TagList']
+                for tags in GetTags:
+                    if(tags['Key'] == 'auto-stop' and tags['Value'] == 'true'):
+                        result = rds.stop_db_instance(DBInstanceIdentifier=db['DBInstanceIdentifier'])
+                        print ("Stopping instance: {0}.".format(db['DBInstanceIdentifier']))
+                if(DoNotStop == 1):
+                    DoNotStop=1
+            except Exception as e:
+                print ("Cannot stop instance {0}.".format(db['DBInstanceIdentifier']))
+                print(e)
+```
+
+하지만 코드를 실행시키기 위해서는 EC2 Instance와 RDS를 변경할 권한이 있어야 합니다.
+
+<br>
+
+구성 > 권한 > 역할 이름을 클릭 > 정책 이름 클릭 > JSON > 편집
+
+<br>
+
+실행 권한
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "start",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:StartInstances",
+                "rds:StartDBCluster",
+                "rds:StartDBInstance"
+            ],
+            "Resource": [
+                "arn:aws:rds:*:*:db:*",
+                "arn:aws:ec2:*:*:instance/*"
+            ]
+        },
+        {
+            "Sid": "describe",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeInstances",
+                "ec2:DescribeTags",
+                "ec2:DescribeInstanceStatus",
+                "rds:ListTagsForResource",
+                "rds:DescribeDBInstances",
+                "rds:DescribeDBClusters"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+중지 권한
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "stop",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:StopInstances",
+                "ec2:DescribeInstances",
+                "ec2:DescribeTags",
+                "ec2:DescribeInstanceStatus",
+                "rds:StopDBCluster",
+                "rds:ListTagsForResource",
+                "rds:DescribeDBInstances",
+                "rds:StopDBInstance",
+                "rds:DescribeDBClusters"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+이제 해당 EC2 Instance와 RDS의 태그에서 key: auto-start, auto-stop을 true로 추가한다.
+
+<br>
+
+이제 마지막으로 Lambda에서 트리거 추가에서 EventBridge를 선택하여 원하는 시간이 함수가 실행되도록 한다.
+
+<br>
+
+[참고](https://sonit.tistory.com/19)
