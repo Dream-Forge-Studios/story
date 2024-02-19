@@ -3,7 +3,9 @@ import styled from '@emotion/styled'
 import PostItem from 'components/Main/PostItem'
 import { PostListItemType } from 'types/PostItem.types'
 import { IGatsbyImageData } from 'gatsby-plugin-image'
-import useInfiniteScroll from 'hooks/useInfiniteScroll'
+import useInfiniteScroll, {
+    useInfiniteScrollType,
+} from 'hooks/useInfiniteScroll'
 
 
 export type PostType = {
