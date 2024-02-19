@@ -1,7 +1,7 @@
 ---
 date: '2023-12-06'
 title: 'FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness 논문 리뷰'
-categories: ['Large Language']
+categories: ['LLM']
 summary: 'FlashAttention 완벽 이해하기.'
 thumbnail: './test.png'
 ---

@@ -77,9 +77,9 @@ const MainPost: FunctionComponent<PostListType> = function ({
     return (
         <RepresentativeProjectWrapper>
             <TitleWrapper>
-                <Title>Skill Story</Title>
-                <MoreWrapper3> <MoreText>더보기</MoreText> <FontAwesomeIcon icon={faChevronRight} size="1x"/>
-                </MoreWrapper3>
+                <Title>Representative Project</Title>
+                {/*<MoreWrapper3> <MoreText>더보기</MoreText> <FontAwesomeIcon icon={faChevronRight} size="1x"/>*/}
+                {/*</MoreWrapper3>*/}
             </TitleWrapper>
         </RepresentativeProjectWrapper>
     )

@@ -1,7 +1,7 @@
 ---
 date: '2023-12-05'
 title: 'Mistral 7B 논문 리뷰'
-categories: ['Large Language']
+categories: ['LLM']
 summary: 'Mistral 7B 완벽 이해하기.'
 thumbnail: './test.png'
 ---

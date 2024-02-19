@@ -1,7 +1,7 @@
 ---
 date: '2023-12-21'
 title: 'Precedent-Enhanced Legal Judgment Prediction with LLM and Domain-Model Collaboration 논문 리뷰'
-categories: ['Large Language', 'RAG', 'Legal']
+categories: ['LLM', 'RAG', 'Legal']
 summary: 'Precedent-Enhanced Legal Judgment Prediction with LLM and Domain-Model Collaboration 완벽 이해하기.'
 thumbnail: './test.png'
 ---

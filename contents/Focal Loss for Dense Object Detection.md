@@ -1,7 +1,7 @@
 ---
 date: '2020-07-29'
 title: 'Focal Loss for Dense Object Detection 논문 리뷰'
-categories: ['Computer Vision']
+categories: ['CV']
 summary: 'Focal Loss for Dense Object Detection을 이해해보아요'
 thumbnail: './test.png'
 ---

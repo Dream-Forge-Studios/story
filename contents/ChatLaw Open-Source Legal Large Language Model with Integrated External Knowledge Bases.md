@@ -1,7 +1,7 @@
 ---
 date: '2024-01-04'
 title: 'ChatLaw: Open-Source Legal Large Language Model with Integrated External Knowledge Bases 논문 리뷰'
-categories: ['Large Language', 'Legal']
+categories: ['LLM', 'Legal']
 summary: 'ChatLaw라는 중국 법률 LLM 오픈 소스 완벽 이해하기.'
 thumbnail: './test.png'
 ---

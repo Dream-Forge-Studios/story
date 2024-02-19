@@ -1,7 +1,7 @@
 ---
 date: '2023-11-01'
 title: 'Llama 2: Open Foundation and Fine-Tuned Chat Models 논문 리뷰'
-categories: ['Large Language']
+categories: ['LLM']
 summary: 'Llama 2 완벽 이해하기.'
 thumbnail: './test.png'
 ---

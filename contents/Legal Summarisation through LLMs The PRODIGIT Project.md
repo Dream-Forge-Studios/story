@@ -1,7 +1,7 @@
 ---
 date: '2024-01-17'
 title: 'Legal Summarisation through LLMs: The PRODIGIT Project 논문 리뷰'
-categories: ['Large Language', 'Legal', 'Summarisation']
+categories: ['LLM', 'Legal', 'Summarisation']
 summary: 'LLM을 활용한 법 관련 문서 요약에 관한 연구'
 thumbnail: './test.png'
 ---

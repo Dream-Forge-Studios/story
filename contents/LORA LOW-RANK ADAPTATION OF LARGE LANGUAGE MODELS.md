@@ -1,7 +1,7 @@
 ---
 date: '2023-11-01'
 title: 'LORA: LOW-RANK ADAPTATION OF LARGE LANGUAGE MODELS 논문 리뷰'
-categories: ['Large Language', 'Fine-Tuning']
+categories: ['LLM', 'Fine-Tuning']
 summary: 'LORA 완벽 이해하기.'
 thumbnail: './test.png'
 ---

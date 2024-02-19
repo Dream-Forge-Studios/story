@@ -1,7 +1,7 @@
 ---
 date: '2023-10-05'
 title: 'DINO: DETR with Improved DeNoising Anchor Boxes for End-to-End Object Detection 논문 리뷰'
-categories: ['Computer Vision']
+categories: ['CV']
 summary: 'DINO: DETR with Improved DeNoising Anchor Boxes for End-to-End Object Detection을 이해해보아요'
 thumbnail: './test.png'
 ---

@@ -1,7 +1,7 @@
 ---
 date: '2023-12-20'
 title: 'REFORMULATING DOMAIN ADAPTATION OF LARGE LANGUAGE MODELS AS ADAPT-RETRIEVE-REVISE 논문 리뷰'
-categories: ['Large Language', 'RAG', 'Legal']
+categories: ['LLM', 'RAG', 'Legal']
 summary: 'REFORMULATING DOMAIN ADAPTATION OF LARGE LANGUAGE MODELS AS ADAPT-RETRIEVE-REVISE 완벽 이해하기.'
 thumbnail: './test.png'
 ---

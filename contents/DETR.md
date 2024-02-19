@@ -1,7 +1,7 @@
 ---
 date: '2023-10-05'
 title: 'DETR: End-to-End Object Detection with Transformers 핵심 요약'
-categories: ['Computer Vision']
+categories: ['CV']
 summary: 'DETR: End-to-End Object Detection with Transformers을 이해해보아요'
 thumbnail: './test.png'
 ---

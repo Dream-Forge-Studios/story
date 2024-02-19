@@ -1,7 +1,7 @@
 ---
 date: '2023-02-16'
 title: '일정시간이 되면 서버에서 자동으로 api를 호출하고 db에 저장하는 방법'
-categories: ['Etc']
+categories: ['WEB/APP']
 summary: 'aws Lambda, s3, EventBridge, RDS, EC2, NAT Instance를 사용해보자.'
 thumbnail: './test.png'
 ---
@@ -507,7 +507,11 @@ def lambda_handler(event, context):
 
 <br>
 
-이제 마지막으로 Lambda에서 트리거 추가에서 EventBridge를 선택하여 원하는 시간이 함수가 실행되도록 한다.
+이제 마지막으로 Lambda의 트리거 추가에서 EventBridge를 선택하여 원하는 시간이 함수가 실행되도록 한다.
+
+<br>
+
+여기서 주의할 점은 Lambda의 트리거 추가에서 시간은 UTC 기준이므로 현지 시간 기준을 잘 살펴야한다!!
 
 <br>
 

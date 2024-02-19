@@ -1,7 +1,7 @@
 ---
 date: '2023-01-20'
 title: 'Efficient Memory Management for Large Language Model Serving with PagedAttention 논문 리뷰'
-categories: ['Large Language']
+categories: ['LLM']
 summary: 'Making Large Language Models Better Data Creators 완벽 이해하기.'
 thumbnail: './test.png'
 ---

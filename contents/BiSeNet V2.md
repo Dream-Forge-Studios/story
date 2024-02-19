@@ -1,7 +1,7 @@
 ---
 date: '2020-07-29'
 title: 'BiSeNet V2: Bilateral Network with Guided Aggregation for Real-time Semantic Segmentation'
-categories: ['Computer Vision']
+categories: ['CV']
 summary: 'BiSeNet V2: Bilateral Network with Guided Aggregation for Real-time Semantic Segmentation 논문 리뷰'
 thumbnail: './test.png'
 ---

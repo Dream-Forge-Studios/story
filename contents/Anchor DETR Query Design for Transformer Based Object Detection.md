@@ -1,7 +1,7 @@
 ---
 date: '2023-10-05'
 title: 'Anchor DETR: Query Design for Transformer-Based Object Detection 핵심 요약'
-categories: ['Computer Vision']
+categories: ['CV']
 summary: 'Anchor DETR: Query Design for Transformer-Based Object Detection을 이해해보아요'
 thumbnail: './test.png'
 ---

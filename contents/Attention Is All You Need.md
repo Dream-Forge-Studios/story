@@ -1,7 +1,7 @@
 ---
 date: '2024-01-02'
 title: 'Attention Is All You Need 논문 리뷰'
-categories: ['Large Language']
+categories: ['LLM']
 summary: 'Attention Is All You Need 완벽 이해하기.'
 thumbnail: './test.png'
 ---

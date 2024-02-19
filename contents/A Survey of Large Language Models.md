@@ -1,7 +1,7 @@
 ---
 date: '2024-01-30'
 title: 'A Survey of Large Language Models'
-categories: ['Large Language']
+categories: ['LLM']
 summary: 'A Survey of Large Language Models에서 내가 몰랐거나 도움이 될 만한 내용을 요약해보자!'
 thumbnail: './test.png'
 ---

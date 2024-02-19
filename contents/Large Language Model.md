@@ -1,7 +1,7 @@
 ---
 date: '2024-01-30'
 title: 'Large Language Model에 관하여'
-categories: ['Large Language']
+categories: ['LLM']
 summary: 'LLM을 이해하면서 어떻게 하면 내가 원하는 Task에 특화된 모델로 fine-tuning을 하기 위한 인사이트를 얻어보자'
 thumbnail: './test.png'
 ---

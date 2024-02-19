@@ -1,7 +1,7 @@
 ---
 date: '2023-12-05'
 title: 'How Ready are Pre-trained Abstractive Models and LLMs for Legal Case Judgement Summarization? 논문 리뷰'
-categories: ['Large Language', 'Legal', 'Summarisation']
+categories: ['LLM', 'Legal', 'Summarisation']
 summary: 'How Ready are Pre-trained Abstractive Models and LLMs for Legal Case Judgement Summarization? 완벽 이해하기.'
 thumbnail: './test.png'
 ---

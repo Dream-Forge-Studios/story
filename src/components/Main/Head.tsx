@@ -36,6 +36,9 @@ const Wrapper = styled.div`
   margin: 0 auto;
   color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(7px);
+  @media (max-width: 1020px) {
+    width: 90%
+  }
 `
 
 const MenuWrapper = styled.div`
@@ -81,7 +84,7 @@ const MenuBar = styled.div`
 const Head: FunctionComponent = function ({
 
                                                                      }) {
-    const breakpoints = useBreakpoint();
+    // const breakpoints = useBreakpoint();
     return (
         <div>
             <Wrapper>
@@ -90,14 +93,19 @@ const Head: FunctionComponent = function ({
                 <FontAwesomeIcon icon={faHomeLgAlt}  size="1x" />
                 </Link>
                 </Logo>
-                {       !breakpoints.sm ?         <MenuWrapper>
+                {/*{       !breakpoints.sm ?         <MenuWrapper>*/}
+                {/*    <MenuTitle1>Project</MenuTitle1>*/}
+                {/*    <MenuTitle2>Blog</MenuTitle2>*/}
+                {/*    <MenuTitle2>Introduce</MenuTitle2>*/}
+                {/*</MenuWrapper> :*/}
+                {/*    <MenuBar>*/}
+                {/*    <FontAwesomeIcon icon={faBars} color={'#2b76b9'} size="1x" />*/}
+                {/*    </MenuBar>}*/}
+                <MenuWrapper>
                     <MenuTitle1>Project</MenuTitle1>
-                    <MenuTitle2>Blog</MenuTitle2>
-                    <MenuTitle2>Introduce</MenuTitle2>
-                </MenuWrapper> :
-                    <MenuBar>
-                    <FontAwesomeIcon icon={faBars} color={'#2b76b9'} size="1x" />
-                    </MenuBar>}
+                  <MenuTitle2>Blog</MenuTitle2>
+            <MenuTitle2>Introduce</MenuTitle2>
+                  </MenuWrapper>
             </Wrapper>
             <Header></Header>
         </div>
