@@ -1,9 +1,7 @@
-import React, { FunctionComponent, useMemo, useState, useEffect } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import Introduction from 'components/Main/Introduction'
 import { graphql } from 'gatsby'
 import { IGatsbyImageData } from 'gatsby-plugin-image'
-import { PostListItemType } from 'types/PostItem.types'
-import queryString, { ParsedQuery } from 'query-string'
 import Template from 'components/Common/Template'
 import SkillStory from "components/Main/SkillStory";
 import MainPost from "components/Main/MainPost";
@@ -20,9 +18,6 @@ type IndexPageProps = {
                 siteUrl: string
             }
         }
-        allMarkdownRemark: {
-            edges: PostListItemType[]
-        }
         file: {
             childImageSharp: {
                 gatsbyImageData: IGatsbyImageData
@@ -35,12 +30,10 @@ type IndexPageProps = {
 
 
 const IndexPage: FunctionComponent<IndexPageProps> = function ({
-                                                                   location: { search },
                                                                    data: {
                                                                        site: {
                                                                            siteMetadata: { title, description, siteUrl },
                                                                        },
-                                                                       allMarkdownRemark: { edges },
                                                                        file: {
                                                                            childImageSharp: { gatsbyImageData },
                                                                            publicURL,
@@ -67,37 +60,6 @@ const IndexPage: FunctionComponent<IndexPageProps> = function ({
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const parsed: ParsedQuery<string> = queryString.parse(search)
-
-    const selectedCategory: string =
-        typeof parsed.category !== 'string' || !parsed.category
-            ? 'All'
-            : parsed.category
-
-    const categoryList = useMemo(
-        () =>
-            edges.reduce(
-                (
-                    list: CategoryListProps['categoryList'],
-                    {
-                        node: {
-                            frontmatter: { categories },
-                        },
-                    }: PostType,
-                ) => {
-                    categories.forEach(category => {
-                        if (list[category] === undefined) list[category] = 1;
-                        else list[category]++;
-                    });
-
-                    list['All']++;
-
-                    return list;
-                },
-                { All: 0 },
-            ),
-        [],
-    )
 
     return (
         <Template
@@ -107,7 +69,7 @@ const IndexPage: FunctionComponent<IndexPageProps> = function ({
             image={publicURL}
         >
             <Introduction profileImage={gatsbyImageData} />
-            {!isMobile && <SkillStory posts={edges}/>}
+            {!isMobile && <SkillStory/>}
             <MainPost/>
         </Template>
     )
@@ -122,29 +84,6 @@ export const getPostList = graphql`
         title
         description
         siteUrl
-      }
-    }
-    allMarkdownRemark(
-      sort: { order: DESC, fields: [frontmatter___date, frontmatter___title] }
-    ) {
-      edges {
-        node {
-          id
-          fields {
-            slug
-          }
-          frontmatter {
-            title
-            summary
-            date(formatString: "YYYY.MM.DD.")
-            categories
-            thumbnail {
-              childImageSharp {
-                gatsbyImageData(width: 300, height: 300)
-              }
-            }
-          }
-        }
       }
     }
     file(name: { eq: "profile-image" }) {

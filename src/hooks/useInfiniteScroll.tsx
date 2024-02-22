@@ -16,9 +16,10 @@ const useInfiniteScroll = function (
         null,
     )
     const [count, setCount] = useState<number>(1)
-
+    debugger
     const postListByCategory = useMemo<PostListItemType[]>(
         () =>
+
             posts.filter(({ node: { frontmatter: { categories } } }: PostListItemType) =>
                 selectedCategory !== 'All'
                     ? categories.includes(selectedCategory)

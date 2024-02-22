@@ -12,7 +12,7 @@ module.exports = {
     title: `꿈꾸는 개발자`,
     description: `꿈꾸는 개발자의 이야기`,
     author: `Yu`,
-    siteUrl: 'https://my-website-link.com', // 배포 후 변경 예정
+    siteUrl: 'https://thankyouflow.github.io/', // 배포 후 변경 예정
   },
   plugins: [
     {
@@ -103,7 +103,7 @@ module.exports = {
           {
             resolve: 'gatsby-plugin-canonical-urls',
             options: {
-              siteUrl: 'https://my-website.com/',
+              siteUrl: 'https://thankyouflow.github.io/',
               stripQueryString: true,
             },
           },

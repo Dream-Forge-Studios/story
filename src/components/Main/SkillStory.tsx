@@ -1,10 +1,6 @@
-import React, {FunctionComponent, useState, Component  } from "react";
+import React, {FunctionComponent  } from "react";
 import styled from "@emotion/styled";
 import {PostListType} from "../../types/PostItem.types";
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {
-    faMessage,
-} from '@fortawesome/free-solid-svg-icons'
 import {Link} from "gatsby";
 
 import 'slick-carousel/slick/slick.css';
@@ -56,7 +52,7 @@ const CategoryWrapper = styled.div`
   margin: 60px 0px;
 `
 
-const Category = styled.div`
+const Category = styled(Link)`
   align-items: center;
   padding: 10px 20px;
   margin-right: 10px;
@@ -106,25 +102,25 @@ const SkillStory: FunctionComponent<PostListType> = function ({
                 <Title>Skill Story</Title>
             </TitleWrapper>
             <CategoryWrapper>
-                <Category>
+                <Category to={`/blog/?category=LLM`}>
                         <CategoryName>
                             LLM
                         </CategoryName>
                     <CategoryText>법률 domain LLM을 개발하고 있습니다.</CategoryText>
                     </Category>
-                <Category>
+                <Category to={`/blog/?category=WEB/APP`}>
                     <CategoryName>
                         WEB/APP
                     </CategoryName>
                     <CategoryText>상상하던 서비스들을 실현하고 있습니다.</CategoryText>
                 </Category>
-                <Category>
+                <Category to={`/blog/?category=CV`}>
                     <CategoryName>
                         CV
                     </CategoryName>
                     <CategoryText>Object Detection에 관한 논문을 정리하였습니다.</CategoryText>
                 </Category>
-                <Category>
+                <Category to={`/blog/?category=AI BASIC`}>
                     <CategoryName>
                         AI BASIC
                     </CategoryName>

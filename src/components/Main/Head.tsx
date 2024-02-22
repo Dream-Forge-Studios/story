@@ -72,15 +72,15 @@ const Logo = styled.div`
 const MenuTitle1 = styled.div`
 `
 
-const MenuTitle2 = styled.div`
+const MenuTitle2 = styled(Link)`
   margin-left: 20px;
 `
 
-const MenuBar = styled.div`
-  font-size: 20px;
-  margin-top: 15px;
-  margin-bottom: 15px;
-`
+// const MenuBar = styled.div`
+//   font-size: 20px;
+//   margin-top: 15px;
+//   margin-bottom: 15px;
+// `
 const Head: FunctionComponent = function ({
 
                                                                      }) {
@@ -103,8 +103,8 @@ const Head: FunctionComponent = function ({
                 {/*    </MenuBar>}*/}
                 <MenuWrapper>
                     <MenuTitle1>Project</MenuTitle1>
-                  <MenuTitle2>Blog</MenuTitle2>
-            <MenuTitle2>Introduce</MenuTitle2>
+                    <MenuTitle2  to={`/blog`}>Blog</MenuTitle2>
+                    <MenuTitle2>Introduce</MenuTitle2>
                   </MenuWrapper>
             </Wrapper>
             <Header></Header>

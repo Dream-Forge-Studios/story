@@ -47,6 +47,7 @@ const PostList: FunctionComponent<PostListProps> = function ({
                                                                  selectedCategory,
                                                                  posts,
                                                              }) {
+
     const { containerRef, postList }: useInfiniteScrollType = useInfiniteScroll(
         selectedCategory,
         posts,
