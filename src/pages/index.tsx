@@ -69,8 +69,11 @@ const IndexPage: FunctionComponent<IndexPageProps> = function ({
             image={publicURL}
         >
             <Introduction profileImage={gatsbyImageData} />
-            {!isMobile && <SkillStory/>}
-            <MainPost/>
+            {!isMobile ? (
+                <div><SkillStory/> <MainPost/></div>
+            ):  (
+                <div><MainPost/> <SkillStory/> </div>
+            )}
         </Template>
     )
 }

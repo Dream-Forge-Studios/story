@@ -8,7 +8,7 @@ import {
 import {Link} from "gatsby";
 
 const RepresentativeProjectWrapper = styled.div`
-  //width: 1020px;;
+  width: 1020px;
   margin: 0 auto;
 
   @media (max-width: 1020px) {

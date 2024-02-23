@@ -7,7 +7,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 const SkillStoryWrapper = styled.div`
-  //width: 1020px;;
+  width: 1020px;
   margin: 80px auto 0;
 
   @media (max-width: 1020px) {
@@ -50,6 +50,10 @@ const CategoryWrapper = styled.div`
   justify-content: space-between;
   flex-wrap: wrap;
   margin: 60px 0px;
+
+  @media (max-width: 720px) {
+    margin: 40px 0px;
+  }
 `
 
 const Category = styled(Link)`
@@ -69,7 +73,8 @@ const Category = styled(Link)`
   }
 
   @media (max-width: 720px) {
-    padding: 8px 15px;
+    //padding: 8px 15px;
+    width: 100%;
   }
 `
 
@@ -90,7 +95,7 @@ const CategoryText = styled.div`
   margin-top: 10px;
 
   @media (max-width: 720px) {
-    font-size: 16px;
+    font-size: 12px;
   }
 `
 const SkillStory: FunctionComponent<PostListType> = function ({
