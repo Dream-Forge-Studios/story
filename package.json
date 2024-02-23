@@ -17,7 +17,7 @@
     "gatsby-plugin-emotion": "^8.5.0",
     "gatsby-plugin-fontawesome-css": "^1.2.0",
     "gatsby-plugin-image": "^3.5.0",
-    "gatsby-plugin-manifest": "^5.5.0",
+    "gatsby-plugin-manifest": "^5.13.1",
     "gatsby-plugin-react-helmet": "^6.5.0",
     "gatsby-plugin-robots-txt": "^1.8.0",
     "gatsby-plugin-sharp": "^5.5.0",

@@ -16,6 +16,12 @@ module.exports = {
   },
   plugins: [
     {
+      resolve: `gatsby-plugin-manifest`,
+      options: {
+        icon: `${__dirname}/static/dream.ico`, // 파비콘 이미지 경로 설정
+      },
+    },
+    {
       resolve: "gatsby-plugin-breakpoints",
       options: {
         queries: myCustomQueries,
