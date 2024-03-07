@@ -18,7 +18,7 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        icon: `${__dirname}/static/dream.ico`, // 파비콘 이미지 경로 설정
+        icon: `static/dream.png`, // 파비콘 이미지 경로 설정
       },
     },
     {

@@ -1,90 +1,92 @@
 ---
 date: '2023-11-01'
-title: 'Llama 2: Open Foundation and Fine-Tuned Chat Models 논문 리뷰'
+title: 'Direct Preference Optimization: Your Language Model is Secretly a Reward Model 논문 리뷰'
 categories: ['LLM']
-summary: 'Llama 2 완벽 이해하기.'
+summary: 'DPO 완벽 이해하기.'
 thumbnail: './test.png'
 ---
+
+<div id="Abstract"></div>
+
+# Abstract
+
+LLM의 행동을 정밀하게 제어하는 새로운 방법론인 Direct Preference Optimization (DPO)에 대한 내용입니다.
+
+<br>
+
+기존 방법은 인간의 피드백으로부터 강화 학습(Reinforcement Learning from Human Feedback, RLHF)을 사용하여 모델 세대의 상대적 품질에 대한 인간 레이블을 수집하고, 이러한 선호도에 맞게 LLM을 미세 조정합니다.
+
+<br>
+
+그러나 RLHF는 복잡하고 종종 불안정한 절차입니다. 먼저 인간의 선호를 반영하는 보상 모델을 적합시키고, 그런 다음 이 추정된 보상을 최대화하기 위해 원본 모델에서 너무 멀어지지 않으면서 LLM을 강화 학습을 사용하여 미세 조정합니다.
+
+<br>
+
+보상 모델은  주관적 판단과 불확실성을 수반하며, 데이터의 대표성이 모델의 성능에 직접적인 영향을 미칩니다. 부족하거나 편향된 피드백 데이터는 보상 모델을 적합화하는 데 어려움을 초래하고, 결과적으로 학습된 모델의 일반화 능력에 부정적인 영향을 미칠 수 있습니다.
+
+<br>
+
+DPO는 안정적이며 성능이 좋고 계산적으로 가볍습니다. 실험 결과, DPO는 기존 방법과 같거나 더 나은 수준으로 인간의 선호도와 일치하는 방향으로 LLM를 미세 조정할 수 있음을 보여줍니다
 
 <div id="Introduction"></div>
 
 # Introduction
 
-LLM의 훈련 방법론은 자기지도 학습(self-supervised learning) 데이터의 광범위한 말뭉치에 대한 사전 훈련(pretraining)을 거친 후, 인간의 선호도와 일치시키기 위한 기술, 예를 들어 인간 피드백을 사용한 강화 학습(Reinforcement Learning with Human Feedback, RLHF) 등을 적용합니다. <br><br>
+LLM은 매우 큰 데이터셋에서 훈련될 때 놀라운 능력을 획득합니다. 그러나 이러한 모델들은 다양한 목표, 우선순위, 그리고 기술 세트를 가진 사람들이 생성한 데이터 위에 훈련됩니다.
 
-하지만 이런 훈련 방법은 높은 계산 요구 사항 때문에 몇몇 기관에서만 LLM의 개발이 가능하게 만듭니다. <br><br>
+<br>
 
-이 방법은 대규모 언어 모델, 특히 GPT-3 같은 거대한 모델들을 특정 작업이나 도메인에 맞게 조정하는 과정에 관련되어 있습니다. <br><br>
+이 중 일부 목표와 기술 세트는 모방하기 원치 않는 것들일 수 있습니다. 예를 들어, AI 코딩 어시스턴트가 일반적인 프로그래밍 실수를 이해하여 수정할 수 있기를 원하지만, 코드를 생성할 때는 훈련 데이터에 존재할 수 있는 (아마도 드문) 고품질 코딩 능력을 향해 모델을 편향시키고자 할 수 있습니다.
 
-예를 들어, BLOOM, LLaMa-1, Falcon과 같은 공개된 사전 훈련된 LLM들은 GPT-3나 Chinchilla 같은 폐쇄형 사전 훈련된 경쟁 모델들의 성능과 맞먹지만, ChatGPT, BARD, Claude와 같은 폐쇄형 제품 LLM들을 대체하기에는 적합하지 않습니다. <br><br>
+<br>
 
-이러한 폐쇄형 제품 LLM들은 인간의 선호도와 일치하도록 크게 미세 조정되어 사용성과 안전성이 크게 향상됩니다. <br><br>
+마찬가지로, 언어 모델이 50%의 사람들이 믿는 흔한 오해를 알고 있기를 원할 수 있지만, 그 오해를 질문에 대한 답변으로 50%의 확률로 사실이라고 주장하기를 원하지는 않을 것입니다! 
 
-이 미세 조정 과정은 상당한 계산 비용과 인간 주석 작업이 필요하며, 종종 투명하지 않고 쉽게 재현할 수 없어, AI 정렬 연구 분야에서의 진전을 제한하고 있습니다. <br><br>
+<br>
 
-자연어 처리에서는 일반적으로 대규모 데이터를 사용하여 모델을 사전 훈련하고, 특정 작업이나 도메인에 맞게 모델을 조정하는 과정을 거칩니다. <br><br>
+즉, 매우 넓은 지식과 능력에서 모델의 원하는 반응과 행동을 선택하는 것은 안전하고, 성능이 좋으며, 제어 가능한 AI 시스템을 구축하는 데 있어 중요합니다.
 
-본 논문은 'Llama 2'라는 대규모 언어 모델(LLM) 시리즈의 개발과 출시에 관한 것입니다. <br><br>
+<br>
 
-Llama 2와 그 변형인 Llama 2-Chat은 사전 훈련(pretrained)과 미세 조정(fine-tuned) 과정을 거쳤으며, 최대 70B(70억) 매개변수까지의 규모를 갖추고 있습니다. <br><br>
+이 논문에서는 기존 방법이 사용하는 RL 기반 목표를 단순한 이진 교차 엔트로피 목표로 정확하게 최적화할 수 있음을 보여줄 것입니다. 이는 선호도 학습 파이프라인을 크게 단순화합니다.
 
-<img style="width: 100%; margin-bottom: 40px;" id="output" src=./llama2Img/compare.PNG>
+<br>
 
-Llama 2-Chat 모델들은 다양한 유용성과 안전성 벤치마크 테스트에서 기존의 공개 소스 모델들보다 일반적으로 더 나은 성능을 보였습니다. <br><br>
+DPO는 언어 모델을 인간의 선호도에 맞게 직접 최적화하는 방법으로, 명시적인 보상 모델링이나 강화 학습을 사용하지 않아 구현이 간단하고 훈련하기 쉽다는 장점이 있습니다.
 
-또한, 인간 평가에서는 일부 폐쇄 소스 모델들과 비슷한 수준의 성능을 보이는 것으로 나타났습니다. <br><br>
+<br>
 
-이 연구팀은 모델의 안전성을 높이기 위해 안전에 특화된 데이터 주석과 조정 작업을 진행했으며, red-teaming(모델의 취약점을 찾는 과정)을 수행하고 반복적인 평가를 실시했습니다.<br><br>
+DPO는 기존 방법이 preference model을 사용하여 preference loss을 정의하고 학습된 reward model을 최적화하는 정책을 훈련하는 반면, policy를 직접 함수로 preference loss을 정의하기 위한 변수 변경을 사용한다는 점에서 차별화됩니다. 
 
-또한, 이 논문에서는 LLM의 안전성을 향상시키는 방법과 미세 조정 방법론에 대한 자세한 설명을 제공합니다. <br><br>
+<br>
 
-이러한 투명성은 커뮤니티가 미세 조정된 LLM을 재현하고 그 모델들의 안전성을 지속적으로 개선할 수 있게 하여, LLM의 책임 있는 개발을 위한 길을 열 것으로 기대됩니다.<br><br>
+인간의 모델 반응에 대한 선호도 데이터셋이 주어지면 DPO는 간단한 binary cross entropy 목표를 사용하여 정책을 최적화할 수 있으며, 선호도 데이터에 맞게 암시적으로 적합한 보상 함수에 대한 최적의 정책을 생성합니다.
 
-또한, Llama 2와 Llama 2-Chat 개발 과정에서 관찰된 새로운 현상들, 예를 들어 도구 사용의 출현과 지식의 시간적 조직화와 같은 것들도 공유합니다.
+<img style="width: 100%; margin-top: 40px;" id="output" src="./dpo/rlghDpo.PNG">
 
-## Training of Llama 2-Chat
+<div id="Preliminaries(RLHF)"></div>
 
-<img style="width: 100%; margin-bottom: 40px;" id="output" src="https://miro.medium.com/v2/resize:fit:1400/0*QYDbFGdK6vtQ7fE3.png">
+## Preliminaries(RLHF)
 
-1. Llama 2의 사전 훈련: 이 단계에서는 공개적으로 이용 가능한 온라인 자료를 사용하여 Llama 2 모델을 사전 훈련합니다.
+1. SFT(Supervised Fine-Tuning): $π^{SFT}$
 
-2. 초기 Llama 2-Chat 버전 생성: Llama 2의 사전 훈련이 끝나면, 감독된 미세 조정(supervised fine-tuning)을 적용하여 Llama 2-Chat의 초기 버전을 만듭니다.
+    <br>
 
-3. 반복적인 미세 조정: 이어서, 인간 피드백을 사용한 강화 학습(Reinforcement Learning with Human Feedback, RLHF) 방법론을 통해 모델을 반복적으로 세밀하게 조정합니다. 이 과정에는 거부 샘플링(rejection sampling)과 근접 정책 최적화(Proximal Policy Optimization, PPO)가 특히 중요합니다.
+2. Reward Modelling Phase
 
-4. RLHF 단계 동안의 데이터 축적: RLHF 단계에서는 반복적인 보상 모델링 데이터의 축적과 모델 개선이 동시에 이루어져야 합니다. 이는 보상 모델이 분포 내에 남아 있도록 하기 위해 중요합니다.
+<img style="width: 60%; margin-bottom: 10px;" id="output" src="./dpo/sic1.PNG">
 
-<div id="Pretraining"></div>
+$x$와 $y_1,y_2$: 프롬프트 $x$에 대한 두가지 답변 쌍($y_1,y_2$)
 
-# Pretraining
+$y_w ≻ y_l|x$: 인간 라벨러가 두가지 답변 중 $y_w$ preferred completion, $y_l$ dispreferred completion을 표시하는 방법
 
-1. 사전 훈련 접근 방식
+$r^*(y,x)$: 우리가 직접 접근할 수 없는 어떤 잠재적인 보상 모델의 선호도
 
-Llama 2 모델의 개발은 Touvron et al. (2023)에 설명된 사전 훈련 방식을 시작점으로 삼았습니다. 이 방식은 auto-regressive transformer를 사용합니다.<br><br>
+<br>
 
-*auto-regressive transformer: 이전의 출력(또는 데이터)을 사용하여 다음 출력을 예측하는 모델입니다. 이 모델은 특히 텍스트 생성 작업에 강력합니다. 이를 통해 자연스러운 문장, 문단, 심지어 긴 글을 생성할 수 있습니다.
+위의 식은 선호도를 모델링하기 위한 여러 접근 방식 중에서, Bradley-Terry (BT) 모델입니다.
 
-2. 성능 향상을 위한 변경 사항
-
-성능을 향상시키기 위해 여러 가지 변경 사항을 도입했습니다. 구체적으로는, 더 강화된 데이터 정제 작업을 수행하고, 데이터 혼합을 업데이트하며, 총 토큰 수를 40% 더 많이 훈련시켰습니다.
-
-3. 컨텍스트 길이와 GQA 사용
-
-모델의 컨텍스트 길이를 두 배로 늘리고, 큰 모델들의 추론 확장성을 개선하기 위해 GQA(Grouped-Query Attention)를 사용했습니다.<br><br>
-
-*GQA: 입력 시퀀스를 여러 그룹으로 나누고, 각 그룹 내에서만 어텐션 계산을 수행합니다. 이는 계산 복잡성을 감소시키기 위한 방법입니다.
-
-<div id="Pretraining Data"></div>
-
-## Pretraining Data
-
-1. 데이터 출처
-
-사전 훈련에 사용된 데이터는 공개적으로 이용 가능한 출처에서 새롭게 조합된 데이터입니다. 이 데이터에는 Meta의 제품이나 서비스에서 나온 데이터는 포함되어 있지 않습니다.
-
-2. 개인 정보 포함 사이트 제외
-
-사전 훈련 데이터에서는 개인정보가 많이 포함되어 있는 것으로 알려진 특정 사이트들의 데이터를 제거하려는 노력이 있었습니다.
+<br>
 
 3. 데이터 규모
 
