@@ -94,23 +94,81 @@ $r_ϕ$: reward model
 
 $σ$: 로지스틱 시그모이드 함수를 나타냅니다. 이 함수는 입력된 값을 0과 1 사이의 확률로 변환합니다.
 
-3. 데이터 규모
+$D = \{x^{(i)}, y_w^{(i)}, y_l^{(i)}\}$ 
 
-총 2조 토큰의 데이터로 훈련되었습니다. 이는 성능과 비용 사이의 좋은 균형을 제공한다고 판단되었습니다.
+3. RL Fine-Tuning Phase
 
-4. 데이터 업샘플링
+<img style="width: 60%; margin-bottom: 10px;" id="output" src="./dpo/sic3.PNG">
 
-가장 신뢰가 높은 출처의 데이터를 업샘플링하여, 모델의 지식을 높이고 잘못된 정보 생성을 줄이려고 시도했습니다.
+$π_{ref}$: $π_{SFT}$
 
-<div id="Training Details"></div>
+$π_θ$: 실제 언어 생성 모델, 초기에는 $π_{SFT}$
 
-## Training Details
+<div id="Direct Preference Optimization"></div>
 
-<img style="width: 100%; margin-bottom: 40px;" id="output" src="https://miro.medium.com/v2/resize:fit:1400/1*kLjlNj2mz1qUegSGTiLDBw.png">
+## Direct Preference Optimization
 
-1. Llama 2는 Llama 1의 사전 훈련 설정과 모델 구조의 대부분을 채택합니다.<br><br>
+1. Deriving the DPO objective
 
-2. 모델은 2017년 Vaswani 등이 제안한 Transformer 구조를 사용합니다.<br><br>
+<img style="width: 40%; margin-bottom: 0px;" id="output" src="./dpo/dposic1.PNG">
+
+$π_r$: 최적 모델
+
+<br>
+
+$Z(x) =  \sum_y π_{ref}(y|x)exp(\frac{1}{\beta}r(x,y))$
+
+주어진 x에 대한 모든 가능한 y의 확률 분포를 정규화하는 데 사용
+
+<br>
+
+DPO(Direct Preference Optimization) 목표를 도출하는 과정은 기존 작업에서 사용된 강화 학습(RL) 목표, 즉 일반 보상 함수 r 하에서의 KL-constrained reward maximization objective로 시작합니다.
+
+<br>
+
+위의 식은 이전 연구들을 따라, KL-constrained reward maximization objective의 최적의 해결책을 직관적으로 표현한 것입니다.
+
+<br>
+
+이를 rearrange하면,
+
+<br>
+
+<img style="width: 40%; margin-bottom: 0px;" id="output" src="./dpo/dposic2.PNG">
+
+<br>
+
+ground-truth reward $r^*$와 corresponding optimal model $π^*$의 직접적인 관계를 확인할 수 있습니다.
+
+<br>
+
+이 과정은 보상 최적화 문제를 다루는 새로운 방식을 제시하며, 보상 함수를 명시적으로 모델링하고 최적화하는 대신, 최적 정책과 참조 정책의 관계를 통해 보상을 간접적으로 최적화할 수 있게 합니다. 
+
+<br>
+
+이 접근 방식은 복잡한 RL 문제를 해결하기 위한 계산적으로 효율적인 방법을 제공합니다.
+
+<br>
+
+위의 식에 Bradley-Terry 모델을 적용하면 생성 답변 $y_1$와 $y_2$ 간의 보상 차이에만 의존하며, $Z(x)$는 두 선택지에 동일하게 적용되기 때문에, 상쇄됩니다.
+
+<br>
+
+$p^∗ (y1 \succ y2 | x) = σ(r ∗ (x, y1) − r ∗ (x, y2))$
+
+$σ=\frac{1}{1+e^{-x}}$
+
+<br>
+
+<img style="width: 60%; margin-bottom: 0px;" id="output" src="./dpo/dposic3.PNG">
+
+<br>
+
+<img style="width: 80%; margin-bottom: 0px;" id="output" src="./dpo/dposic4.PNG">
+
+2. What does the DPO update do?
+
+<img style="width: 80%; margin-bottom: 0px;" id="output" src="./dpo/dposic5.PNG">
 
 3. RMSNorm (Zhang과 Sennrich, 2019년 제안)을 사용하여 사전 정규화(pre-normalization)를 적용합니다. 이는 모델의 학습 안정성을 개선하는 데 도움을 줍니다.
 *RMSNorm: 각 입력 벡터를 그 벡터의 크기(길이)에 비례하여 스케일을 조정합니다. 이는 입력 벡터의 각 요소가 평균적으로 같은 스케일을 갖도록 만듭니다.
