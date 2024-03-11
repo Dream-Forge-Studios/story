@@ -98,7 +98,7 @@ $D = \{x^{(i)}, y_w^{(i)}, y_l^{(i)}\}$
 
 3. RL Fine-Tuning Phase
 
-<img style="width: 60%; margin-bottom: 10px;" id="output" src="./dpo/sic3.PNG">
+<img style="width: 70%; margin-bottom: 10px;" id="output" src="./dpo/sic3.PNG">
 
 $π_{ref}$: $π_{SFT}$
 
@@ -110,7 +110,7 @@ $π_θ$: 실제 언어 생성 모델, 초기에는 $π_{SFT}$
 
 1. Deriving the DPO objective
 
-<img style="width: 40%; margin-bottom: 0px;" id="output" src="./dpo/dposic1.PNG">
+<img style="width: 50%; margin-bottom: 0px;" id="output" src="./dpo/dposic1.PNG">
 
 $π_r$: 최적 모델
 
@@ -134,7 +134,7 @@ DPO(Direct Preference Optimization) 목표를 도출하는 과정은 기존 작�
 
 <br>
 
-<img style="width: 40%; margin-bottom: 0px;" id="output" src="./dpo/dposic2.PNG">
+<img style="width: 50%; margin-bottom: 0px;" id="output" src="./dpo/dposic2.PNG">
 
 <br>
 
@@ -160,84 +160,103 @@ $σ=\frac{1}{1+e^{-x}}$
 
 <br>
 
-<img style="width: 60%; margin-bottom: 0px;" id="output" src="./dpo/dposic3.PNG">
+<img style="width: 70%; margin-bottom: 0px;" id="output" src="./dpo/dposic3.PNG">
 
 <br>
 
-<img style="width: 80%; margin-bottom: 0px;" id="output" src="./dpo/dposic4.PNG">
+<img style="width: 90%; margin-bottom: 0px;" id="output" src="./dpo/dposic4.PNG">
 
 2. What does the DPO update do?
 
-<img style="width: 80%; margin-bottom: 0px;" id="output" src="./dpo/dposic5.PNG">
+<img style="width: 90%; margin-bottom: 0px;" id="output" src="./dpo/dposic5.PNG">
 
-3. RMSNorm (Zhang과 Sennrich, 2019년 제안)을 사용하여 사전 정규화(pre-normalization)를 적용합니다. 이는 모델의 학습 안정성을 개선하는 데 도움을 줍니다.
-*RMSNorm: 각 입력 벡터를 그 벡터의 크기(길이)에 비례하여 스케일을 조정합니다. 이는 입력 벡터의 각 요소가 평균적으로 같은 스케일을 갖도록 만듭니다.
+3. DPO outline
 
-4. SwiGLU 활성화 함수 (Shazeer, 2020년 제안)를 사용합니다. 이 함수는 모델의 효율적인 학습과 성능 향상에 기여합니다.<br><br>
-*SwiGLU 관련 설명: https://thecho7.tistory.com/entry/SwiGLU-Activation-Function-%EC%84%A4%EB%AA%85 
+   - 실제로는 공개적으로 사용 가능한 선호도 데이터셋을 재사용하는 것을 선호합니다. 이는 새로운 샘플을 생성하고 인간의 선호도를 수집하는 것보다 효율적입니다.
+   - 선호도 데이터셋을 사용하여 모델을 최적화할 때는 $π_{ref}$를 $π_{SFT}$로 최적화
+   - $π_{SFT}$를 사용할 수 없는 경우, $π_{ref}=argmax_π E_{x,y_w∼D}[logπ(y_w∣x)]$
 
-5. RoPE (Rotary Positional Embeddings, Su 등 2022년 제안)를 사용합니다. 이는 모델이 텍스트 내의 각 단어의 위치 정보를 더 잘 이해할 수 있도록 돕습니다.<br><br>
-*RoPE 논문: https://arxiv.org/pdf/2104.09864.pdf
+<div id="Theoretical Analysis of DPO"></div>
 
-6. Llama 2는 Llama 1과 비교하여 두 가지 주요한 구조적 차이를 가집니다. 하나는 컨텍스트 길이의 증가이고, 다른 하나는 GQA의 적용입니다.
+## Theoretical Analysis of DPO
 
-### Hyperparameters
+DPO(Direct Preference Optimization)는 명시적인 보상 모델을 적합시키고 강화 학습(RL)을 통해 정책을 학습하는 전통적인 접근법을 우회하고, single maximum likelihood objective 함수를 사용하여 정책을 최적화할 수 있는 방법을 제공합니다. 
 
-1. 모델은 AdamW를 사용하여 훈련되었습니다. AdamW는 Loshchilov와 Hutter에 의해 2017년에 제안된 효율적인 최적화 알고리즘입니다. 이는 가중치 감소(weight decay)를 통합한 Adam 옵티마이저의 변형입니다.<br><br>
-*AdamW의 Hyperparameters: $B_1=0.9, B_2=0.95, eps=10^{-5}$
+1. Your Language Model Is Secretly a Reward Model
 
-2.  cosine learning rate schedule: 이는 학습 초기에 학습률을 서서히 증가시키는 'warmup' 단계(2000 steps)를 거친 후, 점차 학습률을 줄여 최종적으로 최고 학습률의 10%로 감소시킵니다. <br><br>
+<img style="width: 60%; margin-bottom: 0px;" id="output" src="./dpo/dposic1.PNG">
 
-3. weight decay 0.1을 적용합니다. 이는 과적합을 방지하고 일반화 성능을 개선하는 데 도움을 줍니다. <br><br>
+<br>
 
-4.  gradient clipping 1.0을 적용합니다. 이는 그래디언트의 폭주를 방지하여 학습 과정의 안정성을 높입니다.
+위의 식과 같이 $Z(x)$로 나누면서 $π_θ(y∣x)(π_r(y∣x))$는 이 보상 함수가 주어진 문맥 x에 대한 모든 가능한 완성 y의 확률 분포가 합이 1이 되도록 보장하는 메커니즘을 포함합니다.
 
-### Tokenizer
+<br>
 
-1. Byte Pair Encoding (BPE) 알고리즘 적용
-이 토크나이저는 2016년 Sennrich 등에 의해 제안된 바이트 페어 인코딩(Byte Pair Encoding, BPE) 알고리즘을 사용합니다. BPE는 자주 등장하는 문자 쌍을 하나의 토큰으로 병합하는 방식으로, 효율적인 어휘 구축을 가능하게 합니다.
+즉, 주어진 문맥 x에서 모든 가능한 완성 y에 대해 유효한 확률 값을 가지도록 제약할 수 있습니다. 이는 모델이 실제로 가능한 선택만을 하게 하고, 그 결정이 합리적이라는 것을 보장합니다.
 
-2. BPE 구현을 위한 SentencePiece 라이브러리 사용
+2. Instability of Actor-Critic Algorithms
 
-BPE 알고리즘은 SentencePiece (Kudo와 Richardson, 2018)의 라이브러리를 사용합니다. SentencePiece는 언어에 독립적인 토큰화와 사전 구축을 위한 라이브러리로, 다양한 언어 처리 작업에 적용할 수 있습니다.
+Actor-Critic Algorithms이란, 정책(policy)과 가치(value) 함수를 동시에 학습하는 구조를 가집니다. 
 
-3. 숫자와 UTF-8 문자 처리 방식
+<br>
 
-- 숫자 처리: 모든 숫자는 개별 숫자로 분리됩니다 (예: "123"을 "1", "2", "3"으로 분리).
-- UTF-8 문자 처리: 알려지지 않은 UTF-8 문자는 바이트 단위로 분해합니다.
+이 방식은 '액터(actor)'로 불리는 구성 요소가 어떤 상태에서 어떤 행동을 취할지를 결정하는 정책을 학습하고, '크리틱(critic)'이라 불리는 다른 구성 요소가 그 행동의 가치를 평가하는 역할을 합니다.
 
-4. 어휘 크기: 총 어휘 크기는 32,000개의 토큰으로 구성됩니다.
+<br>
 
-<div id="Training Hardware & Carbon Footprint"></div>
+하지만 Actor-Critic 간의 상호 의존성 때문에 학습 과정이 불안정해질 수 있습니다.
 
-## Training Hardware & Carbon Footprint
+<br>
 
-1. 훈련 하드웨어
+dpo에서는 human completion baseline(reward model)을 사용하여 보상 값을 정규화했던 이전 연구와는 달리, 기준선 없이도 보상 함수를 통해 최적 정책을 도출할 수 있습니다.
 
-- 모델은 Meta의 연구 슈퍼 클러스터(Research Super Cluster, RSC)와 내부 생산 클러스터에서 사전 훈련되었습니다.
-- 두 클러스터 모두 NVIDIA A100 GPU를 사용합니다.
+<br>
 
-2. 클러스터 간의 주요 차이점:
+또한 정규화항($Z(x)$)를 통해 그라디언트의 분산을 줄여 학습 과정을 안정적으로 만듭니다.
 
-- 인터커넥트 유형: RSC는 NVIDIA Quantum InfiniBand를 사용하는 반면, 생산 클러스터는 상용 이더넷 스위치를 기반으로 하는 RoCE(RDMA over Converged Ethernet) 솔루션을 사용합니다. 두 솔루션 모두 200 Gbps의 엔드포인트를 연결합니다.
-- GPU당 전력 소비 제한: RSC는 GPU당 400W를 사용하는 반면, 생산 클러스터는 350W를 사용합니다.
+<img style="width: 100%; margin-bottom: 40px; margin-top: 40px;" id="output" src="./dpo/graph.PNG">
 
-3. 클러스터 비교의 의미
+<div id="Experiments"></div>
 
-- 이 두 클러스터 설정을 통해, 대규모 훈련에 대한 다양한 유형의 인터커넥트의 적합성을 비교할 수 있었습니다.
-- RoCE는 비용이 더 저렴한 상용 인터커넥트 네트워크로, 고가의 InfiniBand와 비교하여 최대 2000대의 GPU까지 거의 같은 수준으로 확장 가능함을 보여줍니다.
+# Experiments
 
-위에 내용이 의미하는 바는 RoCE와 같은 더 저렴하고 상용화된 인터커넥트 네트워크의 사용은 사전 훈련 과정을 더 많은 사용자들에게 접근 가능하게 만들어, 사전 훈련의 민주화에 기여할 수 있다는 것을 보여줍니다.
+## Tasks
 
-<img style="width: 100%; margin-bottom: 40px; margin-top: 40px;" id="output" src="./llama2Img/pretraining.PNG">
+1. controlled sentiment generation
 
-Llama 2 모델은 pretrained model을 공개하며 다른 회사들이 이러한 사전 훈련 비용을 들이지 않아도 되게 하여, 전 세계적인 자원을 절약할 수 있게 합니다.
+   - 입력 $x$는 IMDb dataset 영화 리뷰의 접두사이며, policy는 긍정적인 감정을 가진 응답 $y$를 생성해야 합니다.
+   - pre-trained sentiment classifier를 사용하여 선호도 쌍을 생성합니다. <br>$p(positive∣x,y_w)>p(positive∣x,y_l)$
+   - SFT는 train split of the IMDB dataset에서 리뷰를 기반으로 GPT-2-large를 fine tune 합니다.
 
-<div id="Fine-tuning"></div>
+2. summarization
 
-# Fine-tuning
+   - 입력 $x$는 Reddit 포럼 게시물이며, policy는 게시물의 주요 내용을 요약하는 $y$를 생성해야 합니다.
+   - 데이터셋은 Reddit TL;DR 요약 데이터셋과 Stiennon et al.에 의해 수집된 인간의 선호도를 사용합니다.
 
-이 내용은 Llama 2-Chat 모델이 어떻게 개발되었으며, 어떤 실험과 기술적 발견이 이루어졌는지를 설명합니다. 특히, 새로운 Ghost Attention 기술과 모델의 안전성 평가에 대한 언급이 포함되어 있습니다.
+3. single-turn dialogue
+
+   - 입력 $x$는 천체물리학에 대한 질문부터 관계 조언 요청에 이르기까지 다양한 인간의 쿼리이며, policy는 사용자의 쿼리에 대해 매력적이고 도움이 되는 응답 $y$를 생성해야 합니다.
+   - Anthropic의 Helpful and Harmless 대화 데이터셋을 사용하며, 인간과 자동화된 어시스턴트 간의 170k 대화가 포함되어 있습니다.
+   
+## Evaluation
+
+controlled sentiment generation 평가는 KL-divergence와 보상의 접점(frontier), 즉 높은 보상을 달성하면서도 참조 정책과의 차이를 최소화하는 지를 평가합니다.
+
+<br>
+
+이는 ground-truth reward function (a sentiment classifier)에 접근할 수 있어 가능합니다.
+
+<br>
+
+하지만, 실제 세계에서는 the ground truth reward function이 알려져 있지 않습니다. 따라서, 요약 및 단일 턴 대화 설정에서는 기준 정책과 비교한 알고리즘의 승률로 평가합니다.
+
+<br>
+
+이때 GPT-4가 인간의 평가를 대신하여 요약 품질과 대화 응답의 도움됨을 평가하는 "대리자(proxy)" 역할을 합니다. 
+
+<br>
+
+요약 작업에서는 테스트 세트의 참조 요약을 기준으로 하고, 대화 작업에서는 테스트 데이터셋에서 선호되는 응답을 기준으로 합니다.
 
 <div id="Supervised Fine-Tuning (SFT)"></div>
 
