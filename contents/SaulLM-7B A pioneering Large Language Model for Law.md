@@ -10,6 +10,10 @@ thumbnail: './test.png'
 
 ## Introduction
 
+SaulLM-7B는 Mistral 7B을 기반으로 300억 토큰 이상의 영어 법률 코퍼스에서 훈련되었습니다.
+
+<br>
+
 SaulLM-7B의 개발은 법률 텍스트의 복잡성과 특수성을 인식하고 이에 맞춤화된 해결책을 제공하는 데 중점을 두었습니다.
 
 <br>
@@ -24,9 +28,9 @@ SaulLM-7B의 개발은 법률 텍스트의 복잡성과 특수성을 인식하�
 
 개선된 평가 프로토콜은 연구자들이 모델의 법률적 이해와 추론 능력을 더 정확하게 측정하고 평가할 수 있게 해주어, 법률 분야에서의 인공 지능 응용의 정밀도와 효율성을 높이는 데 기여할 수 있습니다.
 
-<div id="SaulLM-7B: Extending the legal capabilities of Language Models"></div>
+<div id="Extending the legal capabilities of Language Models"></div>
 
-## SaulLM-7B: Extending the legal capabilities of Language Models
+## Extending the legal capabilities of Language Models
 
 도메인 적응에 대한 다른 연구는 특정 작업을 통해 언어 모델을 전문화하려고 시도했습니다.
 
@@ -86,225 +90,278 @@ Replay Sources를 사용하여, 지속적인 사전 훈련 중에 재앙적 망�
 
 ### Data Cleaning
 
-법률 판단의 귀납법적 추론 과정과 LLMs을 사용하여 출력 응답을 법률 귀납법과 일치시키는 방법을 설명합니다. 법률 귀납법에서 **큰 전제는 적용 가능한 법률이고, 작은 전제는 관련 사실이며, 결론은 최종 판결**입니다.
+수집된 데이터의 상당 부분이 PDF 파일이거나 PDF에서 추출된 텍스트로 구성되어 있습니다. 
 
 <br>
 
-이는 판사들의 기본적인 법률 추론 과정을 구성합니다. 모든 사례는 아래에 개요된 대로 귀납법을 통해 표현된 결론에 도달할 수 있습니다.
+이는 텍스트에 몇 가지 아티팩트가 포함되어 있음을 의미하는데, 이에는 문장 중간에 나타나는 페이지 번호, 줄 번호, 정규화되지 않은 유니코드 문자, 깨진 텍스트 라인, 반복되는 문자(새로운 줄, 대시 등), 그리고 기타 artifacts가 포함됩니다.
 
 <br>
 
-legal syllogism prompting (Jiang and Yang, 2023)와 self-construct (Wang et al., 2022)에서 영감을 받아, 우리는 LLMs를 사용하여 법률 귀납법과 일관성을 유지하도록 출력 응답을 다듬습니다.
+우리는 이러한 문제들을 해결하기 위해 규칙과 휴리스틱의 조합을 사용하여 데이터를 필터링했습니다.
 
 <br>
 
-우리는 GPT-3.5-turbo를 위한 프롬프트를 설계하여, 각 결론이 법률과 관련 사실에서 도출되어야 하며, 응답은 중국어로 되어야 한다는 점을 보장합니다.
+#### Text Normalization
 
 <br>
 
-이 접근 방식은 LLM이 법률적 문제에 대해 더 정확하고 법률적 맥락에 부합하는 응답을 생성하도록 돕습니다. 출력이 법률 귀납법의 구조를 따르도록 하는 것은 모델이 법률적 추론과 판단을 모방하는 데 중요한 단계입니다. 
+모든 유니코드를 NFKC 방법을 사용하여 정규화하며, 이는 unicodedata 파이썬 패키지를 통해 가능합니다.
 
 <br>
 
-이렇게 함으로써, 모델은 법률 문서 해석, 사례 분석, 판결 예측과 같은 복잡한 법률 작업을 수행하는 데 필요한 더 깊은 이해와 능력을 개발할 수 있습니다.
+유니코드를 정규화하는 이유는 니코드 문자는 다양한 방식으로 표현될 수 있어, 표준 형식으로 통일하여 데이터 처리의 일관성을 확보하기 위함 입니다.
 
 <br>
 
-#### Knowledge Expansion
+#### Rule filters
 
 <br>
 
-이 내용은 behavior shaping이 선택지를 선택하는 데 적용되지 않는 다중 선택 문제에 대해, 법률 지식을 직접 확장하여 더 많은 추론 세부 정보를 제공하는 방법을 설명합니다.
+Elazar et al. (2023)를 따라 우리 데이터셋에서 가장 흔한 10-grams을 찾고, 정규 표현식을 사용하여 원치 않는 것들, 주로 반복되는 문자를 제거했습니다.
 
 <br>
 
-중국의 법률 관련 시험 및 지식 경쟁에서 나오며, 형법, 헌법, 민법의 지식을 포함합니다. 많은 질문들이 답변 옵션만을 제공하는 경우에도, 우리는 올바른 답을 주어진 법률 지식을 확장하고 지시 쌍을 재구성하기 위해 LLM을 사용합니다.
+구체적으로, 원본 데이터에서 상위 10개 10-grams 중 8개는 반복되는 문자였습니다.
 
 <br>
 
-즉, 문제에 대한 올바른 답변이 제공되면, LLM을 활용하여 해당 답변과 관련된 법률 지식을 더 깊이 탐색하고, 왜 그 답변이 올바른지에 대한 추가적인 설명과 추론을 제공합니다.
+예를 들어 “- - - - - - - - - -”, “. . . . . . . . . .”, 또는 “* * * * * * * * * *”와 같은 문자와, 인코딩 문제로 인한 이상한 문자입니다.
 
 <br>
 
-#### Thinking Development
+데이터에서 반복되는 공백(예: 여러 개의 스페이스, 줄바꿈, 탭)과 HTML 태그를 제거하였습니다.
 
 <br>
 
-이 내용은 모델의 추론 능력을 향상시키는 데 "사고의 연쇄(Chain of Thought, CoT)"가 효과적임을 입증하며, 모델에 법률 추론을 더 깊게 내재시키기 위해 법률 특화 사고의 연쇄, 즉 LCoT(Law Chain of Thought)을 개발하는 방법을 설명합니다.
+#### Perplexity filtering
 
 <br>
 
-LCoT는 입력 X를 다음과 같이 변환하여 법률 귀납법을 사용하여 답을 도출하도록 모델을 강제하는 프롬프트를 포함합니다:
+KenLM 모델(Heafield, 2011)을 활용하여, 특정 데이터셋에서 문단의 복잡도 또는 예측하기 어려운 정도를 측정하고, 높은 복잡도를 가진 문단을 필터링하였습니다.
 
 <br>
 
-법률 귀납법에서 큰 전제는 법률 조항이며, 작은 전제는 사건의 사실이고, 결론은 사건의 판결입니다.
-
-사례: X
-
-법률 귀납법을 사용하여 생각하고 판결을 출력하자
+법률 데이터의 작은 부분집합에서 신중하게 검토된 데이터에 대해 KenLM 모델을 훈련시킵니다.
 
 <br>
 
-LCoT를 사용하는 것은 모델에게 법률적 사고의 복잡한 과정을 개발하고 적용하는 방법을 가르치는 것을 목표로 합니다. 
+이 훈련 과정은 모델이 법률 텍스트의 언어 패턴을 학습하게 하여, 법률 텍스트를 얼마나 잘 예측할 수 있는지를 평가할 수 있게 합니다.
 
 <br>
 
-이는 모델이 법률 분야에서 보다 정확하고 심층적인 추론을 할 수 있도록 하는 데 중요하며, 결국 사용자에게 더 신뢰할 수 있는 법률적 조언과 해석을 제공할 수 있게 됩니다.
-
-### Triplet Instruction Generation
-
-retrieval augmented DISCLawLLM 개발을 위해 supervised instruction triplets <input, output, reference> 데이터를 생성합니다.
+훈련된 모델을 사용하여 데이터셋 전체의 문단 복잡도를 평가합니다. 여기서 복잡도(perplexity)는 모델이 특정 문단을 예측하는 데 필요한 정보의 양을 나타내며, 높은 복잡도는 모델이 그 문단을 예측하기 어렵다는 것을 의미합니다.
 
 <br>
 
-법률 문제의 원본 데이터를 취하여, 앞서 언급한 세 가지 전략(언어 패턴의 통일, 노이즈 제거, 문맥 이해 강화)을 적용하여 데이터를 정제합니다. 이를 통해, 입력과 출력 데이터가 더 정확하고 일관된 형태로 변환됩니다.
+복잡도가 특정 임계값보다 높은 문단은 데이터셋에서 제거됩니다.
 
 <br>
 
-design heuristic rules을 적용하여, 문제 해결에 도움이 될 수 있는 관련 법률 조항, 판례 등 reference information을 원본 데이터에서 추출합니다.
-
-### Dataset Overview
-
-DISC-Law-SFT dataset은 법률 요소 추출, 사례 일치, 판결 예측, 문서 요약, 질문 답변 등 10개 이상의 작업을 포함하여 다양한 법률 시나리오를 커버하는 것으로 구성되어 있습니다.
+이 방법은 영어가 아닌 텍스트와 데이터에 존재하는 "weird(이상한)" 유니코드 시퀀스 대부분을 성공적으로 제거합니다.
 
 <br>
 
-또한, 우리는 일반 지시 데이터를 통합하여 훈련 세트의 다양성을 풍부하게 하고, 법률 분야에서 SFT 훈련 단계 중 기본 능력이 감소하는 위험을 완화합니다.
-
-<img style="width: 90%; margin-top: 40px;" id="output" src="DISC/dataset.PNG">
-
-<div id="DISC-LawLLM"></div>
-
-## DISC-LawLLM
-
-<img style="width: 50%; margin-top: 40px;" id="output" src="summary/dataset.PNG">
-
-### Supervised Fine-Tuning
-
-DISC-LawLLM은 Baichuan-13B-Base 모델을 기반으로 개발되었으며, 오픈소스 LLM로, 1.4 trillion tokens corpus에서 훈련되어 영어와 중국어 모두에 이상적인 성능을 보입니다.
+#### Data Deduplication
 
 <br>
 
-DISC-LawLLM의 개발 과정에서는 DISC-Law-SFT 데이터셋을 사용하여 SFT을 수행했습니다.
+Kocetkov et al. (2023); Lee et al. (2021)에 영감을 받아 Mou et al. (2023)의 기본 파라미터를 활용하여, 중복 및 거의 중복 데이터를 제거하여 거의 30B의 고품질 데이터를 남겼습니다.
+
+###  Instruction Finetuning Mixes
+
+#### General Instructions
+
+- SlimOrca: FLAN 컬렉션의 일부로, 다양한 작업을 위한 집중된 자원을 제공하는 일반적인 지시사항을 포함합니다.
+- Meta Math Question Answering Instructions: 수학적 탐구를 위해 설계된 이 데이터셋은 다양한 수학 문제를 제시하여, 수학 기반 자연어 처리 연구를 촉진합니다.
+- UltraChat의 일반 대화: 다양한 대화 맥락을 포착하여, 자연어 이해 및 생성 시스템을 강화하는 데 기여하는 GPT에서 파생된 데이터셋입니다.
+- Glaive Code Assistant v2의 코드 지시사항: 코드에 대한 훈련이 모델의 추론 능력을 향상시킬 수 있음을 보여줍니다.
+
+이 모든 데이터는 세심하게 필터링, 중복 제거 및 큐레이션되어, 600K 지시사항을 포함하는 정제된 데이터셋을 만듭니다.
 
 <br>
 
-훈련 과정의 하이퍼파라미터 설정은 다음과 같습니다:
-
-- global batch size of 256
-- learning rate of 5e-5
-- 2 epochs training stage
-- maximum source length of 2048 tokens(source: 입력 데이터)
-- maximum target length of 1024 tokens(target: 모델 생성 데이터)
-- 8*A800 GPUs에 deepspeed 적용
-
-### Retrieval Augmentation
-
-헌법, 형법, 행정소송법, 저작권법, 특허법을 포함하는 중국 법률의 50개 이상의 범주로 지식 기반을 구축합니다. 이 법률들을 벡터로 인코딩하고 로컬에 저장합니다.
+#### Legal Instruction Construction
 
 <br>
 
-사용자 입력이 주어지면, 우리의 검색기는 지식 기반에서 입력과의 유사성을 계산하여 가장 관련성이 높은 상위 K개 문서를 반환합니다.
+법률 지시사항 구성에서는 다양한 법률 문서 유형에 걸쳐 기본적인 법률 역량을 다루는 포괄적인 대화를 합성적으로 생성합니다.
 
 <br>
 
-검색 시나리오에 적응하기 위해, 우리는 훈련을 위한 SFT 데이터셋으로서 앞서 언급한 DISC-Law-SFT-Triplet을 특별히 사용합니다.
-
-<div id="DISC-Law-Eval Benchmark"></div>
-
-## DISC-Law-Eval Benchmark
-
-지능형 법률 시스템에 대한 포괄적인 평가를 제공하는 확립된 벤치마크는 없습니다.
+여기서는 Mistral-7B-instruct를 활용하여 메타데이터로 보강된 법률 텍스트를 일관된 대화로 변환합니다.
 
 <br>
 
-변호사 시험 구성에 영감을 받아 객관적인 관점과 주관적인 관점 모두에서 시스템을 평가하는 공정한 평가 프레임워크인 DISC-Law-Eval Benchmark를 개발했습니다.
+이 방법론은 대화를 3개의 사전 정의된 턴(turn)으로 시작하는 것을 포함합니다:
 
-### Objective Evaluation
+1. 사용자가 법률 문서와 관련된 요청을 명확하게 표현
+2. assistant가 메타데이터(예: 문서 유형, 날짜, 판사 이름 등)를 재구성하여 응답
+3. 사용자가 assistant에게 추론을 더 자세히 설명하도록 요구
 
-지능형 법률 시스템의 법률 지식과 추론 능력을 객관적이고 정량적으로 평가하기 위해, 우리는 객관적 평가 데이터셋을 설계했습니다. 이 데이터셋은 다중 선택 문제로 구성되며, 각 문제는 하나 또는 여러 개의 정답을 가질 수 있습니다. 
+이후, 사용자 모델이 assistant의 추론을 이해하기 위해 점점 더 구체적인 질문을 하는 일련의 턴을 통해 대화를 확장하여, 심층적인 통찰력을 제공합니다.
 
-<br>
-
-이는 모델이 지식을 사용하여 정답으로 추론할 수 있는지를 더 도전적이고 신뢰할 수 있는 방법으로 측정할 수 있게 합니다. 우리는 성능을 나타내기 위해 정확도를 계산합니다.
-
-<br>
-
-우리는 중국 법률 표준화된 시험과 지식 경연 대회에서 다양한 다중 선택 문제를 수집했습니다. 
+<img style="width: 80%; margin-top: 40px;" id="output" src="SaulLM/legalInstruction.PNG">
 
 <br>
 
-여기에는 국가 사법시험(NJE), 특허 대리인 시험(PAE), 공인 회계사 자격 시험(CPA), 통합 국가 대학원 입학 시험(UNGEE), 공공 기관 및 공무원 시험(PFE) 및 법률 기초 지식 문제 은행(LBK)이 포함됩니다.
+또한, 기존 벤치마크에서 테스트 세트를 제외합니다.
+
+<div id="Evaluation of Legal Knowledge"></div>
+
+## Evaluation of Legal Knowledge
+
+#### Perplexity Measurement
 
 <br>
 
-내용의 복잡성과 추론 난이도에 따라, 우리는 이러한 문제들을 어려움, 보통, 쉬움의 세 가지 수준으로 분류합니다. 
+법률 문서에 대한 backbones의 적응성을 평가하기 위해, 네 가지 법률 분야를 아우르는 벤치마크 데이터셋을 사용하여 복잡도를 측정합니다: 계약, 사법 결정, 의견 텍스트, 입법
 
 <br>
 
-많은 법률 LLM이 훈련 데이터셋으로 JEC-QA(Zhong et al., 2020b) (2007-2017 국가 사법시험)를 사용하는 것을 고려하여, 우리는 NJE(2018-2022 동안의 시험 문제)를  manual collection으로써 공정한 평가를 보장합니다.
+데이터셋은 최신 상태이며, LLM 데이터 수집 마감일 이후에 출처가 확보된 것을 보장합니다.
 
 <br>
 
-우리는 몇 가지 예시 설정(단일 답변 문제에 대해 4-shot, 다답변 문제에 대해 5-shot)에서 객관적 평가를 수행합니다. 
+구체적으로, 계약 데이터는 EDGAR(2024년 1분기), 법적 결정은 2023년 10월 이후에 발표된 ICSID 법원 결정, 입법은 2023년 10월 이후에 하원 또는 상원에 제출된 미국 법안, 그리고 당사자 제출은 2023년 10월 이후에 제출된 텍사스 의견서를 기반으로 합니다.
 
 <br>
 
-우리는 regular matching method을 사용하여 LLM 출력에서 답변을 추출한 다음, 이를 기준 진실과 비교하여 정확도를 계산합니다.
-
-### Subjective Evaluation
-
-우리는 모델이 법률 지식과 추론 능력을 얼마나 잘 다루고 있는지 명확히 보여주기 위해 주관적 평가를 추가로 실시합니다.
+우리의 조사 중, LegalBench의 원래 프롬프트에 중대한 제한이 있음을 발견했습니다. 이 프롬프트의 복잡한 특징과, 특히 서식을 처리하는데 어려움을 겪는 오픈 소스 LLM들이 마주친 도전들이 결합되어 성능(정확도로 측정)이 크게 떨어집니다.
 
 <br>
 
-이 평가를 위해, 우리는 질문-답변 패러다임을 채택하여 주관적 시험 문제의 과정을 시뮬레이션합니다. 
+생성된 문장들은 종종 장황하고 분석하기 어렵게 만들어, 현재 형태의 LegalBench가 과도하게 엄격하며 작업에 대한 개선을 정확하게 측정하지 못하게 합니다.
 
 <br>
 
-법률 상담, 온라인 게시물, 사법 관련 출판물 및 법률 문서에서 수동으로 고품질 테스트 세트를 구성하며, 이는 300개의 예시로 구성됩니다. 이 예시들은 법률 도구, 법률 상담, 판결 예측을 포함한 시나리오를 다룹니다.
+예를 들어, 일부 작업에서는 모델이 예측하는 첫 단어로 성능이 평가되며, 이 단어는 예/아니오여야 합니다. 이는 응답이 조금 장황하더라도 사람이 올바른 답변으로 분류할 수 있음에도 불구하고 잘못된 것으로 간주될 수 있음을 의미합니다.
 
 <br>
 
-이 주관적 응답을 평가하기 위해, 우리는 심판 모델을 동원하여 모델의 출력을 평가합니다. GPT-3.5, GPT-4와 같은 강력한 LLM 심사위원은 통제된 및 크라우드소싱된 인간 선호도(Zheng et al., 2023)와 잘 일치합니다.
+LegalBench에서 이러한 단점을 해결하기 위해, 
+
+1. 주의를 산만하게 하는 few-shot 예제를 제거하고 
+2. 모델이 태그를 생성하도록 구체적인 지시로 마무리하는 것으로 프롬프트를 정제합니다.
+
+<img style="width: 70%; margin-top: 40px;" id="output" src="SaulLM/pm.PNG">
 
 <br>
 
-우리 평가에서, GPT-3.5는 심판 역할을 수행하고 다음 세 가지 기준 각각에 대해 1부터 5까지의 평가 점수를 제공하여 평가를 수행합니다:
-
-- 정확성(Accuracy): 모델의 답변 내용과 의미는 참조 답변과 일치해야 합니다.
-- 완전성(Completeness): 참조 답변과 비교했을 때, 모델의 답변은 참조 답변의 어떤 세부 사항도 놓치지 않으며, 답변의 길이는 판단에 영향을 주지 않도록 합니다.
-- 명확성(Clarity): 참조 답변과 비교했을 때, 모델의 답변의 법률적 논리 분석은 엄격하고 명확하며 문장은 잘 조직되어 있어야 합니다.
-
-심판 모델의 self-bias을 줄이기 위해, 우리는 심판에게 ground truth도 제공하여 그들이 ground truth에 따라 점수를 매길 수 있게 합니다.
-
-<div id="Experiments"></div>
-
-## Experiments
-
-### Results in Objective Evaluation
-
-객관적 평가에서의 결과는 DISC-LawLLM이 다양한 난이도 수준의 모든 과목에서 거의 모든 경쟁 LLM을 능가한다는 것을 보여줍니다. 
+#### Massive Multitask Language Understanding(MMLU)
 
 <br>
 
-심지어 175B 매개변수를 가진 GPT-3.5-Turbo(OpenAI, 2022)와 비교해도, DISC-LawLLM은 대부분의 과목에서 일관되게 우수한 성능을 보여주며, 평균적으로 정확도를 7% 향상시켰습니다.
+이 섹션에서는 법률 분야에서 대규모 다중 작업 언어 이해(MMLU) 벤치마크를 사용하여 언어 모델의 성능을 평가하는 데 사용된 지표인 균형 정확도(balanced accuracy)에 대해 설명합니다.
 
 <br>
 
-특히, 난이도가 높은 NJE, PAE, CPA에서 DISC-LawLLM은 NJE와 PAE에서 모든 LLM을 큰 차이로 능가합니다. 더욱이 판단과 추론이 더욱 섬세하게 요구되는 다답변 문제에서, 우리 모델은 NJE와 PAE에서 최고 성능을 보여주는 GPT-3.5-Turbo에 비해 50% 이상의 개선을 달성합니다.
+균형 정확도는 분류 작업에서 클래스 간의 불균형이 존재할 때 더 공정한 성능 평가를 제공합니다. 이는 각 클래스의 예측 성공률을 동일하게 가중하여 평균내는 방식으로, 모든 클래스를 공평하게 대우하여 모델의 전반적인 성능을 평가합니다. 
 
 <br>
 
-또한, generic LLM이 법률 LLM을 가끔 능가하는 이유는 훈련 중에 few-shot 지시 사항 따르기 능력의 부족 때문일 가능성이 높습니다.
+특히 법률 도메인에서는 사례의 다양성과 복잡성으로 인해 일부 클래스의 사례 수가 다른 클래스보다 많거나 적을 수 있습니다. 균형 정확도를 사용함으로써, 연구자들은 이러한 불균형을 보정하고 모델이 전반적으로 얼마나 잘 작동하는지를 더 정확하게 평가할 수 있습니다.
 
-### Results in Subjective Evaluation
+<br>
 
-주관적 평가에서는 ChatGPT의 이해력을 활용하여 짧은 답변 질문에서 모델의 성능을 Ground Truth와 비교하여 평가합니다. 
+특별히 언급되지 않는 한, 이 섹션 전체에서 보고된 모든 점수는 균형 정확도를 의미합니다. 
 
-<img style="width: 100%; margin-bottom: 40px;" id="output" src="DISC/subjective.PNG">
+<br>
 
-DISCLawLLM은 대부분의 메트릭에서 최고의 성능을 달성합니다. Chatlaw(Cui et al., 2023a)와 비교했을 때, DISC-LawLLM은 평균 성능에서 6% 증가를 보여줍니다.
+우리의 연구에서는 법률 도메인에 대한 분석을 중심으로 하며, 특히 국제 법, 전문 법, 법철학에 초점을 맞춥니다. 이러한 작업은 각각 120, 1500, 110개의 예시를 포함합니다.
 
+<div id="Experimental Setting"></div>
 
+## Experimental Setting
+
+### Baselines
+
+우리는 SaulLM-7B 시리즈를 다른 최신 7B 및 13B 오픈 소스 모델들과 비교합니다. 
+
+<br>
+
+구체적으로, Mistral-7B의 지시사항 및 DPO(Direct Prediction Optimization) 미세조정 변형인 Mistral-7B-Instruct-v0.1, Mistral-7B-Instruct-v0.2, 그리고 zephyr-7b-beta17을 포함합니다. 
+
+<br>
+
+또한, Llama2(Touvron et al., 2023a) 시리즈를 평가하는데, 특히 Llama2-7b-Chat과 Llama2-13b-Chat을 더 구체적으로 살펴봅니다.
+
+### Implementation Details
+
+#### Codebase
+
+<br>
+
+오픈소스 프레임워크(Shoeybi et al., 2019; Wolf et al., 2019; Lhoest et al., 2021)에 기반한 DeepSpeed (level 3)와 Flash attention (Dao et al., 2022; Dao, 2023)을 활용하였습니다.
+
+<br>
+
+PyTorch(Paszke et al., 2019) 위에 구축되었으며, 우리의 모델은 Huggingface 허브에서 사용할 수 있습니다
+
+<br>
+
+#### Compute
+
+<br>
+
+pretraining은 PyTorch(Paszke et al., 2019) 위에 구축되었으며, 256개의 MI250 AMD GPU,  instruction fine-tuning은 16개의 MI250, 평가는 1개의 MI250를 사용합니다.
+
+<div id="Results"></div>
+
+## Results
+
+### LegalBench-Instruct
+
+<img style="width: 50%; margin-top: 40px;" id="output" src="SaulLM/figure3.PNG">
+<img style="width: 50%; margin-top: 40px;" id="output" src="SaulLM/figure4.PNG">
+<img style="width: 50%; margin-top: 40px;" id="output" src="SaulLM/figure5.PNG">
+
+<br>
+
+DPO에 맞춰진 모델들은 지시사항 조정된 모델들에 비해 성능이 떨어지는 경향이 있는데, 이는 일반적인 맞춤이 LegalBench-Instruct에 나타나는 법률 분야와 같은 분포 밖 작업에 적합하지 않기 때문일 수 있습니다. 
+
+<br>
+
+현재 작업의 범위를 벗어나지만, 법률 특화 DPO가 어떻게 도움이 될 수 있는지 탐구하는 것은 흥미로운 연구 방향이 될 것입니다.
+
+<img style="width: 50%; margin-top: 40px;" id="output" src="SaulLM/figure7.PNG">
+
+<br>
+
+우리는 LegalBench의 원래 분류 체계를 따라 SaulLM-7B-Instruct의 성능을 더 세밀하게 이해하고자 합니다. 작업을 5가지 핵심 법률 능력으로 나눕니다: 문제 발견(ISSUE SPOTTING), 규칙 회상(RULE-RECALL), 해석(INTERPRETATION), 수사학 이해(RHETORIC UNDERSTANDING), 규칙 결론(RULE-CONCLUSION).
+
+<br>
+
+SaulLM-7B-Instruct는 법률 전문성이 가장 필요한 네 영역, 즉 문제 발견, 규칙 회상, 해석, 수사학 이해에서 최고의 비법률 경쟁자인 Mistral-7B-Instruct-v0.1보다 확실히 우수한 성능을 보입니다. 
+
+<br>
+
+반면에, 결론 작업에서는 Mistral-7B-Instruct-v0.1에 못 미치는데, 이는 흥미롭게도 실제 법률 지식보다 pure deductive reasoning(순수 연역적 추론)을 훨씬 더 많이 요구합니다. 
+
+<br>
+
+우리는 사전 훈련 및 미세 조정 코퍼스에 수학 데이터셋을 포함한 deductive reasoning 콘텐츠를 더 많이 추가하는 것이 격차를 줄이고 SaulLM-7B-Instruct의 잠재력을 완전히 발휘하는 데 도움이 될 것이라고 추측합니다.
+
+### Results on Legal-MMLU
+
+SaulLM-7B-Instruct는 비법률 지시사항 미세조정 모델들에 비해 일관된 우위를 보여주며, 세 가지 작업(법률학, 전문성, 국제성) 모두에서 최고의 7B 오픈 소스 경쟁자와의 격차가 3에서 4 절대 포인트 사이임을 보여줍니다. 
+
+<br>
+
+이는 SaulLM-7B-Instruct가 법률 워크플로우에 맞춤화된 모델을 구축하기 위한 강력한 기반이라는 추가적인 증거를 제공합니다.
+
+<img style="width: 36%; margin-top: 40px;" id="output" src="SaulLM/figure6.PNG">
+
+### Perplexity Analysis
+
+법률 분야에 SaulLM-7B backbone 적응도를 평가하기 위해, 네 가지 문서 유형(계약서, 법적 결정, 입법, 당사자 제출물)에 걸쳐 복잡도 점수를 제시합니다.
+
+<br>
+
+SaulLM-7B는 모든 범주에서 Mistral-7B를 일관되게 능가하며, 평균 복잡도 점수가 낮고 변동성이 줄어듦을 보여줍니다. 
+
+<br>
+
+흥미롭게도, Llama2-7B는 특히 입법 문서에서 낮은 복잡도를 보여주어, Mistral-7B에 비해 관련 코퍼스에서 입법 텍스트의 비율이 더 높을 수 있음을 시사합니다.
+
+<img style="width: 80%; margin-top: 40px;" id="output" src="SaulLM/figure8.PNG">

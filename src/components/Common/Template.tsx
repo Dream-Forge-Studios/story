@@ -13,7 +13,7 @@ type TemplateProps = {
     children: ReactNode
 }
 
-const Container = styled.div`
+const Container = styled.main`
   display: flex;
   flex-direction: column;
   height: 100vh;
