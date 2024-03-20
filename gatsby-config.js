@@ -12,7 +12,7 @@ module.exports = {
     title: `상상을 실현합니다`,
     description: `꿈꾸는 개발자의 이야기`,
     author: `Yu`,
-    siteUrl: 'https://dream-forge-studios.github.io/blog/', // 배포 후 변경 예정
+    siteUrl: 'https://dream-forge-studios.github.io/story/', // 배포 후 변경 예정
   },
   plugins: [
     {
@@ -109,7 +109,7 @@ module.exports = {
           {
             resolve: 'gatsby-plugin-canonical-urls',
             options: {
-              siteUrl: 'https://dream-forge-studios.github.io/blog/',
+              siteUrl: 'https://dream-forge-studios.github.io/story/',
               stripQueryString: true,
             },
           },
