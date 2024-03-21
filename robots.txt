@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://dream-forge-studios.github.io/sitemap-index.xml
+Sitemap: https://dream-forge-studios.github.io/story/sitemap-index.xml
 Host: https://dream-forge-studios.github.io
