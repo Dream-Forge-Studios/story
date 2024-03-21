@@ -10,17 +10,18 @@ import {Link} from "gatsby";
 
 const Header = styled.div`
   position: fixed;
+  width: 100%;
   height: 60px;
   margin: 0 auto;
   left: 0;
   right: 0;
   //background-color: #21212150;
   opacity: 0.4;
-  @media (max-width: 1024px) {
-    width: 100%;
-    height: 55px;
-    padding: 0 20px;
-  }
+  //@media (max-width: 1024px) {
+  // width: 100%;
+  // height: 55px;
+  // padding: 0 20px;
+  //}
 `
 
 const Wrapper = styled.div`
@@ -37,7 +38,8 @@ const Wrapper = styled.div`
   color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(7px);
   @media (max-width: 1020px) {
-    width: 90%
+    width: 100%;
+    padding: 0px 20px;
   }
 `
 
