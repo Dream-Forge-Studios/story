@@ -8,6 +8,7 @@ const myCustomQueries = {
 };
 
 module.exports = {
+  pathPrefix: `/story`,
   siteMetadata: {
     title: `상상을 실현합니다`,
     description: `꿈꾸는 개발자의 이야기`,
