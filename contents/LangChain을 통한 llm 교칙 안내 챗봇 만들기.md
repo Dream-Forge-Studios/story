@@ -1,48 +1,63 @@
 ---
 date: '2024-03-29'
-title: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks 논문 리뷰'
+title: 'llm을 활용한 교칙 안내 챗봇 만들기'
 categories: ['LLM']
-summary: 'RAG 완벽 이해하기.'
+summary: 'llm을 활용하여 교칙 안내 챗봇을 만들어보자'
 thumbnail: './test.png'
 ---
 
-<div id="ABSTRACT"></div>
-
-# ABSTRACT
-
-Large pre-trained language models은 그들의 파라미터에 사실적인 지식을 저장할 수 있으며, 하위 NLP 작업에 미세 조정될 때 최첨단 성능을 달성할 수 있음이 보여졌습니다
+원래 llm을 활용하여 원하는 판례를 쉽게 찾을 수 있는 서비스를 만드려고 했다. 하지만 판례는 일반적인 언어 비해 어려운 글로 쓰여져 있으며, 너무 긴 글이라 판례의 특성상 많은 어려움이 따랐습니다.
 
 <br>
 
-그러나, 지식을 접근하고 정확하게 조작하는 능력은 여전히 제한적이며, 지식 집약적인 작업에서 그들의 성능은 작업 특정 아키텍처에 뒤처집니다.
+그래서 그전에 판례에 비해 쉬워 보이는 교칙을 통해 llm을 활용하여 질문에 답변해주며, 그에 해당 되는 실제 교칙 문서를 보여주는 서비스를 만드려고 합니다.
 
 <br>
 
-또한, 그들의 결정에 대한 근거를 제공하고 세계 지식을 업데이트하는 것은 여전히 열린 연구 문제입니다.
+본 연구는 Synatra-7B-v0.3-dpo 모델을 base model로 fine-tuning을 통해 이루어집니다.
+
+<div id="단일 문서"></div>
+
+# 단일 문서
+
+우선 처음 시작으로는 학생 상벌에 관한 규정에 관한 단일 문서를 대상으로 연구를 시작하였습니다.
 
 <br>
 
-Pretrained models with a differentiable access mechanism to explicit non-parametric memory(외부 지식)은 지금까지 추출형 downstream tasks에 대해서만 조사되었습니다.
+본 문서는 llm의 max length의 4096을 넘어가기 때문에, 데이터 전처리를 하였습니다.
 
 <br>
 
-우리는 retrieval-augmented generation (RAG) 모델을 위한 general-purpose fine-tuning recipe를 탐구합니다.
+단일 문서이므로, 직접 문서를 확인하며 전처리를 하였습니다. 총 4장으로 나누어져있어 각 장으로 나눠서 학습을 시켰습니다.
+
+<div id="pretrain"></div>
+
+## pretrain
+
+### Experiments
+
+1. epoch 
+2. learning_rate
+3. lora
+4. pretrain 하고 SFT, 그냥 SFT
+5. 데이터 생성
+
+### evaluation
+
+모델의 평가는 인간 평가로 이루어지며, 평가항목은:
+
+1. 질문을 잘 이해하고 그에 관련한 답변을 하는가?
+2. 답변이 정확한가?
+
+로 10가지 질문에 대한 모델의 답변을 상(+3점),중(+1점),하(0점)로 평가하여 총 점수로 비교합니다.
 
 <br>
 
-우리는 parametric memory가 사전 훈련된 seq2seq 모델이고, non-parametric memory가 pre-trained neural retriever로 접근되는 위키피디아의 dense vector index인 RAG 모델을 소개합니다.
+평가 질문은 GPT-4를 활용하여 생성한 뒤, 인간 평가자가 학습 단일 문서를 보고 답할 수 있는 질문인지 확인하여 최종적으로 장마다 10가지의 질문을 선정합니다.
 
-<br>
+<div id="supervised fine-tuning"></div>
 
-우리는 생성 과정 전체에서 동일한 검색된 정보를 참조하는 RAG 형식과 토큰마다 다른 정보를 참조할 수 있는 다른 형식을 비교합니다.
-
-<br>
-
-wide range of knowledgeintensive NLP tasks로 우리의 모델을 fine tune하고 평가하며, 세 개의 오픈 도메인 QA 작업에서 최고의 성능을 달성하여 parametric seq2seq models과 task-specific retrieve-and-extract architectures를 능가합니다.
-
-<div id="Introduction"></div>
-
-# Introduction
+## supervised fine-tuning
 
 Pre-trained neural language models은 외부 메모리에 접근하지 않고도, 모델 파라미터 내에 암시적인 지식 베이스로서 지식을 저장할 수 있습니다.
 

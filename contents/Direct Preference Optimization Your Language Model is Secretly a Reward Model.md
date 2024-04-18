@@ -1,5 +1,5 @@
 ---
-date: '2023-11-01'
+date: '2024-02-24'
 title: 'Direct Preference Optimization: Your Language Model is Secretly a Reward Model 논문 리뷰'
 categories: ['LLM']
 summary: 'DPO 완벽 이해하기.'
