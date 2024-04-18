@@ -492,6 +492,17 @@ $s^-_i = (A_i, D_i)$: $D_i$는 $A_i$ 다음에 오지만 $B_i$와 의미가 다�
 
 ### Results
 
+<img style="width: 100%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="llm2vec/figure5.PNG">
+
+1. S-LLaMA-1.3B, LLaMA-2-7B
+
+- Bidirectional Attention를 활성화한 결과, 대부분의 계층과 토큰 위치에서 낮은 코사인 유사도를 보였습니다.
+- 이는 Bidirectional Attention가 표현에 큰 영향을 미치며, 인과적 주의만을 사용할 때와는 매우 다른 표현을 생성하기 때문입니다.
+
+2. Mistral-7B
+
+- 반면, Mistral-7B 모델은 전 계층에 걸쳐 매우 높은 코사인 유사도를 보였습니다.
+- 이러한 결과는 Mistral 모델이 어떤 형태의 Bidirectional Attention를 사전 훈련에 포함하고 있을 가능성을 시사합니다. 예를 들어, 어떤 부분에서는 '접두사 언어 모델링'(prefix language modeling) 같은 기법(Raffel et al., 2020)이 사용되었을 수 있습니다.
 
 <div id="supervised contrastive learning"></div>
 
@@ -566,28 +577,33 @@ supervised training에서는 unsupervised SimCSE가 그다지 중요하지 않�
 특히, Mistral-7B 모델(unsupervised SimCSE 없이 LLM2Vec 적용)은 공개적으로 사용 가능한 데이터만으로 훈련된 모델 중 새로운 최고의 성능을 달성했습니다.
 
 ###  LLM2Vec leads to more sample-efficient training
-<div id="Combining LLM2Vec with supervised contrastive learning"></div>
 
-## Conclusion
-
-이 논문은 LLM을 활용함으로써 텍스트 임베딩의 품질을 크게 향상시킬 수 있음을 보여줍니다.
+#### setup
 
 <br>
 
-우리는 GPT-4와 같은 독점적인 LLM을 사용하여 다양한 언어로 지시어가 포함된 합성 데이터를 생성합니다.
+LLM2Vec 변환 모델을 훈련하면서, 매 25 훈련 스텝마다 체크포인트를 저장합니다. 이는 모델의 훈련 과정에서 얻은 진전을 지속적으로 모니터링하고 평가하기 위한 목적입니다.
 
 <br>
 
-또한, Mistral 모델의 강력한 언어 이해 능력과 결합하여, 경쟁적인 MTEB 벤치마크의 거의 모든 작업 카테고리에 대해 새로운 최고 성과를 달성했습니다.
+저장된 체크포인트는 MTEB의 15개 작업 부분집합에서 평가됩니다. 이는 모델이 실제 작업에 얼마나 잘 적응하는지를 평가하는 데 사용됩니다.
 
 <br>
 
-훈련 과정은 기존의 다단계 접근법보다 훨씬 간소화되고 효율적이어서 중간 사전 훈련의 필요성을 없앴습니다.
+#### result
 
 <br>
 
-향후 작업으로는 우리 모델의 다국어 성능을 더욱 향상시키고, 오픈 소스 LLM을 사용하여 합성 데이터를 생성할 가능성을 탐구할 계획입니다. 
+<img style="width: 100%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="llm2vec/figure6.PNG">
 
 <br>
 
-또한, LLM 기반 텍스트 임베딩의 추론 효율성을 개선하고 저장 비용을 줄이는 방법을 조사할 예정입니다.
+LLM2Vec으로 변환된 모델들은 훈련 초기부터 더 나은 성능을 보여줍니다. 이는 모든 세 모델에서 일관되게 관찰됩니다.
+
+<br>
+
+특히 S-LLaMA-1.3B 모델, 즉 세 모델 중 가장 작은 모델에서는 MNTP 단계만 수행해도 샘플 효율성이 상당히 향상됩니다. 이는 모델이 적은 양의 데이터로도 빠르게 학습할 수 있음을 의미합니다.
+
+<br>
+
+이 결과는 고품질 레이블 데이터 획득이 어려운 설정에서 특히 희망적입니다. 이러한 설정에서의 더욱 구체적인 연구는 미래의 작업으로 남겨져 있습니다.

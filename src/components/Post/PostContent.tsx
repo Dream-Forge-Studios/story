@@ -166,11 +166,16 @@ const ContentWrapper = styled.div`
   //margin: 0 auto;
 `
 
-const Toc = styled.div`
+interface TocProps {
+    top: number;
+}
+
+const Toc = styled.div<TocProps>`
   display: block;
   position: fixed;
   width: 500px;
-  margin: 110px auto;
+  //margin: -200px auto;
+  margin: ${({ top }) => top}px auto;
   left: 0;
   right: 0;
 `
@@ -197,10 +202,33 @@ const PostContent: FunctionComponent<PostContentProps> = function ({ html }) {
         });
     }, []);
     console.log(currentInnerHTML)
+    const initialTop = 100;  // 초기 위치를 100px로 설정합니다.
+    const [tocTop, setTocTop] = useState(initialTop);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrolledAmount = window.scrollY;
+            const freezePoint = 300; // 스크롤 고정 지점을 300px로 설정합니다.
+            let newTop = Math.max(0, initialTop - scrolledAmount); // 스크롤에 따라 top 값을 감소시킵니다.
+
+            if (scrolledAmount >= freezePoint) {
+                newTop = -200; // 스크롤이 freezePoint 이상이면 top 값을 0으로 고정합니다.
+            }
+
+            setTocTop(newTop);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
     return (
         <ContentWrapper>
             <MarkdownRenderer dangerouslySetInnerHTML={{ __html: html }} />
-            <Toc>
+            <Toc top={tocTop}>
                 <Toc2>
             {headingEls.map((a) => {
                 let HighLight: boolean = false;
