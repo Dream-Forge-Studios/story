@@ -156,7 +156,7 @@ decoder-only LLM은 원래 미래의 토큰을 참조하지 않도록 훈련되�
 
 ### Masked next token prediction (MNTP)
 
-MNTP는 다음 토큰 예측과 masked language modeling을 결합한 것입니다. masked language modeling은 BERT와 같은 모델에서 널리 사용되는 방법으로, 일부 입력 토큰을 마스크(가리기)하고, 모델에게 이 마스크된 토큰을 예측하도록 요구합니다.
+MNTP는 다음 토큰 예측과 masked language modeling을 결합한 것입니다. masked language modeling은 BERT와 같은 모델에서 널리 사용되는 방법으로, 일부 입력 토큰을 마스킹하고, 모델에게 이 마스크된 토큰을 예측하도록 요구합니다.
 
 <br>
 
