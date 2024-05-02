@@ -44,133 +44,106 @@ SimCSE는 표준 의미적 텍스트 유사성(STS) 작업에서 평가되며, B
 
 # Introduction
 
-LLM은 특정한 문맥 크기로 사전에 정의되어 훈련되며, 예를 들어 LLaMA 모델은 2048 토큰, Llama2 모델은 4096 토큰으로 설정됩니다.
+이 연구에서는 최신 문장 임베딩 방법을 발전시키고, 사전 훈련된 언어 모델들(BERT, RoBERTa 등)과 결합될 때 contrastive 목표가 매우 효과적일 수 있음을 보여줍니다.
 
 <br>
 
-이러한 사전 정의된 크기는 긴 문서를 요약하거나 긴 질문에 답하는 등 많은 응용 프로그램에서 LLM의 사용을 제한합니다.
+연구팀은 SimCSE라는 간단한 contrastive 문장 임베딩 프레임워크를 제시하며, 이를 통해 레이블이 없거나 있는 데이터에서 우수한 문장 임베딩을 생성할 수 있습니다.
 
 <br>
 
-이러한 제한을 해결하기 위해, 최근 몇몇 연구(Chen et al., 2023; Tworkowski et al., 2023; Mohtashami & Jaggi, 2023)에서는 더 긴 문맥을 가진 LLM을 훈련하거나 파인튜닝하는 방법을 제시하고 있습니다.
+unsupervised SimCSE는 입력된 문장 자체를 예측하는 방식으로, 노이즈로서 드롭아웃만을 사용합니다.
 
 <br>
 
-그러나 긴 시퀀스로 LLM을 처음부터 훈련하는 것은 계산적으로 도전적이며, 기존의 사전 훈련된 LLM을 파인튜닝하는 것 또한 상당히 비용이 많이 듭니다.
+구체적으로, 동일한 문장을 사전 훈련된 인코더에 두 번 전달하여, 표준 드롭아웃을 두 번 적용함으로써 “긍정적 쌍”으로서 서로 다른 두 개의 임베딩을 얻습니다.
 
 <br>
 
-예를 들어, Position Interpolation(Chen et al., 2023)은 LLaMA 모델의 문맥을 2k에서 8k로 확장하기 위해 32개의 A100 GPU를 사용했고, 더 긴 문맥 파인튜닝을 위해 128개의 A100 GPU를 사용했습니다.
+이러한 접근 방식은 매우 간단해 보일 수 있지만, 다음 문장 예측이나 단어 삭제 및 교체와 같은  discrete data augmentation(이산 데이터 증강 방법)을 사용하는 훈련 결과들을 크게 앞서며, 이전의 감독된 방법들과도 맞먹는 성능을 보여줍니다.
 
 <br>
 
-이러한 계산 자원은 일반 연구자들에게는 일반적으로 감당하기 어려운 비용입니다. 이로 인해 자연스럽게 LLM의 문맥 창을 효율적으로 확장할 수 있는지에 대한 질문이 제기됩니다.
+신중한 분석을 통해, dropout이 숨겨진 표현의 최소한의 “data augmentation” 역할을 하며 이를 제거하면 representation collapse로 이어진다는 것을 발견했습니다.
 
 <br>
 
-이러한 제한은 생성 능력을 위해 필요하지만, 전체 입력 시퀀스에 걸친 정보를 포착하는 것을 방해하여 텍스트 임베딩에는 최적이 아닙니다.
+NLI 데이터셋은 문장 쌍과 그 사이의 관계(예: 함축(entailment), 중립(neutral), 모순(contradiction))에 대한 주석이 포함되어 있습니다.
+
+[한국 NLI 데이터셋]('https://huggingface.co/datasets/kor_nli)
+- 함축 (Entailment):
+  - 함축 관계는 첫 번째 문장(전제)이 참일 때, 두 번째 문장(결론)이 반드시 참이 되어야 하는 관계를 의미합니다. 
+  - 즉, 전제가 결론을 논리적으로 지지하는 경우입니다. 예를 들어, 전제 "그녀는 요리를 하고 있다"가 주어졌을 때, 결론 "그녀는 부엌에 있다"는 함축됩니다.
+- 중립 (Neutral):
+  - 중립 관계는 전제에서 제시된 정보만으로는 결론이 참인지 거짓인지를 판단할 수 없을 때를 나타냅니다. 
+  - 전제와 결론 사이에 명확한 논리적 관계가 존재하지 않습니다. 예를 들어, 전제 "그녀는 요리를 하고 있다"에 대해 결론 "그녀는 음악을 좋아한다"는 중립적 관계에 있습니다.
+- 모순 (Contradiction):
+  - 모순 관계는 전제가 참일 때 결론이 거짓이 되어야 하는 경우입니다. 
+  - 즉, 전제와 결론 사이에 충돌이 있으며, 두 문장이 서로 배치됩니다. 예를 들어, 전제 "그녀는 요리를 하고 있다"가 주어졌을 때, 결론 "그녀는 집 밖에 있다"는 모순됩니다.
+
+SimCSE는 함축 관계에 있는 문장 쌍을 긍정적인 예로 사용합니다. 이는 두 문장이 서로 관련이 있음을 의미하며, 이를 통해 문장 임베딩이 더 정확하게 유사한 의미를 가진 문장을 인식할 수 있게 합니다.
 
 <br>
 
-또한 LLM을 파인튜닝하는 방법으로 LoRA를 활요하지만,  우리의 경험적 발견에 따르면, 이 방식으로 긴 문맥 모델을 훈련하는 것은 충분히 효과적이거나 효율적이지 않습니다.
+또한, 모순 관계에 있는 문장 쌍을 hard negatives로 추가함으로써 모델의 성능을 더욱 향상시킵니다.
 
 <br>
 
-효과성 측면에서, LoRA는 긴 문맥 확장에서 perplexity를 초래합니다.
+이러한 간단한 사용법은 동일한 데이터셋을 사용한 이전 방법들에 비해 상당한 개선을 이루었습니다.
 
 <br>
 
-높은 랭크 값(예: rank = 256)으로 랭크를 증가시켜도 이 문제를 해결하지 못합니다. 
+이 연구는 또한 다른 레이블이 붙은 문장 쌍 데이터셋과의 비교를 통해 NLI 데이터셋이 문장 임베딩 학습에 특히 효과적임을 발견했습니다.
 
 <br>
 
-효율성 측면에서, LoRA의 사용 여부에 관계없이 문맥 크기가 확장됨에 따라 계산 비용이 급격히 증가하며, 이는 주로 standard self-attention mechanism 때문입니다.
+이는 NLI 데이터셋이 문장 간의 의미적 관계를 다루는 데 특히 유용하기 때문에 문장 임베딩에 효과적인 학습 자료로 작용합니다.
 
 <br>
 
-LoRA를 사용하더라도 표준 Llama2 모델의 훈련 시간은 문맥 창이 확장될 때 상당히 증가합니다.
+Wang과 Isola (2020)의 분석 도구를 차용하여, 문장 임베딩의 품질을 측정하기 위해 의미론적으로 관련된 긍정적인 쌍 간의 alignment과 전체 표현 공간의 uniformity을 평가합니다.
 
 <br>
 
-<img style="width: 100%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="longLora/figure1.PNG">
+분석 결과, unsupervised SimCSE는 dropout 노이즈를 통해 잘못된 alignment을 피하면서 uniformity을 본질적으로 향상시키는 것으로 나타났습니다.
 
 <br>
 
-이 연구에서는 사전 훈련된 LLM의  context windows을 확장하는 효율적인 파인튜닝 접근 방법인 LongLoRA를 소개합니다.
+이는 임베딩의 표현력을 개선하는 데 기여합니다. 또한, 같은 분석을 통해 NLI 훈련 신호가 긍정적인 쌍 간의 alignment을 더욱 개선하고 더 나은 문장 임베딩을 생성할 수 있음을 보여줍니다.
 
 <br>
 
-우리는 standard self-attention의 효율적인 대체제로  shifted sparse attention($S^2-Attn$)를 제시합니다. 
+이 연구는 또한 사전 훈련된 단어 임베딩이 anisotropy(임베딩 공간에서 단어 벡터들이 특정 방향에 집중) 문제를 겪고 있다는 최근의 발견(Ethayarajh, 2019; Li et al., 2020)과 연결지어 설명합니다.
 
 <br>
 
-우리는 문맥 길이를 여러 그룹으로 나누고 각 그룹에서 개별적으로 attention를 수행합니다. half attention heads에서는, 토큰을 그룹 크기의 절반만큼 이동시켜 인접 그룹 간의 정보 흐름을 보장합니다.
+contrastive learning objectiv가 문장 임베딩 공간의 특이값 분포를 "평탄화"함으로써 균일성을 개선한다는 것을 스펙트럼 관점에서 증명합니다.
+
+<div id="Background: Contrastive Learning"></div>
+
+# Background: Contrastive Learning
+
+contrastive learning은 의미적으로 가까운 이웃(neighbor)을 서로 가깝게 끌어당기고, 그렇지 않은 비이웃(non-neighbors)은 밀어내는 방식으로 효과적인 표현을 학습하는 방법입니다.
 
 <br>
 
-<img style="width: 100%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="longLora/figure2.PNG">
-
-세로축: q
-가로축: k
+이 접근법은 서로 의미적으로 관련 있는 쌍의 예제 집합 $D={(x_i,x_i^+)}_{i=1}^m$로 정의합니다.
 
 <br>
 
-LongLoRA는 특정 방식을 통해 파인튜닝된 모델들이 추론 동안 원래의 attention 구조를 유지하며, 대부분의 기존 최적화 및 인프라를 용이하게 활용할 수 있습니다.
+contrastive framework는 Chen et al. (2020)을 따르며, 배치 내의 부정적 예제(in-batch negatives)와 함께 cross-entropy objective를 사용합니다.
 
 <br>
 
-예를 들어, Flash-Attention2는 훈련 및 추론 시간 동안 우리의 방법과 호환됩니다. 이는 short attention이 LLM의 사전 훈련 단계에서의 attention 체계와 유사하기 때문입니다.
+여기서 $h_i$ 와 $h_i^+$는 각각 $x_i$와 $x_i^+$의 표현을 나타냅니다. 훈련 목표는 미니배치에 있는 N 쌍을 사용하여 다음과 같이 정의됩니다:
 
 <br>
 
-다른 efficient attentions 방식들, 예를 들어 dilated 또는 sparse attention는 표준 스타일과 큰 차이가 있어 우리의 방식처럼 잘 작동하지 않습니다.
+<img style="width: 50%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="SimCSE/sic1.PNG">
 
-<br>
+τ는 temperature hyperparameter
 
-우리는 학습 가능한 embedding과 normalization layers이 긴 문맥 LoRA 파인튜닝을 가능하게 하는 핵심이라는 것을 실험적으로 보여줍니다.
-
-<br>
-
-embedding과 normalization layers은 전체 LLM에서 차지하는 매개변수 비율이 매우 적습니다. 예를 들어, Llama2 7B 모델에서 임베딩은 매개변수의 2% 미만을, 정규화는 0.004% 이하를 차지합니다.
-
-<br>
-
-이 비율은 더 큰 LLM에서는 더욱 감소합니다. 우리는 Llama2 7B, 13B, 70B의 context windows를 확장하는 실험 결과를 제시하며, Position Interpolation (Chen et al., 2023)의 실험 설정을 따라 적절한 위치 임베딩으로 모델을 파인튜닝합니다.
-
-<br>
-
-훈련된 모델들은 full-attention 및 fully fine-tuned 결과와 비교할 수 있는 성능을 달성하면서도 계산 비용은 훨씬 적습니다.
-
-<br>
-
-우리는 자체 수집한 긴 지시사항을 따르는 데이터셋인 LongAlpaca를 사용하여 SFT 솔루션을 제시합니다. 우리의 LongLoRA 모델은 긴 질문과 해당 답변으로 추가 파인튜닝됩니다.
-
-<div id="RELATED WORK"></div>
-
-# RELATED WORK
-
-### Long-context Transformers
-
-1. Retrieval-based Approaches
-
-이 접근법은 관련 문서를 검색하고, 검색된 결과를 문맥에 포함시키는 방식으로 언어 모델을 향상시킵니다.
-
-<br>
-
-예를 들어, Karpukhin et al., 2020; Izacard et al., 2022; Guu et al., 2020 등의 연구가 이에 해당합니다. 이 방법은 문맥을 인공적으로 확장하여 모델이 더 많은 정보를 활용할 수 있도록 합니다.
-
-2. Approximations of Attention Mechanism
-
-많은 연구들이 multi-head attention를 수정하여 계산 복잡성을 줄입니다. 예를 들어, Longformer(Beltagy et al., 2020)와 BigBird(Zaheer et al., 2020)는 sparse attention를 사용하여 긴 시퀀스를 처리합니다.
-
-<br>
-
-이러한 방식은 전체 입력에 대한 주의를 계산하는 대신 중요한 토큰들에만 주의를 집중시켜 계산 비용을 절감합니다.
-
-<br>
-
-또한, Wu et al., 2022; Bulatov et al., 2022와 같은 연구는 과거 입력에 대한 압축 또는 메모리 메커니즘을 활용하여 관련 토큰을 빠르게 찾아내는 기술을 개발하고 있습니다.
-
+$sim(h^1,h^2)$는 두 표현의 cosine similarity
 ### Long-context LLMs
 
 일반적으로 LLM은 사전 정의된 문맥 길이로 사전 훈련됩니다. 예를 들어, LLaMA는 2048 토큰, Llama2는 4096 토큰으로 설정됩니다.
