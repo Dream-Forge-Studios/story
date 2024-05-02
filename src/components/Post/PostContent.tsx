@@ -212,7 +212,7 @@ const PostContent: FunctionComponent<PostContentProps> = function ({ html }) {
             let newTop = Math.max(0, initialTop - scrolledAmount); // 스크롤에 따라 top 값을 감소시킵니다.
 
             if (scrolledAmount >= freezePoint) {
-                newTop = -200; // 스크롤이 freezePoint 이상이면 top 값을 0으로 고정합니다.
+                newTop = -180; // 스크롤이 freezePoint 이상이면 top 값을 0으로 고정합니다.
             }
 
             setTocTop(newTop);
