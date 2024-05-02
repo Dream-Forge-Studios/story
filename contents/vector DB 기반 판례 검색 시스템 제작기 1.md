@@ -104,6 +104,7 @@ thumbnail: './test.png'
 
 평균 length: 9783
 
+- 연구할 것
 
 1. instruction 한거 안한거
 2. bert식, RoBERTa식 마스킹 기법
@@ -111,4 +112,4 @@ thumbnail: './test.png'
    - 판결요지를 활용하여 10가지 사건 개요 만들기(6 학습 2 varidation 2 test)
 4. 판결요지를 학습에 추가?
 5. supervised contrastive traing
-2시간 20분 소요
+2시간 20분 소요?

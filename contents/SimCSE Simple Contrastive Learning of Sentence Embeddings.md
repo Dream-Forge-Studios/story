@@ -70,7 +70,7 @@ unsupervised SimCSE는 입력된 문장 자체를 예측하는 방식으로, 노
 
 NLI 데이터셋은 문장 쌍과 그 사이의 관계(예: 함축(entailment), 중립(neutral), 모순(contradiction))에 대한 주석이 포함되어 있습니다.
 
-[한국 NLI 데이터셋]('https://huggingface.co/datasets/kor_nli)
+[한국어 NLI 데이터셋]('https://huggingface.co/datasets/kor_nli)
 - 함축 (Entailment):
   - 함축 관계는 첫 번째 문장(전제)이 참일 때, 두 번째 문장(결론)이 반드시 참이 되어야 하는 관계를 의미합니다. 
   - 즉, 전제가 결론을 논리적으로 지지하는 경우입니다. 예를 들어, 전제 "그녀는 요리를 하고 있다"가 주어졌을 때, 결론 "그녀는 부엌에 있다"는 함축됩니다.
