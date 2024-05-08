@@ -144,33 +144,62 @@ contrastive framework는 Chen et al. (2020)을 따르며, 배치 내의 부정�
 τ는 temperature hyperparameter
 
 $sim(h^1,h^2)$는 두 표현의 cosine similarity
-### Long-context LLMs
 
-일반적으로 LLM은 사전 정의된 문맥 길이로 사전 훈련됩니다. 예를 들어, LLaMA는 2048 토큰, Llama2는 4096 토큰으로 설정됩니다.
+### Positive instances
 
-<br>
-
-하지만 처음부터 긴 문맥을 가진 LLM을 훈련하는 것은 대부분의 연구자들에게는 비용이 너무 많이 들어 실행하기 어렵습니다. 최근 몇몇 연구에서는 파인튜닝을 통해 LLM의 문맥 길이를 확장하려고 시도했습니다.
+이미지 태스크에서 두 가지 무작위 변환(예: 자르기, 뒤집기, 왜곡, 회전)을 적용하여 $x_i$와 $x_i^+$를 생성하는 방법이 효과적으로 사용됩니다.
 
 <br>
 
-예를 들어, Position Interpolation (Chen et al., 2023)은 로터리 위치 인코딩을 수정하여 LLaMA의 문맥 길이를 32768까지 확장합니다. Focused Transformer (Tworkowski et al., 2023)는 contrastive learning을 사용하여 LongLLaMA를 훈련합니다.
+언어 표현에서는 최근에 비슷한 접근법이 채택되었습니다(Wu et al., 2020; Meng et al., 2021). 이는 단어 삭제, 재배치, 대체 등의 데이터 증강 기술을 적용하여 긍정적 쌍을 생성합니다.
 
 <br>
 
-이러한 방법들은 모두 완전한 파인튜닝에 의존하며, 이는 많은 계산 자원을 요구합니다 (예: 128 A100 GPUs / 128 TPUv3).
+그러나 NLP에서 데이터 증강은 데이터의 이산적(discrete) 성격 때문에 본질적으로 어렵습니다.
 
 <br>
 
-Landmark attention (Mohtashami & Jaggi, 2023)은 효율적인 접근법이지만, 약간의 손실을 동반합니다. 이 방법은 긴 문맥 입력을 retrieved tokens으로 압축합니다.
+뒤에서 설명하겠지만, 중간 표현(intermediate representations)에 표준 드롭아웃을 사용하는 것이 이러한 이산 연산자(discrete operators)보다 더 우수한 성능을 보이는 것으로 나타납니다.
 
 <br>
 
-이 방법은 긴 문맥 입력을 검색된 토큰으로 압축합니다. 우리의 방법은 파인튜닝 비용을 상당히 절감하면서도 원래의 주의 품질을 유지합니다. 추론 시에는 수정되지 않은 주의를 통해 전체 입력에 완전히 접근합니다.
+드롭아웃은 입력의 일부를 무작위로 0으로 설정하여 모델이 더 견고해지도록 합니다.
 
-<div id="LONGLORA"></div>
+### Alignment and uniformity
 
-# LONGLORA
+#### Alignment
+
+<br>
+
+정렬(Alignment)은 긍정적인 쌍( $x,x^+$ )의 분포 $p_pos$를 기준으로, 연결된 instances의 임베딩 사이의 예상 거리를 계산합니다. 이 공식은 임베딩이 이미 정규화되었다고 가정하고, 수식으로는 다음과 같이 표현됩니다:
+
+<br>
+
+$align=E_{(x,x^+)~p_{pos}}∥f(x)-f(x^+)∥^2$
+
+<br>
+
+이는 긍정적인 인스턴스들이 임베딩 공간에서 서로 가까이 위치해야 한다는 대조적 학습의 목표와 일치합니다.
+
+<br>
+
+#### Uniformity
+
+<br>
+
+균일성(Uniformity)은 임베딩이 얼마나 균등하게 분포하는지를 측정합니다. 이는 데이터 분포 $p_{data}$에서 독립적으로 동일하게 분포하는 x와 y에 대해 계산됩니다. 수식으로는 다음과 같이 표현됩니다:
+
+<br>
+
+$uniform=logE_{x,y~P_{data}}e^{-2∥f(x)-f(y)∥^2}$
+
+<br>
+
+이 측정은 임베딩이 전체 고차원 공간(hypersphere)에 걸쳐 잘 퍼져 있어야 한다는 대조적 학습의 또 다른 목표와 일치합니다.
+
+<div id="Unsupervised SimCSE"></div>
+
+# Unsupervised SimCSE
 
 <div id="SHIFTED SPARSE ATTENTION"></div>
 
@@ -420,3 +449,4 @@ LongLoRA에서 사용된 Shift 작업에는 세 가지 옵션이 있습니다:
 <br>
 
 또한 데이터의 위치를 왼쪽으로 옮기나 오른쪽으로 옮기나 성능 차이가 거의 없었다고 합니다. 즉, 이러한 위치 변경이 모델의 전반적인 성능에 큰 영향을 주지 않는다는 것을 발견했습니다.
+

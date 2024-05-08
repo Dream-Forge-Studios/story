@@ -112,4 +112,7 @@ thumbnail: './test.png'
    - 판결요지를 활용하여 10가지 사건 개요 만들기(6 학습 2 varidation 2 test)
 4. 판결요지를 학습에 추가?
 5. supervised contrastive traing
-2시간 20분 소요?
+6. 
+하루 소요
+seed=42
+
