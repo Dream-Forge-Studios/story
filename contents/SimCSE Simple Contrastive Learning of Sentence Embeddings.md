@@ -131,6 +131,7 @@ contrastive learning은 의미적으로 가까운 이웃(neighbor)을 서로 가
 
 <br>
 
+<div id="Contrastive Learning Sic"></div>
 contrastive framework는 Chen et al. (2020)을 따르며, 배치 내의 부정적 예제(in-batch negatives)와 함께 cross-entropy objective를 사용합니다.
 
 <br>
@@ -201,252 +202,186 @@ $uniform=logE_{x,y~P_{data}}e^{-2∥f(x)-f(y)∥^2}$
 
 # Unsupervised SimCSE
 
-<div id="SHIFTED SPARSE ATTENTION"></div>
-
-## SHIFTED SPARSE ATTENTION
-
-### Pilot Study
-
-첫 번째 시도에서는 figure2의 pattern 1 short attention만을 사용하여 모델을 훈련시킵니다. 
+문장의 집합 $x_i$에서 $x_i^+=x_i$를 사용합니다. 즉, 동일한 문장을 긍정적 쌍으로 사용합니다.
 
 <br>
 
-이는 주로 긴 문맥에서 높은 계산 비용이 self-attention으로부터 발생하기 때문에, 긴 입력을 여러 그룹으로 나누어 각 그룹에서 self-attention를 수행합니다.
+이 방식이 효과적으로 작동하기 위한 핵심 요소는 $x_i$와 $x_i^+$에 독립적으로 샘플링된 드롭아웃 마스크를 사용하는 것입니다. 
 
 <br>
 
-예를 들어, 모델은 훈련 및 테스트 단계에서 8192개의 토큰을 입력으로 받지만, 각 그룹의 크기는 2048로 self-attention이 수행됩니다. 그룹 수는 4개입니다.
+함수 $h_{z_i} =f_θ(x_i,z)$에서 z는 드롭아웃을 위한 무작위 마스크입니다. 이 경우 같은 입력을 인코더에 두 번 제공하고, 서로 다른 드롭아웃 마스크 $z$와 $z′$를 사용하여 두 개의 임베딩을 생성합니다. SimCSE의 훈련 목표는 다음과 같이 정의됩니다:
 
 <br>
 
-이러한 분할 방식은 효율적이지만 매우 긴 문맥에서는 효과가 없으며, 문맥 길이가 길어질수록 perplexity가 증가합니다.
+$ℓ_i=-log \frac{e^{sim(h_{z_i},h_{z_{i′}})/τ}}{\sum_{j=1}^{N}e^{sim(h_{z_i},h_{z_{j′}})/τ}}$
 
 <br>
 
-이는 다른 그룹 간에 정보 교환이 없기 때문입니다.
+여기서 N은 미니배치 내의 문장 수입니다. τ는 소프트맥스의 온도 매개변수입니다. z는 트랜스포머에서의 표준 드롭아웃 마스크를 의미하며, 추가적인 드롭아웃은 적용되지 않습니다.
+
+### Dropout noise as data augmentation
+
+이 접근 방식을 STS-B 개발 세트(Cer et al., 2017)에서 다른 훈련 목표와 비교하였습니다.
 
 <br>
 
-그룹 간 통신을 도입하기 위해 그룹 분할을 반 그룹 크기만큼 이동시키는 figure2의 pattern 2를 사용합니다.
+<img style="width: 50%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="SimCSE/figure1.PNG">
 
 <br>
 
-예를 들어, 전체 문맥 길이가 8192인 경우, 첫 번째 그룹은 1번째부터 2048번째 토큰까지 self attention을 수행하고, 두 번째 패턴에서는 그룹 분할이 1024만큼 이동하여, 첫 번째 주의 그룹이 1025번째부터 3072번째 토큰까지 시작합니다.
+이 접근 방식을 크롭, 단어 삭제, 단어 교체와 같은 일반적인 데이터 증강 기법과 비교한 결과입니다.
 
 <br>
 
-패턴 1과 2를 각각 half self-attention heads에서 사용합니다. 이 방식은 추가적인 계산 비용을 증가시키지 않으면서 다른 그룹 간의 정보 흐름을 가능하게 합니다.
+이들 기법은 $h=f_θ(g(x),z)$ 형식으로 표현되며, 여기서 $g$는 $x$에 대한 (무작위) 이산 연산자입니다. 하나의 단어를 삭제하는 것조차 성능에 해를 끼칠 수 있으며, 어떤 이산 증강 기법도 드롭아웃 노이즈의 성능을 능가하지 못한다는 점을 확인했습니다.
+
+<div id="Supervised SimCSE"></div>
+
+# Supervised SimCSE
+
+이전 연구(Conneau et al., 2017; Reimers and Gurevych, 2019)에서는 자연어 추론(Natural Language Inference, NLI) 데이터셋(Bowman et al., 2015; Williams et al., 2018)이 문장 임베딩 학습에 효과적이라는 것을 보여주었습니다.
 
 <br>
 
-이러한 접근 방식은 standard attention baseline과 가까운 성능을 보여줍니다.
-
-### Consistency to Full Attention
-
-많은 효율적인 주의 설계들이 긴 문맥의 LLM의 효율을 개선할 수 있지만, 대부분은 긴 문맥의 파인튜닝에 적합하지 않습니다.
+이 데이터셋들은 두 문장 간의 관계가 함축(entailment), 중립(neutral), 모순(contradiction)인지를 예측함으로써 학습을 진행합니다. 
 
 <br>
 
-이는 이러한 변형된 트랜스포머들이 처음부터 훈련되도록 설계되었기 때문에, 사전 훈련에 사용된 standard full attention와 차이가 있기 때문입니다.
+하지만 우리의 대조적 학습 프레임워크에서는 감독된 데이터셋에서 직접 $(x_i,x_i^+)$ 쌍을 가져와서 <a href="#Contrastive Learning Sic">Contrastive Learning식</a>을 최적화하는 데 사용합니다.
+
+### Choices of labeled data
+
+1. QQP (Quora Question Pairs): 쿼라에서의 질문 쌍으로 구성된 데이터셋입니다.
+2. Flickr30k (Young et al., 2014): 각 이미지에 대해 인간이 작성한 5개의 캡션을 포함하고 있으며, 동일 이미지의 어떤 두 캡션도 긍정적인 쌍으로 간주됩니다.
+3. ParaNMT (Wieting and Gimpel, 2018): 대규모 역번역을 통해 생성된 패러프레이즈 데이터셋입니다.
+4. NLI 데이터셋: SNLI (Bowman et al., 2015) 및 MNLI (Williams et al., 2018)와 같은 자연어 추론 데이터셋입니다.
+
+해당 데이터를 가지고 <a href="#Contrastive Learning Sic">Contrastive Learning식</a>으로 훈련시키고 결과를 비교하였습니다.
 
 <br>
 
-$S^2 -Attn$은 fine-tuning뿐만 아니라 full attention testing도 지원합니다. 이는 fine-tuning 과정에서 사용된 attention mechanism을 테스트 과정에서도 그대로 사용해야 한다는 의미입니다.
+<img style="width: 50%;" src="SimCSE/table4.PNG">
 
 <br>
 
-또한, $S^2 -Attn$은 특정 주의 패턴에 모델이 over-fitted을 방지하는 specific attention patterns을 포함합니다.
-
-### Easy Implementation
-
-$S^2 -Attn$는 구현하기 쉽습니다.
-
-1. half attention heads에서 shifting tokens
-2. 토큰 차원에서 배치 차원으로 특성을 transposing합니다.
-이를 위한 코드는 두 줄로 충분합니다.
-
-```
-# B: batch size; S: sequence length or number of tokens; G: group size;
-# H: number of attention heads; D: dimension of each attention head
-# qkv in shape (B, N, 3, H, D), projected queries, keys, and values
-# Key line 1: split qkv on H into 2 chunks, and shift G/2 on N
-qkv = cat((qkv.chunk(2, 3)[0], qkv.chunk(2, 3)[1].roll(-G/2, 1)), 3).view(B*N/G,G,3,H,D)
-# standard self-attention function
-out = self_attn(qkv)
-# out in shape (B, N, H, D)
-# Key line 2: split out on H into 2 chunks, and then roll back G/2 on N
-out = cat((out.chunk(2, 2)[0], out.chunk(2, 2)[1].roll(G/2, 1)), 2)
-```
-
-<div id="IMPROVED LORA FOR LONG CONTEXT"></div>
-
-## IMPROVED LORA FOR LONG CONTEXT
-
-LoRA 방식은 파라미터의 수를 줄이면서도 효과적으로 모델을 적응시킬 수 있지만, 타겟 문맥 길이가 길어질수록 전체 파인튜닝과의 성능 격차가 커집니다.
+공정한 비교를 위해 동일한 수의 훈련 쌍으로 실험을 수행했습니다. 결과적으로, NLI 데이터셋(SNLI + MNLI)에서 추출한 함축 관계 쌍을 사용하는 것이 가장 좋은 성능을 보였습니다.
 
 <br>
 
-또한, LoRA에서 rank를 높이는 것만으로는 이 격차를 줄이기 어렵다는 점이 실험적으로 관찰되었습니다.
+이는 NLI 데이터셋이 고품질이며 군중 소싱을 통해 생성된 쌍을 포함하고 있기 때문에 합리적입니다. 또한, 인간 주석자들이 전제를 바탕으로 가설을 수작업으로 작성할 것으로 예상되며, 두 문장 간에 어휘적 중복이 더 적은 경향이 있습니다.
 
 <br>
 
-이 격차를 해소하기 위해, 연구에서는 임베딩과 정규화 레이어를 훈련에 포함시키기로 결정했습니다.
+예를 들어, 함축 관계 쌍(SNLI + MNLI)의 어휘적 중복(F1 스코어로 측정)은 39%인 반면, QQP와 ParaNMT에서는 각각 60% 및 55%입니다.
 
 <br>
 
-특히 정규화 레이어는 전체 모델에서 매우 적은 비율의 파라미터(0.004%)를 차지하지만, 긴 문맥 적응에 있어 중요한 영향을 미칩니다. 이러한 접근을 통해 LoRA의 개선된 버전인 $LoRA^+$가 실험에서 사용되었습니다.
+이 결과는 각 데이터셋의 특성이 어떻게 대조적 학습의 성능에 영향을 미치는지를 보여줍니다.
+
+### Contradiction as hard negatives
+
+자연어 추론(NLI) 데이터셋을 활용하여 "모순(contradiction)" 쌍을 어려운 부정적 예제(hard negatives)로 사용하는 감독된 SimCSE을 하였습니다.
+
+<br>
+
+형식적으로, 우리는 $(x_i,x_i^+)$ 쌍을 $(x_i,x_i^+,xi^-)$로 확장하여, 여기서 $x_i$는 전제, $x_i^+$와 $x_i^−$는 각각 함축과 모순 가설입니다. 그러면 훈련 목표 ℓ $ℓ_i$는 미니배치 크기 $N$을 사용하여 다음과 같이 정의됩니다:
+
+<br>
+
+<img style="width: 50%;" src="SimCSE/sic8.PNG">
+
+<br>
+
+hard negatives을 추가하므로써, 성능을 더 향상시킬 수 있습니다(84.9 → 86.2). 이는 우리의 최종 감독된 SimCSE 접근법입니다.
+
+<br>
+
+또한 ANLI 데이터셋(Nie et al., 2020)을 추가하거나 비감독 SimCSE 접근법과 결합해 보았지만, 의미 있는 개선을 찾지 못했습니다. 또한 감독된 SimCSE에서 이중 인코더 프레임워크를 고려해 보았으나 성능이 저하되었습니다(86.2 → 84.2).
+
+<div id="Connection to Anisotropy"></div>
+
+# Connection to Anisotropy
+
+최근 연구에서는 언어 표현에서의 이방성(anisotropy) 문제가 지적되었습니다(Ethayarajh, 2019; Li et al., 2020). 이 문제는 학습된 임베딩이 벡터 공간에서 좁은 콘(cone)을 차지하여, 그 표현력이 심각하게 제한된다는 것을 의미합니다.
+
+<br>
+
+Gao et al. (2019)은 입력층과 출력층에서 동일한 단어 임베딩을 공유하는(language models trained with tied input/output embeddings) 언어 모델이 이방성 단어 임베딩을 초래한다는 것을 보여주었으며, 이는 Ethayarajh (2019)에 의해 사전 훈련된 문맥적 표현에서도 관찰되었습니다.
+
+<br>
+
+Wang et al. (2020)은 언어 모델의 단어 임베딩 행렬에서 특이값이 급격히 감소한다는 것을 보여주었습니다: 몇 개의 지배적인 특이값을 제외하고는 모든 다른 값들이 거의 0에 가깝습니다.
+
+<br>
+
+즉, 모델이 단어의 다양성을 충분히 표현하지 못하고 일부 방향에만 집중하는 것을 의미합니다.
+
+<br>
+
+이 문제를 완화하는 간단한 방법은 후처리(postprocessing)를 통해, 지배적인 주성분을 제거하거나(Arora et al., 2017; Mu and Viswanath, 2018), 임베딩을 등방성 분포로 매핑하는 것입니다(Li et al., 2020; Su et al., 2021). 또 다른 일반적인 해결책은 훈련 중에 정규화를 추가하는 것입니다(Gao et al., 2019; Wang et al., 2020). 
+
+<br>
+
+이 연구에서는, 이론적으로나 실증적으로 contrastive objective가 이방성 문제를 완화할 수도 있음을 보여줍니다.
+
+<br>
+
+anisotropy 문제는 자연스럽게 uniformity과 연결됩니다(Wang and Isola, 2020), 두 가지 모두 임베딩이 공간에 고르게 분포되어야 한다는 점을 강조합니다.
+
+<br>
+
+직관적으로, contrastive objective를 최적화하는 것은 부정적 인스턴스를 서로 멀리 밀어내므로 균일성을 개선하거나 이방성 문제를 완화할 수 있습니다.
+
+<br>
+
+여기에서 우리는 단어 임베딩을 분석하는 일반적인 방법인 특이 스펙트럼 관점을 취하고, 대조적 목표가 문장 임베딩의 특이값 분포를 "평탄화"할 수 있으며 표현을 더 등방성(isotropic)으로 만들 수 있음을 보여줍니다.
 
 <div id="EXPERIMENT"></div>
 
 # EXPERIMENT
 
-<div id="EXPERIMENTAL SETTINGS"></div>
+<div id="Semantic textual similarity tasks"></div>
 
-## EXPERIMENTAL SETTINGS
+### Semantic textual similarity tasks
 
-### Models
-
-7B, 13B, 70B 크기의 Llama2 모델이 사용되었습니다.
+연구팀은 7가지 STS 작업을 평가합니다: STS 2012년부터 2016년까지(Agirre et al., 2012, 2013, 2014, 2015, 2016), STS 벤치마크(Cer et al., 2017) 및 SICK 관련성 작업(Marelli et al., 2014).
 
 <br>
 
-최대 문맥 윈도우 크기:
+평가 방식은 Reimers와 Gurevych (2019)의 설정을 따릅니다:
 
-- 7B 모델의 경우 최대 100,000
-- 13B 모델의 경우 최대 65,536
-- 70B 모델의 경우 최대 32,768
+1. No additional regressor: 어떤 연구에서는 임베딩과 실제 유사도 점수 사이의 관계를 더 잘 모델링하기 위해 추가적인 회귀 모델을 사용할 수 있습니다. 하지만 이 설정에서는 그러한 추가 모델 없이 원래의 임베딩만을 사용하여 성능을 평가합니다.
+2. Spearman’s correlation
+3. "All" aggregation: 모든 평가 결과를 하나의 종합적인 성능 지표로 합산하는 방법
 
-<br>
+### Training Details
 
-모든 모델의 위치 인덱스는 'Position Interpolation' 기법을 사용하여 재조정되었습니다.
+- supervised SimCSE: 모델은 3 에포크 동안 훈련되며, 250 훈련 스텝마다 STS-B 개발 세트에서 평가하여 최고의 체크포인트를 최종 평가에 사용합니다.
+- unsupervised SimCSE: 모델은 한 에포크 동안 훈련되며, supervised 버전과 유사한 방식으로 평가가 진행됩니다.
 
-### Position Interpolation
-
-- 옵티마이저
-  - AdamW 옵티마이저가 사용되며, β1 = 0.9, β2 = 0.95의 값을 가집니다.
-
-- 학습률
-  - 7B 및 13B 모델: 2 × 10−5
-  - 70B 모델: 10−5
-
-- linear learning rate warmup
-- weight decay: 0
-- per-device batch size: 1, gradient accumulation steps: 8 <br> (8개의 GPU를 사용할 때 global batch size 64)
-- train 1000 steps
-
-### Datasets
-
-- 학습 데이터셋: Redpajama
-- 평가 데이터셋
-  - PG19 (Rae et al., 2020): 이 데이터셋은 책 코퍼스로 구성되어 있으며, 긴 시퀀스 언어 모델링 성능 평가에 사용됩니다. 평가에는 PG19의 테스트 분할, 즉 100개의 문서가 포함된 부분이 사용됩니다.
-  - Proof-pile 데이터셋 (Azerbayev et al., 2022): 이는 정리된 Arxiv 수학 증명 자료로 구성된 데이터셋입니다. 이 데이터셋의 테스트 분할 역시 모델 평가에 사용됩니다.
-- 성능 평가 방식: perplexity
-  - 'Press et al., 2022'의 방법을 따라 슬라이딩 윈도우 접근법을 사용합니다. 이 방법에서 윈도우 크기(S)는 256으로 설정됩니다. 
-  - perplexity는 모델이 데이터를 얼마나 잘 이해하고 있는지를 측정하는 지표로, 낮을수록 모델의 성능이 더 좋다고 평가됩니다.
-
-<div id="MAIN RESULTS"></div>
-
-## MAIN RESULTS
-
-### Long-sequence Language Modeling
-
-특정 훈련 문맥 길이에서, 모델은 더 긴 문맥 크기에서 더 나은 perplexity를 달성합니다. 이는 효율적인 파인튜닝 방법의 효과를 나타냅니다.
+SimCSE는 배치 크기에 민감하지 않은 것으로 나타났으며, 적절한 학습률을 조정하는 것이 중요합니다. 이는 contrastive learning이 큰 배치 크기를 요구한다는 이전의 발견과는 상반됩니다.
 
 <br>
 
-예를 들어, Llama2 7B 모델의 문맥 창 크기를 8192에서 32768로 증가시킬 때 perplexity는 2.72에서 2.50으로 개선됩니다(-0.22의 변화). Llama2 13B 모델의 경우, perplexity가 -0.28만큼 감소합니다.
+이러한 차이는 SimCSE 모델이 사전 훈련된 체크포인트에서 시작하기 때문에 좋은 초기 매개변수 세트를 이미 가지고 있기 때문일 수 있습니다.
 
 <br>
 
-8 × A100 머신에서 파인튜닝할 수 있는 최대 문맥 길이를 추가로 검토합니다. Llama2 7B, 13B, 70B 모델을 각각 100k, 65536, 32768 문맥 길이로 확장합니다.
+supervised 및 unsupervised 버전 모두에서 [CLS] 표현 위에 MLP(다층 퍼셉트론) 층을 추가하여 문장 표현을 생성합니다.
 
 <br>
 
-<img style="width: 100%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="longLora/table4.PNG">
+그런데 비감독 SimCSE의 경우, 테스트 동안 MLP 층을 제거하고 [CLS] 출력만 사용하는 것이 성능이 더 좋은 것으로 나타났습니다.
 
 <br>
 
-확장된 모델들에서 작은 문맥 크기에 대한 perplexity 저하가 관찰됩니다. 이는 Position Interpolation 방법의 알려진 한계점입니다.
-
-### Retrieval-based Evaluation
-
-이 연구의 주요 목적은 긴 대화에서 목표 주제를 검색하는 것입니다. 이러한 대화의 길이는 3k에서 16k 토큰에 이르며, 일부 질문은 16k를 초과합니다.
+추가적인 변형도 적용합니다. 이는 마스크 언어 모델링(MLM) 목표를 추가적인 손실로 적용하는 것으로,(+ λ · mlm)의 형태로 추가됩니다. 
 
 <br>
 
-이 연구에서는 Llama2 13B 모델을 다른 open LLMs와 비교하여 평가합니다. 비교 대상 중 하나는 LongChat-13B 모델로, 이는 같은 태스크에서 최고의 성능을 보이는 모델입니다.
+이 추가적인 손실 목표는 토큰 수준의 지식이 급격히 잊혀지는 것을 방지하는 데 도움을 줍니다. 
 
 <br>
 
-Llama2 13B는 18k 문맥 길이로 파인튜닝되었으며, 훈련 비용은 16k 토큰을 학습할 때와 비슷합니다.
-
-<br>
-
-실험 결과, 이 모델은 LongChat-13B와 비교할 만한 성능을 보였으며, 16k 평가에서는 약간 더 우수한 성능을 보였습니다.
-
-<br>
-
-<img style="width: 100%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="longLora/figure4.PNG">
-
-<br>
-
-이 태스크는 문서에서 임의의 'passkey'를 찾는 것으로, Landmark Attention 기법을 사용하여 수행됩니다.
-
-<br>
-
-Llama2 7B와 LongLoRA 모델이 32768 문맥 길이로 파인튜닝되어 1k부터 34k까지의 문서 길이에서 passkey 검색 정확도를 테스트합니다.
-
-<br>
-
-모델은 33k 또는 34k까지 합리적인 passkey 검색 정확도를 보여줍니다.
-
-<br>
-
-최대 위치 인코딩을 48k로 확장하여, 모델이 더 긴 문서를 처리할 수 있도록 개선되었습니다.
-
-<br>
-
-그러나 Llama2 7B는 4k 문맥 길이 이후에 정확도가 급격히 떨어지는 문제가 있습니다.
-
-<div id="ABLATION STUDY"></div>
-
-## ABLATION STUDY
-
-### Ablation on Fine-tuning Steps
-
-<img style="width: 100%; margin-right: 0px; margin-left: 0px; margin-top: 0px; margin-bottom: 0px;" id="output" src="longLora/figure5.PNG">
-
-<br>
-
-파인튜닝을 하지 않은 상태(0 단계)에서 모델은 긴 문맥에서 제한적인 능력을 보여주며, perplexity는 15.82입니다. 이는 모델이 아직 최적화되지 않았을 때 긴 문맥을 어떻게 처리하는지를 나타냅니다.
-
-<br>
-
-파인튜닝이 진행됨에 따라 perplexity가 빠르게 감소하는 것을 관찰할 수 있습니다. 이는 모델이 점차 긴 문맥을 더 잘 처리하게 되고, 언어 모델의 성능이 개선됨을 의미합니다.
-
-<br>
-
-Full fine-tuning은 low-rank training보다 더 빠르게 수렴합니다. 이는 Full fine-tuning이 모델의 모든 파라미터를 조정하면서 보다 효과적으로 모델을 최적화한다는 것을 보여줍니다.
-
-<br>
-
-200 steps 이후, Full fine-tuning과 low-rank training 간의 성능 격차는 크지 않습니다. 이는 초기에는 Full fine-tuning이 유리하지만, 장기적으로는 두 방법이 비슷한 성능을 보여준다는 것을 의미합니다.
-
-### Attention Patterns
-
-Llama2 7B 모델을 다양한 attention patterns을 사용하여 파인튜닝하고 그 효과를 평가한 실험에 대해 설명하고 있습니다. 이 모델은 Redpajama 데이터셋을 기반으로 32768 문맥 길이로 파인튜닝되었으며, PG19 검증 세트를 사용하여 perplexity를 평가합니다.
-
-<br>
-
-LongLoRA에서 사용된 Shift 작업에는 세 가지 옵션이 있습니다:
-
-1.  disabling it
-2. shifting between sequential layers
-3. shifting among attention heads
-
-실험 결과, 두번째 방법은 괜찮은 성능을 보이지만 최선의 방법은 아니라고 합니다. 즉, 어느 정도 효과는 있지만, 다른 방법들에 비해 상대적으로 뛰어나지는 않습니다.
-
-<br>
-
-또한 데이터의 위치를 왼쪽으로 옮기나 오른쪽으로 옮기나 성능 차이가 거의 없었다고 합니다. 즉, 이러한 위치 변경이 모델의 전반적인 성능에 큰 영향을 주지 않는다는 것을 발견했습니다.
-
+이러한 항목을 추가하는 것은 문장 수준의 STS 작업이 아닌, transfer tasks에서 성능을 개선하는 데 도움을 줄 수 있습니다. 이는 모델이 다양한 언어 처리 작업 간에 지식을 효과적으로 transfer를 수행하고 유지하는 능력을 향상시키는 데 기여합니다.
