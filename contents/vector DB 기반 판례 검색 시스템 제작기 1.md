@@ -74,7 +74,7 @@ thumbnail: './test.png'
 
 <br>
 
-이 데이터는 국가법령정보 공동활용 OPEN API를 통해 수집하였고, 2017년 1월 1일부터 2024년 4월 25일까지의 판례(968개)를 포함하고 있습니다.
+이 데이터는 국가법령정보 공동활용 OPEN API를 통해 수집하였고, 2010년 1월 1일부터 2024년 4월 25일까지의 판례(2315개)를 포함하고 있습니다.
 
 <br>
 
@@ -103,16 +103,44 @@ thumbnail: './test.png'
 ```
 
 평균 length: 9783
-
-- 연구할 것
-
-1. instruction 한거 안한거
-2. bert식, RoBERTa식 마스킹 기법
-3. 평가지표 만들기
-   - 판결요지를 활용하여 10가지 사건 개요 만들기(6 학습 2 varidation 2 test)
-4. 판결요지를 학습에 추가?
-5. supervised contrastive traing
-6. 
-하루 소요
 seed=42
 
+질문 - 질문
+- 모델
+  - BM-K/KoSimCSE-roberta-multitask
+  - llm
+- loss
+  - contrastive loss
+  - margin loss
+  - dpo
+  - simCSE(llm)
+- 학습데이터
+  - simCSE: maywell/korean_textbooks
+  - llm contrastive loss: maywell/ko_wikidata_QA
+  - 합성데이터 (문서 - 질문): 문서 - 질문 vs 질문 - 질문
+- 평가지표
+  - 합성데이터 질문 2개로 적절한 문서 찾는 개수
+
+순서
+1. llm2vec base model 만들기(5월 셋째주)
+2. 합성데이터 만들기(5월 넷째주)
+3. contrastive loss로 문서 - 질문 vs 질문 - 질문
+4. 다른 loss 활용
+
+논문
+1. llm 참조 모델 dpo (dataset: KorSTS)
+2. roberta에 dpo
+3. negative 데이터 선정 알고리즘
+
+시스템
+1. 질문 - 질문 sts
+2. 질문 - 문서 매칭모델
+3. 질문 - 문서 모델 자체
+4. 모델 뒤에 무엇을 붙여서
+
+966
+
+dpo
+1. 다른 문서끼리에 질문과 질문 간의 sts를 통해 유사도
+2. 비슷한 문서 top 5까지는 pos로 해서 질문 문서간 contrastive learning
+3. 

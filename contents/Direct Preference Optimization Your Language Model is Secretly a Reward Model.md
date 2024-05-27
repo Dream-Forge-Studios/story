@@ -112,7 +112,7 @@ $π_θ$: 실제 언어 생성 모델, 초기에는 $π_{SFT}$
 
 <img style="width: 50%; margin-bottom: 0px;" id="output" src="./dpo/dposic1.PNG">
 
-$π_r$: 최적 모델
+$π_r$: x에서 y를 선택할 확률을 나타내는 policy
 
 <br>
 
@@ -122,11 +122,11 @@ $Z(x) =  \sum_y π_{ref}(y|x)exp(\frac{1}{\beta}r(x,y))$
 
 <br>
 
-DPO(Direct Preference Optimization) 목표를 도출하는 과정은 기존 작업에서 사용된 강화 학습(RL) 목표, 즉 일반 보상 함수 r 하에서의 KL-constrained reward maximization objective로 시작합니다.
+그런데 위의 식에서 $Z(x)$는 실제 활용에서 계산이 비용이 많이 드는 부분으로 지적되고 있습니다. 이를 개선하기 위해,
 
 <br>
 
-위의 식은 이전 연구들을 따라, KL-constrained reward maximization objective의 최적의 해결책을 직관적으로 표현한 것입니다.
+DPO(Direct Preference Optimization) 목표를 도출하는 과정은 기존 작업에서 사용된 강화 학습(RL) 목표, 즉 rewarld model r 하에서의 KL-constrained reward maximization objective로 시작합니다.
 
 <br>
 
