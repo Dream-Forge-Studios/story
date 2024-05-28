@@ -312,9 +312,9 @@ BERT의 기존 마스크된 언어 모델링(MLM) 작업은 인코더에 유지�
 
 # Experimental Studies
 
-<div id=" Experiment Settings"></div>
+<div id="Experiment Settings"></div>
 
-##  Experiment Settings
+## Experiment Settings
 
 ###  Pre-training
 
@@ -400,29 +400,35 @@ RetroMAE는 인코더로 bi-directional transformers를 사용하며, 12개의 �
 
   - MS MARCO 평가: standard knowledge distillation 기법을 사용하여 모델 성능을 평가합니다. <br>구체적으로, ANCE로 미세 조정된 bi-encoder가 질문과 관련 없지만 bi-encoder가 관련 있다고 잘못 판단하는 문서 hard negatives에 대해 BERT base scale cross-encoder를 학습시키고, KL-divergence를 최소화하여 bi-encoder를 추가로 미세 조정합니다. <br> <br> cross-encoder: 질문과 문서를 함께 입력으로 받아 관련성을 직접적으로 예측하는 모델 
 
-<br>
+<div id="Main Results"></div>
 
-이 방법은 배치 크기를 현저히 증가시킬 수 있습니다. 예를 들어, 텍스트 길이가 8192인 경우, 배치 크기를 20배 이상 증가시킬 수 있습니다.
+## Main Results
 
-4. GPU 간의 임베딩 공유
+### Zero-shot evaluations
 
-서로 다른 GPU에서 생성된 임베딩은 브로드캐스트되어, 분산 환경에서 각 디바이스가 모든 임베딩을 얻을 수 있게 합니다. 이는 배치 내 음성 샘플의 규모를 크게 확장합니다.
-
-5. MCLS 전략
-
-충분한 계산 자원이나 데이터가 없는 사용자를 위해, 긴 텍스트 모델을 훈련할 필요 없이 모델의 긴 텍스트 처리 능력을 향상시키는 MCLS 전략을 제안합니다.
+<img style="width: 100%;" src="retroMAE/table1.PNG">
 
 <br>
 
-이 전략은 추론 동안 텍스트 의미를 포착하기 위해 다중 CLS 토큰을 활용합니다. 
-
-<br> 
-
-구체적으로, 이 방법은 일정 수의 토큰마다 하나의 CLS 토큰을 삽입합니다(실험에서는 각 256개 토큰마다 하나의 “[CLS]” 토큰을 삽입). 각 CLS 토큰은 주변 토큰들로부터 의미 정보를 포착할 수 있습니다.
+RetroMAE는 대부분의 데이터셋에서 최고 성능을 보이며, 가장 강력한 기준 모델보다 총 평균 4.5% 높은 성능을 달성했습니다. 
 
 <br>
 
-최종적으로, 모든 CLS 토큰의 마지막 은닉 상태들을 평균내어 최종 텍스트 임베딩을 얻습니다.
+Zero-shot 성능 향상은 모델 규모 증가나 사전 학습 데이터 증강이 아닌, 순전히 사전 학습 알고리즘 업그레이드를 통해 이루어졌다는 점에서 주목할 만합니다.
+
+### supervised evaluations
+
+pre-trained models을 DPR 및 ANCE로 미세 조정하여 지도 학습 평가를 수행했습니다. 기준 모델은 일반 사전 학습 모델과 검색 지향 사전 학습 모델로 나누어 비교했습니다.
+
+<br>
+
+<img style="width: 100%;" src="retroMAE/table23.PNG">
+
+<br>
+
+RetroMAE는 DPR 및 ANCE 미세 조정 모두에서 기준 모델들보다 뛰어난 성능을 유지했습니다.
+  - DPR 미세 조정: 두 데이터셋에서 가장 강력한 기준 모델보다 MRR@10 1.96%, Recall@10 1.48% 높은 성능을 보였습니다.
+  - ANCE 미세 조정: 두 데이터셋에서 가장 강력한 기준 모델보다 MRR@10 1.42%, Recall@10 1.41% 높은 성능을 보였습니다.
 
 <div id="Experiment"></div>
 
