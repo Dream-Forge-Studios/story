@@ -266,6 +266,8 @@ $L_{dec} = \sum_{x_i∈X} CE(x_i |A, H_1)$
 
 <br>
 
+<div id="sic7"></div>
+
 디코더는 단 하나의 트랜스포머 레이어로 구성되어 있으므로, 각 토큰 $x_i$는 행렬 $M$의 $i$번째 행에서 볼 수 있는 컨텍스트를 기반으로 재구성됩니다. 
 
 <br>
@@ -430,162 +432,96 @@ RetroMAE는 DPR 및 ANCE 미세 조정 모두에서 기준 모델들보다 뛰�
   - DPR 미세 조정: 두 데이터셋에서 가장 강력한 기준 모델보다 MRR@10 1.96%, Recall@10 1.48% 높은 성능을 보였습니다.
   - ANCE 미세 조정: 두 데이터셋에서 가장 강력한 기준 모델보다 MRR@10 1.42%, Recall@10 1.41% 높은 성능을 보였습니다.
 
-<div id="Experiment"></div>
+본 논문에서는 위 결과 외에도 몇 가지 흥미로운 관찰 결과를 제시하고 있습니다.
 
-# Experiment
+1. 일반적인 사전학습 방법의 한계
 
-<div id="Multi-Lingual Retrieval"></div>
-
-## Multi-Lingual Retrieval
-
-### 평가 방법
-
-- MIRACL 벤치마크: MIRACL은 여러 언어로 구성된 질문과 지문 쌍으로 이루어진 검색 작업 세트입니다. 각 작업은 동일한 언어로 작성된 질문과 지문으로 구성되며, 총 18개 언어를 포함합니다.
-   
-   <br>
-  
-- Pyserini 검색 엔진: 검색 작업은 Pyserini 검색 엔진을 사용하여 수행됩니다. Pyserini는 다양한 검색 모델을 쉽게 구현하고 실험할 수 있도록 도와주는 오픈 소스 도구입니다.
-
-   <br>
-
-- 평가 지표: 검색 성능은 주로 nDCG@10 지표를 사용하여 평가합니다. nDCG@10은 검색 결과의 순위와 관련성을 고려하여 상위 10개 결과의 품질을 측정합니다. 또한, Recall@100 지표도 함께 측정하여 전체 검색 성능을 파악합니다.
-
-### 비교 대상
-
-- BM25: 전통적인 검색 모델로, 단어 빈도 및 역 문서 빈도를 기반으로 문서의 관련성을 계산합니다.
-- mDPR3, mContriever4, mE5large, E5mistral-7b: 사전 학습된 언어 모델을 사용하여 질문과 지문을 벡터 공간에 매핑하고, 벡터 간 유사도를 기반으로 검색하는 Dense Retrieval 모델입니다.
-- OpenAI3: OpenAI에서 최근 공개한 Text-Embedding-3-Large 모델로, 강력한 성능을 보이는 Dense Retrieval 모델입니다.
-
-### 실험 설정
-
-- BM25 토크나이저: BM25 모델은 XLM-Roberta 모델의 토크나이저를 사용합니다. 이는 mDPR3 모델과 동일한 토크나이저를 사용하여 두 모델 간 공정한 비교를 가능하게 하고, 검색 속도를 동일하게 유지하기 위함입니다.
-
-직관적으로, contrastive objective를 최적화하는 것은 부정적 인스턴스를 서로 멀리 밀어내므로 균일성을 개선하거나 이방성 문제를 완화할 수 있습니다.
+일반적인 자연어 이해(NLU) 분야에서 성능 향상을 가져온 고급 사전학습 방법이 밀집 검색 성능 향상에는 반드시 기여하지 않는다는 점이 확인되었습니다. 
 
 <br>
 
-M3-Embedding은 Dense Retrieval 기능만으로도 다른 기준 모델들을 능가하는 우수한 검색 성능을 보여줍니다.
+특히, RoBERTa와 DeBERTa는 BERT를 크게 개선한 모델이지만, 일반적인 NLU 벤치마크에서 보여준 성능 향상만큼 dense retrieval에서는 BERT보다 더 나은 성능을 보이지 못했습니다. 
 
 <br>
 
-평균 성능뿐만 아니라 대부분의 개별 언어에서도 일관된 성능 우위를 유지합니다. 훨씬 더 큰 Mistral-7B 모델을 사용하고 영어 데이터로 특별히 학습된 E5mistral-7b와 비교해도 M3-Embedding은 영어에서는 비슷한 결과를, 다른 언어에서는 더 나은 결과를 보여줍니다.
+이는 검색 지향 사전 학습 모델 개발의 필요성을 뒷받침하는 결과입니다.
+
+2. 오토인코딩 기반 사전학습의 우수성
+
+SEED, Condenser, RetroMAE와 같은 오토인코딩(AE) 기반 사전 학습 방식은 zero-shot 및 지도 학습 평가 모두에서 일반적인 사전 학습 모델과  self-contrastive learning(SCL) 기반 사전 학습 모델보다 훨씬 더 우수한 성능을 보였습니다. 
 
 <br>
 
-M3-Embedding은 Sparse Retrieval 기능도 효과적으로 학습하여 모든 언어에서 일반적인 BM25 방식보다 우수한 성능을 나타냅니다.
+이는 dense retrieval에는 오토인코딩 방식이 더 적합하다는 것을 실증적으로 증명합니다
+
+3. self-contrastive learning 기반 사전학습 모델의 미세 조정 한계
+
+SCL 기반 사전 학습 모델은 미세 조정을 통해 일반적인 사전 학습 모델에 비해 약간의 성능 향상만을 가져올 뿐입니다.
 
 <br>
 
-Multi-Vector Retrieval은 질문과 지문 임베딩 간의 세밀한 상호 작용을 통해 관련성 점수를 계산하여 검색 성능을 추가적으로 향상시킵니다.
+지도 학습 및 zero-shot 평가에서 두 모델의 성능이 비슷하게 나타난다는 점에서 이를 확인할 수 있습니다.
 
 <br>
 
-Dense Retrieval과 Sparse Retrieval 방식을 결합하면 각각의 방식보다 더 나은 성능을 얻을 수 있으며, 세 가지 방식, 즉 Dense Retrieval, Sparse Retrieval, Multi-Vector Retrieval을 모두 통합하면 최상의 성능을 달성할 수 있습니다.
+이러한 결과는 최근 dense retrieval(BERT vs. ICT) 및 이미지 처리(BEiT vs. MoCo/DINO) 연구에서도 보고된 바 있으며, SCL 모델은 미세 조정 잠재력이 상대적으로 제한적이라는 점을 시사합니다.
+
+<div id="Ablation Studies"></div>
+
+## Ablation Studies
+
+<img style="width: 100%;" src="retroMAE/table6.PNG">
+
+### decoding method
+
+enhanced decoding (w.)이 basic decoding (w.o.)보다 성능이 월등히 뛰어난 것을 확인했습니다.
 
 <br>
 
-<img style="width: 100%;" src="bge-m3/table2.PNG">
-
-<div id="Cross-Lingual Retrieval"></div>
-
-## Cross-Lingual Retrieval
-
-25개의 비영어 언어로 작성된 질문을 포함하는 MKQA 벤치마크를 사용하여, 영어 위키피디아 말뭉치에서 정답 지문을 검색하는 작업을 수행합니다.
-
-### 평가 방법
-
-- MKQA 벤치마크: MKQA는 다국어 질문 응답(Multilingual Question Answering) 벤치마크로, 비영어 질문에 대해 영어 위키피디아에서 정답 지문을 찾는 작업을 포함합니다. 이를 통해 다양한 언어에 대한 검색 모델의 성능을 평가할 수 있습니다.
-- BEIR 말뭉치: BEIR(Benchmarking IR Datasets)는 정보 검색(Information Retrieval) 작업을 위한 다양한 데이터 세트를 제공합니다. 본 실험에서는 BEIR에서 제공하는 잘 처리된 영어 위키피디아 말뭉치를 사용하여 검색 작업을 수행합니다.
-- 평가 지표: 주요 평가 지표로 Recall@100을 사용합니다. Recall@100은 검색 결과 상위 100개 중 정답 지문이 포함된 비율을 나타내며, 교차 언어 검색 성능을 측정하는 데 유용한 지표입니다. 또한, 보조 지표로 Recall@20도 함께 보고합니다
-
-다국어 검색 실험과 마찬가지로, M3-Embedding은 교차 언어 검색에서도 Dense Retrieval 기능만으로 다른 기준 모델들을 능가하는 우수한 성능을 보여줍니다.
+basic decoding은 입력 토큰의 50%만 재구성에 사용하며, 모든 토큰이 동일한 컨텍스트를 기반으로 예측됩니다.
 
 <br>
 
-MKQA 벤치마크에서는 MIRACL 벤치마크와 달리, E5mistral-7b와 같은 경쟁력 있는 기준 모델들이 일부 언어에서 M3-Embedding과 비슷하거나 더 나은 결과를 보여주기도 합니다.
+enhanced decoding은 입력 토큰 전체를 재구성에 사용되며, 각 토큰은 <a href="#sic7">해당 수식</a>에 따라 샘플링된 고유한 컨텍스트를 기반으로 재구성됩니다.
+
+### decoder size
+
+디코더의 트랜스포머 레이어 수를 1개에서 3개로 늘려 실험을 진행했습니다. (향상된 디코딩은 단일 레이어 트랜스포머에만 적용 가능하므로 이 실험에서는 비활성화되었습니다.)
 
 <br>
 
-그러나 기준 모델들은 아랍어(ar), 크메르어(km), 히브리어(he)와 같은 저자원 언어를 비롯한 많은 다른 언어에서 성능이 저하되는 경향을 보입니다.
+계산 비용은 증가했지만, 디코더 크기를 키우는 것이 실질적인 성능 향상을 가져오지 않았습니다. 향상된 디코딩을 사용할 수 없다는 점을 고려하면, 1개 레이어 디코더가 최선의 선택임을 알 수 있습니다.
+
+### masking ratios of decoder
+
+디코더 마스킹 비율을 0.15에서 0.9까지 증가시키며, enhanced decoding 사용 여부에 따라 두가지 실험을 진행하였습니다.
 
 <br>
 
-반면, M3-Embedding은 포괄적인 비지도 학습 데이터를 통해 사전 학습되어 모든 언어에서 비교적 안정적인 성능을 유지합니다.
+두 실험 모두 공격적인 마스킹 비율을 적용할수록 검색 품질이 크게 향상되는 것을 확인했습니다.
 
 <br>
 
-M3-Embedding (Sparse)는 여전히 BM25보다 우수하지만, 다른 방법들과 비교했을 때 성능이 좋지 않습니다. 이는 질문과 지문이 서로 다른 언어로 표현되어 교차 언어 검색에 사용할 수 있는 공통 용어가 매우 제한적이기 때문입니다.
-
-<div id="Multilingual Long-Doc Retrieval"></div>
-
-## Multilingual Long-Doc Retrieval
-
-더 긴 시퀀스에 대한 검색 성능을 평가하기 위해 두 가지 벤치마크를 사용합니다.
-
-1. MLDR (Multilingual Long-Doc Retrieval): 위키피디아, Wudao, mC4에서 추출한 다국어 문서로 구성된 벤치마크입니다. 다양한 언어로 작성된 긴 문서 검색 능력을 평가하는 데 사용됩니다.
-2. NarrativeQA: 영어로만 구성된 벤치마크로, 긴 문서에서 질문에 대한 답변을 찾는 능력을 평가하는 데 사용됩니다.
-
-이전 실험에서 사용했던 기준 모델 외에, 긴 문서 검색 능력이 뛰어난 다음 모델들을 추가로 비교합니다.
-
-- JinaEmbeddingv2: 긴 문서 검색에 특화된 임베딩 모델입니다.
-- text-embedding-ada-002, text-embedding-3-large: OpenAI에서 개발한 텍스트 임베딩 모델로, 긴 문서 검색에서 우수한 성능을 보여줍니다.
-
-긴 문서 검색에서 M3 (Sparse) 방식이 Dense Retrieval 방식보다 더 효과적인 것으로 나타났습니다. M3 (Sparse)는 Dense Retrieval 방식보다 약 10 포인트 높은 성능을 보여주었습니다.
+enhanced decoding (w.)을 사용한 경우 최적 성능은 0.5에서, basic decoding (w.o.)는 0.7에서 달성되었습니다.
 
 <br>
 
-Multi-Vector Retrieval 방식 또한 인상적인 성능 향상을 가져왔습니다. M3 (Dense) 방식에 Multi-Vector Retrieval을 적용하면 5.1 포인트 이상의 성능 향상을 얻을 수 있습니다.
+이는 enhanced decoding에서는 모든 입력 토큰을 재구성하지만, basic decoding에서는 마스크된 토큰만 재구성하기 때문에 더 많은 학습 신호를 얻기 위해 더 높은 마스킹 비율을 사용하기 때문으로 추정됩니다.
+
+### encoder’s masking ratio
+
+흥미롭게도, 일반적으로 사용되는 0.15보다 약간 높은 0.3의 마스킹 비율에서도 실험 성능이 향상되었습니다.
 
 <br>
 
-모든 검색 방법(Dense Retrieval, Sparse Retrieval, Multi-Vector Retrieval)을 결합하면 평균 65.0이라는 뛰어난 성능을 달성할 수 있습니다.
+인코더와 디코더 모두 마스킹 비율을 높이면 재구성 난이도가 증가하여 검색 품질이 향상되는 공통적인 이유가 있습니다.
 
 <br>
 
-M3-Embedding이 긴 문서 검색에서 왜 경쟁력을 갖는지 탐구하기 위해, 몇 가지 추가 실험을 진행했습니다.
+하지만 디코더와 달리, 인코더의 마스킹 비율이 너무 높으면 (예: 0.9) 검색 성능이 크게 저하됩니다. 이는 입력 문장의 유용한 정보 대부분이 버려지기 때문에 고품질의 문장 임베딩 생성이 어려워지기 때문입니다.
 
-<br>
+### concluded as follows
 
-미세 조정 단계에서 긴 문서 데이터를 제외한 후 성능을 측정했습니다. 결과적으로, 긴 문서 데이터 없이 미세 조정된 Dense Retrieval 모델 (Dense-w.o.long)도 대부분의 기준 모델보다 우수한 성능을 보였습니다.
-
-<br>
-
-이는 M3-Embedding의 경쟁력이 사전 학습 단계에서 이미 잘 확립되었음을 시사합니다.
-
-<br>
-
-문서 검색을 위한 데이터나 GPU 자원이 부족한 상황을 해결하기 위해 MCLS라는 간단한 전략을 제안했습니다. 실험 결과, MCLS는 긴 문서 학습이 없이도 검색 성능을 크게 향상시킬 수 있음을 확인했습니다 (41.2 → 45.0).
-
-<br>
-
-NarrativeQA 벤치마크에서도 MLDR과 유사한 결과를 얻었습니다. 특히, 시퀀스 길이가 길어질수록 M3-Embedding은 기준 모델 대비 우위를 점차 확대하며 긴 입력 처리 능력을 입증했습니다.
-
-<div id="Ablation study"></div>
-
-## Ablation study
-
-### Self-knowledge distillation
-
-MIRACL 벤치마크 평가 결과에 따르면, 원본 방법(M3 w.skd)이 Dense, Sparse, Multi-vec 모든 설정에서 절제된 방법(M3-w.o.skd)보다 더 나은 성능을 보였습니다. 
-
-<br>
-
-특히 Sparse Retrieval에서 그 영향이 더욱 뚜렷하게 나타났는데, 이는 Dense Retrieval과 Sparse Retrieval 방법 간의 비호환성을 시사합니다.
-
-<img style="width: 100%; margin-top: 20px;" src="bge-m3/table6.PNG">
-
-### Impact of multi-stage training
-
-- Fine-tuning: XLM-Roberta 모델을 직접 미세 조정하여 검색 모델을 학습합니다.
-- RetroMAE + Fine-tuning: RetroMAE로 학습된 모델을 미세 조정하여 검색 모델을 학습합니다.
-- RetroMAE + Unsup + Fine-tuning: RetroMAE로 학습된 후 비지도 학습 데이터로 사전 학습된 모델을 미세 조정하여 검색 모델을 학습합니다.
-
-<img style="width: 60%;" src="bge-m3/table7.PNG">
-
-<br>
-
-RetroMAE를 통해 모델을 학습하면 검색 성능이 크게 향상됩니다. 이는 RetroMAE가 모델의 언어 이해 능력을 향상시키는 데 효과적임을 보여줍니다.
-
-<br>
-
-RetroMAE 학습 후 비지도 학습 데이터로 추가적인 사전 학습을 수행하면 임베딩 모델의 검색 능력이 더욱 향상됩니다. 이는 비지도 학습을 통해 모델이 더 풍부한 의미 표현을 학습할 수 있음을 시사합니다.
+1. RetroMAE의 성능은 enhanced decoding을 통해 크게 향상될 수 있습니다.
+2. 디코더에는 1층 트랜스포머가 가장 적합합니다.
+3. 디코더의 마스킹 비율을 높이고, 인코더의 마스킹 비율을 적절하게 높이면 검색 품질을 향상시킬 수 있습니다.
