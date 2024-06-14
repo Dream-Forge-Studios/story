@@ -115,7 +115,9 @@ seed=42
 5. 연구
 
 - 실험
-  - 포지션 fix, 인코더 fix
+  1. retroMAE
+  2. LM-Cocktail
+  3. Adapter
 
 - 기능
   1. 판례 검색
@@ -136,3 +138,4 @@ seed=42
     2. ance-다른 모델
         - 질문과 질문 유사도 기반 pos 범위 neg 범위
         - 문서와 문서 유사도 기반 pos 범위 neg 범위
+    
